@@ -3,6 +3,7 @@ package lib.web.error.event;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import lib.web.error.BaseErrorCode;
 import lib.web.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import lib.web.error.BusinessException;
 public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e, HttpServletRequest request) {
-        ErrorCode code = e.getErrorCode();
+        BaseErrorCode code = e.getErrorCode();
         String path = request.getMethod() + " " + request.getRequestURI();
         return ResponseEntity.status(code.getStatus()).body(ErrorResponse.builder()
                 .status(code.getStatus().value())
@@ -26,7 +27,7 @@ public class GlobalExceptionHandler {
                 .path(path)
                 .build());
     }
-    // IllegalArgumentException 처리 (MenuService에서 발생)
+    // IllegalArgumentException 처리
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request) {
         String path = request.getMethod() + " " + request.getRequestURI();

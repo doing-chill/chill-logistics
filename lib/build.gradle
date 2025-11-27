@@ -21,9 +21,6 @@ dependencyManagement {
 
 dependencies {
 
-    // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.32'
-    annotationProcessor 'org.projectlombok:lombok:1.18.32'
 
     // 스프링 기본 애노테이션
     compileOnly 'org.springframework.boot:spring-boot-starter'
