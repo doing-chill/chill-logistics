@@ -1,0 +1,64 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: gateway-server
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/v1/user/**,/v1/master/**
+
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/v1/orders/**
+
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/v1/products/**
+
+            - id: firm-service
+              uri: lb://firm-service
+              predicates:
+                - Path=/v1/firms/**
+
+            - id: hub-service
+              uri: lb://hub-service
+              predicates:
+                - Path=/v1/hubs/**,/v1/hub-infos/**,/v1/hub-routes/**
+
+            - id: ai-service
+              uri: lb://ai-service
+              predicates:
+                - Path=/v1/ai/**
+
+            - id: slack-service
+              uri: lb://slack-service
+              predicates:
+                - Path=/v1/slack/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+
+
+custom:
+  jwt:
+    exp-time:
+      access: 300000
+      refresh: 86400000
+
+    secrets:
+      originkey: 019646e0-8680-7986-a00d-6bb6f6b95206
+      appkey: 9B42603E1D6298A98B6F9F0BC58DD841293A387CD23C793FA6ADBC44A32DAF93E6413EBF7096FC7CE679E6E2DD005B675A89F749AF4FD89020D7D97BB517AB4E
