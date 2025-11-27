@@ -1,0 +1,6 @@
+rootProject.name = 'chill-logistics'
+
+include("eureka-server")
+include("gateway-server")
+include("lib")
+
