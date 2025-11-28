@@ -1,0 +1,47 @@
+services:
+  mysql1:
+    image: mysql:8.0
+    container_name: chill-mysql1
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL1_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL1_DATABASE}
+      MYSQL_USER: ${MYSQL1_USER}
+      MYSQL_PASSWORD: ${MYSQL1_PASSWORD}
+    ports:
+      - ${MYSQL1_PORT}:3306
+    volumes:
+      - mysql1_data:/var/lib/mysql
+
+  mysql2:
+    image: mysql:8.0
+    container_name: chill-mysql2
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL2_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL2_DATABASE}
+      MYSQL_USER: ${MYSQL2_USER}
+      MYSQL_PASSWORD: ${MYSQL2_PASSWORD}
+    ports:
+      - ${MYSQL2_PORT}:3306
+    volumes:
+      - mysql2_data:/var/lib/mysql
+
+  mysql3:
+    image: mysql:8.0
+    container_name: chill-mysql3
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL3_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL3_DATABASE}
+      MYSQL_USER: ${MYSQL3_USER}
+      MYSQL_PASSWORD: ${MYSQL3_PASSWORD}
+    ports:
+      - ${MYSQL3_PORT}:3306
+    volumes:
+      - mysql3_data:/var/lib/mysql
+
+volumes:
+  mysql1_data:
+  mysql2_data:
+  mysql3_data:
