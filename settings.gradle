@@ -3,4 +3,11 @@ rootProject.name = 'chill-logistics'
 include("eureka-server")
 include("gateway-server")
 include("lib")
+include("user-server")
+include("firm-server")
+include("hub-server")
+include("product-server")
+include("order-server")
+include("delivery-server")
+include("external-server")
 
