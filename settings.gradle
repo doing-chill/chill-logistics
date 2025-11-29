@@ -10,4 +10,5 @@ include("product-server")
 include("order-server")
 include("delivery-server")
 include("external-server")
+include("schema-server")
 
