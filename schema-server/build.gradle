@@ -1,0 +1,14 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+    // Flyway + MySQL
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+    
+    implementation 'com.mysql:mysql-connector-j:8.3.0'
+}
+
+tasks.named('bootJar') {
+    archiveFileName = 'schema-service.jar'
+}
