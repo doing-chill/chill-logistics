@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS p_user (
     nickname        VARCHAR(20) NOT NULL,
     password        VARCHAR(255) NOT NULL,
 
-    role            VARCHAR(20) NOT NULL
-    CHECK (role IN ('MASTER', 'HUB', 'DELIVERY', 'FIRM')),
+    role            VARCHAR(30) NOT NULL
+    CHECK (role IN ('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')),
 
     signup_status   VARCHAR(20) NOT NULL
     CHECK (signup_status IN ('PENDING', 'APPROVED', 'REJECTED')),
