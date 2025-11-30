@@ -58,7 +58,8 @@ configure([
 		project(":product-server"),
 		project(":order-server"),
 		project(":delivery-server"),
-		project(":external-server")
+		project(":external-server"),
+		project(":schema-server")
 ]) {
 	apply plugin: 'org.springframework.boot'
 }
