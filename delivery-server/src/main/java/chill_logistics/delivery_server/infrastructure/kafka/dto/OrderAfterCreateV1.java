@@ -17,17 +17,11 @@ public class OrderAfterCreateV1 {
     @NotNull
     private UUID startHubId;
 
-//    @NotBlank
-//    private String startHubName;
-
     @NotBlank
     private String startHubFullAddress;
 
     @NotNull
     private UUID endHubId;
-
-//    @NotBlank
-//    private String endHubName;
 
     @NotBlank
     private String endHubFullAddress;
@@ -37,7 +31,7 @@ public class OrderAfterCreateV1 {
     private Integer deliverySequenceNum;
 
     @NotBlank
-    private String deliveryStatus;  // ENUM String 값 (예: WAITING, IN_PROGRESS, ...)
+    private String deliveryStatus;
 
     @NotNull
     @Positive
@@ -49,10 +43,8 @@ public class OrderAfterCreateV1 {
     @Builder
     private OrderAfterCreateV1(
         UUID startHubId,
-        String startHubName,
         String startHubFullAddress,
         UUID endHubId,
-        String endHubName,
         String endHubFullAddress,
         Integer deliverySequenceNum,
         String deliveryStatus,
@@ -60,10 +52,8 @@ public class OrderAfterCreateV1 {
         LocalDateTime expectedDeliveryDuration
     ) {
         this.startHubId = startHubId;
-//        this.startHubName = startHubName;
         this.startHubFullAddress = startHubFullAddress;
         this.endHubId = endHubId;
-//        this.endHubName = endHubName;
         this.endHubFullAddress = endHubFullAddress;
         this.deliverySequenceNum = deliverySequenceNum;
         this.deliveryStatus = deliveryStatus;
@@ -71,11 +61,3 @@ public class OrderAfterCreateV1 {
         this.expectedDeliveryDuration = expectedDeliveryDuration;
     }
 }
-
-/* TODO
- * Feign으로 Hub에서 받아올 것:
-   * @NotBlank
-     private String startHubName;
-   * @NotBlank
-     private String endHubName;
- */
