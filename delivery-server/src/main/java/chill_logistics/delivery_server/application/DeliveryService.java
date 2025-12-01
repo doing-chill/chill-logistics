@@ -82,10 +82,25 @@ public class DeliveryService {
         log.info("[업체 배송 생성 완료] - firmDeliveryId={}, orderId={}",
             savedFirmDelivery.getId(), savedFirmDelivery.getOrderId());
     }
+
+    /* [전체 배송 생성]
+     * 허브 배송 + 업체 배송 = 전체 배송 생성
+     */
+    @Transactional
+    public void createDelivery(OrderAfterCreateV1 message) {
+
+        log.info("[배송 생성 시작] - orderId={}", message.orderId());
+
+        createHubDelivery(message);
+        createFirmDelivery(message);
+
+        log.info("[배송 생성 완료] - orderId={}", message.orderId());
+    }
 }
 
 /* TODO
- * 업체 배송 생성 로직 필요
+ * deliveryPersonId 매핑 필요
  * 배송 상태에 따라 deliveryStatus 변경 로직 필요
+ * deliverySequenceNum 알고리즘에 따라 수정 필요
  * 허브 배송 + 업체 배송 = 배송 생성 (이 때, 나머지 데이터 필요: requestNote, productName, productQuantity, orderCreatedAt)
  */
