@@ -5,6 +5,7 @@ import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -65,8 +66,8 @@ public class Firm extends BaseEntity {
     private String fullAddress;
 
     @Column(name = "latitude", nullable = false, precision = 10, scale = 7)
-    private double latitude;
+    private BigDecimal latitude;
 
     @Column(name = "longitude", nullable = false, precision = 10, scale = 7)
-    private double longitude;
+    private BigDecimal longitude;
 }
