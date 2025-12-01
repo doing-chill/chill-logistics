@@ -1,6 +1,7 @@
 package chill_logistics.hub_server.domain.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
