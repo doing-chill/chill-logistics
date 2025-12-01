@@ -1,11 +1,11 @@
 package chill_logistics.hub_server.application;
 
 import chill_logistics.hub_server.application.dto.command.CreateHubCommandV1;
+import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
+import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.repository.HubRepository;
 import chill_logistics.hub_server.lib.error.ErrorCode;
-import chill_logistics.hub_server.presentation.dto.response.HubInfoResponseV1;
-import chill_logistics.hub_server.presentation.dto.response.HubListResponseV1;
 import java.util.List;
 import java.util.UUID;
 import lib.web.error.BusinessException;
@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +37,7 @@ public class HubService {
 //        }
 
         // 이미 존재하는 허브 이름인 경우 에러
-        if (hubRepository.findByName(createHubCommand.name())){
+        if (hubRepository.existsByName(createHubCommand.name())){
             throw new BusinessException(ErrorCode.HUB_NOT_FOUND);
         }
 
@@ -57,29 +55,54 @@ public class HubService {
         hubRepository.save(hub);
     }
 
+
+
     // 허브 리스트 조회
-    public List<HubListResponseV1> readAllHub(UUID uuid, String hubName, int page, int size) {
+    @Transactional(readOnly = true)
+    public List<HubListQueryV1> readAllHub(UUID uuid, String hubName, int page, int size) {
 
         // user 검증 부분
 
+
+        // 조회한 유저의 권한 검증
+
+
+        // 허브에 이름이나 주소로 검색
+        List<Hub> hubList;
         if (hubName == null || hubName.isEmpty()){
-            hubRepository.
+            hubList = hubRepository.findAll(page, size);
+        }else {
+            hubList =  hubRepository.findByNameOrFullAddressContaining(hubName, page, size);
         }
-
-
-
+        return HubListQueryV1.fromHubs(hubList);
 
     }
 
 
     // 허브 단건 조회
-    @GetMapping("/{hubId}")
-    public boolean validateHub(@PathVariable UUID hubId) {
+    @Transactional(readOnly = true)
+    public HubInfoQueryV1 readOneHub(UUID uuid, UUID hubId) {
 
-        return hubService.validateHub(hubId);
+        // user 검증 부분
+
+
+        // 조회한 유저의 권한 검증
+
+        Hub hub = hubRepository.findById(hubId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
+
+        // 허브 담당자의 정보를 가져와서 userName 추출 필요
+        String hubManagerName = "허브 매니저 이름";
+
+        // 허브 담당자의 이름이 필요할 거 같은데
+        return HubInfoQueryV1.fromHub(hub, hubManagerName);
     }
 
 
-    public HubInfoResponseV1 readOneHub(UUID uuid, UUID hubId) {
+
+    // 허브가 존재하는지 검증 로직
+    @Transactional(readOnly = true)
+    public boolean validateHub(UUID hubId) {
+        return hubRepository.existsById(hubId);
     }
 }

@@ -1,6 +1,8 @@
 package chill_logistics.hub_server.presentation.controller;
 
 import chill_logistics.hub_server.application.HubService;
+import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
+import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.response.HubInfoResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.HubListResponseV1;
@@ -38,6 +40,7 @@ public class HubControllerV1 {
         return BaseResponse.ok(BaseStatus.CREATED);
     }
 
+    // 허브 검색
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<List<HubListResponseV1>> readAllHub(
@@ -45,21 +48,27 @@ public class HubControllerV1 {
         @RequestParam(required = false) String hubName,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
-        List<HubListResponseV1> hubListResponse = hubService.readAllHub(UUID.fromString(userId), hubName, page, size);
-        return BaseResponse.ok(hubListResponse, BaseStatus.OK);
+        List<HubListQueryV1> hubListQueries = hubService.readAllHub(UUID.fromString(userId), hubName, page, size);
+        return BaseResponse.ok(HubListResponseV1.fromHubListQuery(hubListQueries), BaseStatus.OK);
     }
 
 
 
-
+    // 단건 조회
     @GetMapping("/{hubId}")
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<HubInfoResponseV1> readOneHub(
         @RequestHeader("User-Id") String userId, @PathVariable UUID hubId) {
-        HubInfoResponseV1 hubInfoResponse = hubService.readOneHub(UUID.fromString(userId), hubId);
+        HubInfoQueryV1 hubInfoQuery = hubService.readOneHub(UUID.fromString(userId), hubId);
         return BaseResponse.ok(hubInfoResponse, BaseStatus.OK );
     }
 
+
+    // 존재하는 허브인지 확인
+    @GetMapping("/{hubId}")
+    public boolean validateHub(@PathVariable UUID hubId) {
+        return hubService.validateHub(hubId);
+    }
 
 
 }
