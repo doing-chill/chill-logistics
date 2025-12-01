@@ -1,4 +1,4 @@
-package chill_logistics.delivery_server.infrastructure.repository.config;
+package chill_logistics.delivery_server.infrastructure.config;
 
 import chill_logistics.delivery_server.domain.repository.FirmDeliveryRepository;
 import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;

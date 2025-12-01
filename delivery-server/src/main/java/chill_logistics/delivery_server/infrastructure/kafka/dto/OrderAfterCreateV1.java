@@ -14,30 +14,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderAfterCreateV1 {
 
-    @NotNull
     private UUID startHubId;
 
-    @NotBlank
     private String startHubFullAddress;
 
-    @NotNull
     private UUID endHubId;
 
-    @NotBlank
     private String endHubFullAddress;
 
-    @NotNull
     @Positive
     private Integer deliverySequenceNum;
 
-    @NotBlank
     private String deliveryStatus;
 
-    @NotNull
     @Positive
     private Double expectedDistance;
 
-    @NotNull
     private LocalDateTime expectedDeliveryDuration;
 
     @Builder
