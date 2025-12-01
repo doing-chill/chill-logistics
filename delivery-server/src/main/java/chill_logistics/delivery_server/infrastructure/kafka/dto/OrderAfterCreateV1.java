@@ -1,7 +1,5 @@
 package chill_logistics.delivery_server.infrastructure.kafka.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 import java.util.UUID;
