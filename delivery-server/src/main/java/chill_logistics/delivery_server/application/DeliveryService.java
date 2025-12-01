@@ -23,28 +23,34 @@ public class DeliveryService {
 
     /* [허브 배송 생성]
      *
-     * Kafka 메시지로 order 정보 + FeignClient로 hub 정보 받아와서 배송 생성
+     * Kafka 메시지로 order 정보 + FeignClient로 hub 정보 받아와서 허브 배송 생성
      */
     @Transactional
     public void createHubDelivery(OrderAfterCreateV1 message) {
 
         log.info("배송 생성 시작 - Kafka 메시지: {}", message);
 
-        // Kafka 메시지의 String 상태값 → DeliveryStatus ENUM 변환
-        DeliveryStatus deliveryStatus = DeliveryStatus.from(message.deliveryStatus());
-
-        // Hub 서비스에서 허브 이름 조회 (Feign)
+        // 1. Hub 서비스에서 허브 정보 조회 (Feign)
         HubForDeliveryResponseV1 startHub = hubClient.getHub(message.startHubId());
         HubForDeliveryResponseV1 endHub = hubClient.getHub(message.endHubId());
 
-        // HubDelivery 엔티티 생성
+        // 2. 초기 배송 상태 & 배송 순서 셋팅
+        DeliveryStatus deliveryStatus = DeliveryStatus.WAITING_FOR_HUB;
+        // TODO: 배송순서 로직 수정 필요
+        int deliverySequenceNum = 1;
+
+        // 3. HubDelivery 엔티티 생성
         HubDelivery hubDelivery = HubDelivery.createFrom(
             message,
             startHub.hubName(),
+            startHub.hubFullAddress(),
             endHub.hubName(),
-            deliveryStatus
+            endHub.hubFullAddress(),
+            deliveryStatus,
+            deliverySequenceNum
         );
 
+        // 4. 허브 배송 저장
         HubDelivery savedHubDelivery = hubDeliveryRepository.save(hubDelivery);
 
         log.info("허브 배송 생성 완료 - hubDeliveryId={}, orderId={}",

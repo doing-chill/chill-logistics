@@ -1,5 +1,6 @@
 package chill_logistics.delivery_server.infrastructure.client;
 
+import chill_logistics.delivery_server.infrastructure.client.dto.HubForDeliveryResponseV1;
 import java.util.UUID;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface HubClient {
 
     @GetMapping("/v1/internal/hubs/{hubId}")
-    chill_logistics.delivery_server.infrastructure.client.dto.HubForDeliveryResponseV1 getHub(@PathVariable("hubId") UUID hubId);
-
-    record HubForDeliveryResponseV1(UUID hubId, String name) {}
+    HubForDeliveryResponseV1 getHub(@PathVariable("hubId") UUID hubId);
 }
 
 // TODO: 수정 필요

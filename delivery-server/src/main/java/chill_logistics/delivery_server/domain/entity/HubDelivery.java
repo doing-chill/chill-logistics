@@ -94,26 +94,27 @@ public class HubDelivery extends BaseEntity {
         // TODO: expectedDeliveryDuration, distance, deliveryDuration 은 아직 null 유지 (추후 계산/갱신)
     }
 
-    // Kafka OrderAfterCreateV1 메시지를 기반으로 HubDelivery 생성
+    // Kafka 메시지 + Hub 정보(이름/주소)를 기반으로 허브 배송 엔티티 생성
     public static HubDelivery createFrom(
         OrderAfterCreateV1 message,
         String startHubName,
+        String startHubFullAddress,
         String endHubName,
-        DeliveryStatus deliveryStatus
+        String endHubFullAddress,
+        DeliveryStatus deliveryStatus,
+        Integer deliverySequenceNum
     ) {
         return new HubDelivery(
             message.orderId(),
             message.startHubId(),
             startHubName,
-            message.startHubFullAddress(),
+            startHubFullAddress,
             message.endHubId(),
             endHubName,
-            message.endHubFullAddress(),
-            message.deliverySequenceNum(),
+            endHubFullAddress,
+            deliverySequenceNum,
             deliveryStatus,
-            message.expectedDistance() != null
-                ? BigDecimal.valueOf(message.expectedDistance())
-                : null
+            null // expectedDistance: 나중에 계산해서 세팅
         );
     }
 }

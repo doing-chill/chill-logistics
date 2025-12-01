@@ -4,5 +4,6 @@ import java.util.UUID;
 
 public record HubForDeliveryResponseV1(
     UUID hubId,
-    String hubName
+    String hubName,
+    String hubFullAddress
 ) {}
