@@ -1,6 +1,7 @@
 package chill_logistics.delivery_server.application;
 
 import chill_logistics.delivery_server.domain.entity.DeliveryStatus;
+import chill_logistics.delivery_server.domain.entity.FirmDelivery;
 import chill_logistics.delivery_server.domain.entity.HubDelivery;
 import chill_logistics.delivery_server.domain.repository.FirmDeliveryRepository;
 import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;
@@ -21,14 +22,13 @@ public class DeliveryService {
     private final FirmDeliveryRepository firmDeliveryRepository;
     private final HubClient hubClient;
 
-    /* [허브 배송 생성]
-     *
+    /* [허브 배송 생성 메서드]
      * Kafka 메시지로 order 정보 + FeignClient로 hub 정보 받아와서 허브 배송 생성
      */
     @Transactional
     public void createHubDelivery(OrderAfterCreateV1 message) {
 
-        log.info("배송 생성 시작 - Kafka 메시지: {}", message);
+        log.info("[허브 배송 생성 시작] - orderId={}", message.orderId());
 
         // 1. Hub 서비스에서 허브 정보 조회 (Feign)
         HubForDeliveryResponseV1 startHub = hubClient.getHub(message.startHubId());
@@ -53,12 +53,39 @@ public class DeliveryService {
         // 4. 허브 배송 저장
         HubDelivery savedHubDelivery = hubDeliveryRepository.save(hubDelivery);
 
-        log.info("허브 배송 생성 완료 - hubDeliveryId={}, orderId={}",
+        log.info("[허브 배송 생성 완료] - hubDeliveryId={}, orderId={}",
             savedHubDelivery.getId(), savedHubDelivery.getOrderId());
+    }
+
+    /* [업체 배송 생성 메서드]
+     * Kafka 메시지로 order 정보 받아와서 업체 배송 생성
+     */
+    @Transactional
+    public void createFirmDelivery(OrderAfterCreateV1 message) {
+
+        log.info("[업체 배송 생성 시작] - orderId={}", message.orderId());
+
+        // 1. 초기 배송 상태 & 배송 순서 셋팅
+        DeliveryStatus deliveryStatus = DeliveryStatus.MOVING_TO_FIRM;
+        int deliverySequenceNum = 2;
+
+        // 2. FirmDelivery 엔티티 생성
+        FirmDelivery firmDelivery = FirmDelivery.createFrom(
+            message,
+            deliveryStatus,
+            deliverySequenceNum
+        );
+
+        // 3. 업체 배송 저장
+        FirmDelivery savedFirmDelivery = firmDeliveryRepository.save(firmDelivery);
+
+        log.info("[업체 배송 생성 완료] - firmDeliveryId={}, orderId={}",
+            savedFirmDelivery.getId(), savedFirmDelivery.getOrderId());
     }
 }
 
 /* TODO
  * 업체 배송 생성 로직 필요
  * 배송 상태에 따라 deliveryStatus 변경 로직 필요
+ * 허브 배송 + 업체 배송 = 배송 생성 (이 때, 나머지 데이터 필요: requestNote, productName, productQuantity, orderCreatedAt)
  */
