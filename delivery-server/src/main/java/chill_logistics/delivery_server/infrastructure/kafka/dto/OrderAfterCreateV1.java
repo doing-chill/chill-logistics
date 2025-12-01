@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record OrderAfterCreateV1(
+    UUID orderId,
     UUID startHubId,
     String startHubFullAddress,
     UUID endHubId,

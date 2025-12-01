@@ -20,8 +20,8 @@ public class OrderAfterCreateListener {
     )
     public void listen(OrderAfterCreateV1 message) {
 
-        log.info("메시지 수신 OrderAfterCreateV1: {}", message);
+        log.info("Kafka 메시지 수신: {}", message);
 
-        deliveryService.createDelivery(message);
+        deliveryService.createHubDelivery(message);
     }
 }
