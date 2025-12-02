@@ -77,6 +77,7 @@ public class HubDelivery extends BaseEntity {
         UUID endHubId,
         String endHubName,
         String endHubFullAddress,
+        UUID deliveryPersonId,
         Integer deliverySequenceNum,
         DeliveryStatus deliveryStatus,
         BigDecimal expectedDistance
@@ -88,6 +89,7 @@ public class HubDelivery extends BaseEntity {
         this.endHubId = endHubId;
         this.endHubName = endHubName;
         this.endHubFullAddress = endHubFullAddress;
+        this.deliveryPersonId = deliveryPersonId;
         this.deliverySequenceNum = deliverySequenceNum;
         this.deliveryStatus = deliveryStatus;
         this.expectedDistance = expectedDistance;
@@ -101,8 +103,9 @@ public class HubDelivery extends BaseEntity {
         String startHubFullAddress,
         String endHubName,
         String endHubFullAddress,
-        DeliveryStatus deliveryStatus,
-        Integer deliverySequenceNum
+        UUID deliveryPersonId,
+        Integer deliverySequenceNum,
+        DeliveryStatus deliveryStatus
     ) {
         return new HubDelivery(
             message.orderId(),
@@ -112,6 +115,7 @@ public class HubDelivery extends BaseEntity {
             message.endHubId(),
             endHubName,
             endHubFullAddress,
+            deliveryPersonId,
             deliverySequenceNum,
             deliveryStatus,
             null // expectedDistance: 나중에 계산해서 세팅

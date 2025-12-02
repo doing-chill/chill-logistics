@@ -8,6 +8,7 @@ import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;
 import chill_logistics.delivery_server.infrastructure.client.HubClient;
 import chill_logistics.delivery_server.infrastructure.client.dto.HubForDeliveryResponseV1;
 import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderAfterCreateV1;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class DeliveryService {
      * Kafka 메시지로 order 정보 + FeignClient로 hub 정보 받아와서 허브 배송 생성
      */
     @Transactional
-    public void createHubDelivery(OrderAfterCreateV1 message) {
+    public void createHubDelivery(OrderAfterCreateV1 message, UUID hubDeliveryPersonId) {
 
         log.info("[허브 배송 생성 시작] - orderId={}", message.orderId());
 
@@ -46,8 +47,9 @@ public class DeliveryService {
             startHub.hubFullAddress(),
             endHub.hubName(),
             endHub.hubFullAddress(),
-            deliveryStatus,
-            deliverySequenceNum
+            hubDeliveryPersonId,
+            deliverySequenceNum,
+            deliveryStatus
         );
 
         // 4. 허브 배송 저장
@@ -61,7 +63,7 @@ public class DeliveryService {
      * Kafka 메시지로 order 정보 받아와서 업체 배송 생성
      */
     @Transactional
-    public void createFirmDelivery(OrderAfterCreateV1 message) {
+    public void createFirmDelivery(OrderAfterCreateV1 message, UUID firmDeliveryPersonId) {
 
         log.info("[업체 배송 생성 시작] - orderId={}", message.orderId());
 
@@ -72,8 +74,9 @@ public class DeliveryService {
         // 2. FirmDelivery 엔티티 생성
         FirmDelivery firmDelivery = FirmDelivery.createFrom(
             message,
-            deliveryStatus,
-            deliverySequenceNum
+            firmDeliveryPersonId,
+            deliverySequenceNum,
+            deliveryStatus
         );
 
         // 3. 업체 배송 저장
@@ -87,20 +90,21 @@ public class DeliveryService {
      * 허브 배송 + 업체 배송 = 전체 배송 생성
      */
     @Transactional
-    public void createDelivery(OrderAfterCreateV1 message) {
+    public void createDelivery(OrderAfterCreateV1 message, UUID hubDeliveryPersonId, UUID firmDeliveryPersonId) {
 
         log.info("[배송 생성 시작] - orderId={}", message.orderId());
 
-        createHubDelivery(message);
-        createFirmDelivery(message);
+        createHubDelivery(message, hubDeliveryPersonId);
+        createFirmDelivery(message, firmDeliveryPersonId);
 
         log.info("[배송 생성 완료] - orderId={}", message.orderId());
     }
 }
 
 /* TODO
- * deliveryPersonId 매핑 필요
+ * deliveryPersonId 배정 로직 필요
  * 배송 상태에 따라 deliveryStatus 변경 로직 필요
  * deliverySequenceNum 알고리즘에 따라 수정 필요
- * 허브 배송 + 업체 배송 = 배송 생성 (이 때, 나머지 데이터 필요: requestNote, productName, productQuantity, orderCreatedAt)
+ * 허브 배송 + 업체 배송 = 전체 배송 생성 (이 때, 나머지 데이터 필요: requestNote, productName, productQuantity, orderCreatedAt)
+   → @Async로 AsyncAiService 호출해서 데이터 전달
  */

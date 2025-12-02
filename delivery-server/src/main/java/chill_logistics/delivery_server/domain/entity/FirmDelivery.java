@@ -61,6 +61,7 @@ public class FirmDelivery extends BaseEntity {
         UUID receiverFirmId,
         String receiverFirmFullAddress,
         String receiverFirmOwnerName,
+        UUID deliveryPersonId,
         Integer deliverySequenceNum,
         DeliveryStatus deliveryStatus
     ) {
@@ -69,6 +70,7 @@ public class FirmDelivery extends BaseEntity {
         this.receiverFirmId = receiverFirmId;
         this.receiverFirmFullAddress = receiverFirmFullAddress;
         this.receiverFirmOwnerName = receiverFirmOwnerName;
+        this.deliveryPersonId = deliveryPersonId;
         this.deliverySequenceNum = deliverySequenceNum;
         this.deliveryStatus = deliveryStatus;
     }
@@ -76,8 +78,9 @@ public class FirmDelivery extends BaseEntity {
     // Kafka 메시지를 기반으로 업체 배송 엔티티 생성
     public static FirmDelivery createFrom(
         OrderAfterCreateV1 message,
-        DeliveryStatus deliveryStatus,
-        Integer deliverySequenceNum
+        UUID deliveryPersonId,
+        Integer deliverySequenceNum,
+        DeliveryStatus deliveryStatus
     ) {
         return new FirmDelivery(
             message.orderId(),
@@ -85,6 +88,7 @@ public class FirmDelivery extends BaseEntity {
             message.receiverFirmId(),
             message.receiverFirmFullAddress(),
             message.receiverFirmOwnerName(),
+            deliveryPersonId,
             deliverySequenceNum,
             deliveryStatus
         );
