@@ -1,7 +1,7 @@
 package chill_logistics.delivery_server.infrastructure.kafka;
 
 import chill_logistics.delivery_server.application.DeliveryService;
-import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderAfterCreateV1;
+import chill_logistics.delivery_server.infrastructure.kafka.dto.HubRouteAfterCreateV1;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class OrderAfterCreateListener {
         topics = "order-after-create",
         containerFactory = "orderKafkaListenerContainerFactory"
     )
-    public void listen(OrderAfterCreateV1 message) {
+    public void listen(HubRouteAfterCreateV1 message) {
 
         log.info("Kafka 메시지 수신: {}", message);
 
@@ -31,13 +31,13 @@ public class OrderAfterCreateListener {
     }
 
     // 허브 배송 담당자 배정 (임시 버전 - 이후 배정 로직으로 교체)
-    private UUID assignHubDeliveryPerson(OrderAfterCreateV1 message) {
+    private UUID assignHubDeliveryPerson(HubRouteAfterCreateV1 message) {
 
         return UUID.fromString("00000000-0000-0000-0000-000000000001");
     }
 
     // 업체 배송 담당자 배정 (임시 버전 - 이후 배정 로직으로 교체)
-    private UUID assignFirmDeliveryPerson(OrderAfterCreateV1 message) {
+    private UUID assignFirmDeliveryPerson(HubRouteAfterCreateV1 message) {
 
         return UUID.fromString("00000000-0000-0000-0000-000000000002"); // 임시값
     }

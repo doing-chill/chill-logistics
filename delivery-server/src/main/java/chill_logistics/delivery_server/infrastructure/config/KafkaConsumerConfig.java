@@ -1,6 +1,6 @@
 package chill_logistics.delivery_server.infrastructure.config;
 
-import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderAfterCreateV1;
+import chill_logistics.delivery_server.infrastructure.kafka.dto.HubRouteAfterCreateV1;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -16,11 +16,11 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, OrderAfterCreateV1> orderConsumerFactory() {
+    public ConsumerFactory<String, HubRouteAfterCreateV1> orderConsumerFactory() {
 
-        // JSON → OrderAfterCreateV1 역직렬화를 위한 Deserializer
-        JsonDeserializer<OrderAfterCreateV1> deserializer =
-            new JsonDeserializer<>(OrderAfterCreateV1.class, false);
+        // JSON → HubRouteAfterCreateV1 역직렬화를 위한 Deserializer
+        JsonDeserializer<HubRouteAfterCreateV1> deserializer =
+            new JsonDeserializer<>(HubRouteAfterCreateV1.class, false);
 
         // Kafka 메시지 역직렬화 시 허용할 패키지를 명시적으로 지정
         deserializer.addTrustedPackages(
@@ -46,16 +46,16 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(
             properties,
             new StringDeserializer(),   // Key Deserializer (String)
-            deserializer                // Value Deserializer (OrderAfterCreateV1)
+            deserializer                // Value Deserializer (HubRouteAfterCreateV1)
         );
     }
 
     // @KafkaListener가 사용할 Listener 컨테이너 생성 (ConsumerFactory를 주입하여 실제 Kafka Consumer 동작을 구성)
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, OrderAfterCreateV1>
+    public ConcurrentKafkaListenerContainerFactory<String, HubRouteAfterCreateV1>
     orderKafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, OrderAfterCreateV1> factory =
+        ConcurrentKafkaListenerContainerFactory<String, HubRouteAfterCreateV1> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
 
         // ConsumerFactory 설정

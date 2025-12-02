@@ -7,7 +7,7 @@ import chill_logistics.delivery_server.domain.repository.FirmDeliveryRepository;
 import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;
 import chill_logistics.delivery_server.infrastructure.client.HubClient;
 import chill_logistics.delivery_server.infrastructure.client.dto.HubForDeliveryResponseV1;
-import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderAfterCreateV1;
+import chill_logistics.delivery_server.infrastructure.kafka.dto.HubRouteAfterCreateV1;
 import chill_logistics.delivery_server.presentation.ErrorCode;
 import chill_logistics.delivery_server.presentation.dto.DeliveryCancelRequestV1;
 import chill_logistics.delivery_server.presentation.dto.DeliveryStatusChangeRequestV1;
@@ -31,7 +31,7 @@ public class DeliveryService {
      * Kafka 메시지로 order 정보 + FeignClient로 hub 정보 받아와서 허브 배송 생성
      */
     @Transactional
-    public void createHubDelivery(OrderAfterCreateV1 message, UUID hubDeliveryPersonId) {
+    public void createHubDelivery(HubRouteAfterCreateV1 message, UUID hubDeliveryPersonId) {
 
         log.info("[허브 배송 생성 시작] orderId={}", message.orderId());
 
@@ -67,7 +67,7 @@ public class DeliveryService {
      * Kafka 메시지로 order 정보 받아와서 업체 배송 생성
      */
     @Transactional
-    public void createFirmDelivery(OrderAfterCreateV1 message, UUID firmDeliveryPersonId) {
+    public void createFirmDelivery(HubRouteAfterCreateV1 message, UUID firmDeliveryPersonId) {
 
         log.info("[업체 배송 생성 시작] orderId={}", message.orderId());
 
@@ -95,7 +95,7 @@ public class DeliveryService {
      */
     @Transactional
     public void createDelivery(
-        OrderAfterCreateV1 message,
+        HubRouteAfterCreateV1 message,
         UUID hubDeliveryPersonId,
         UUID firmDeliveryPersonId) {
 

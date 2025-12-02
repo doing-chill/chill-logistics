@@ -1,6 +1,6 @@
 package chill_logistics.delivery_server.domain.entity;
 
-import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderAfterCreateV1;
+import chill_logistics.delivery_server.infrastructure.kafka.dto.HubRouteAfterCreateV1;
 import chill_logistics.delivery_server.presentation.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -105,7 +105,7 @@ public class HubDelivery extends BaseEntity {
 
     // Kafka 메시지 + Hub 정보(이름/주소)를 기반으로 허브 배송 엔티티 생성
     public static HubDelivery createFrom(
-        OrderAfterCreateV1 message,
+        HubRouteAfterCreateV1 message,
         String startHubName,
         String startHubFullAddress,
         String endHubName,
