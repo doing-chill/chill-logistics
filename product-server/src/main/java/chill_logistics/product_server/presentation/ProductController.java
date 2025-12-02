@@ -26,7 +26,7 @@ public class ProductController {
     /* 상품 추가 */
     @PostMapping()
     public BaseResponse<CreateProductResponseV1> createProduct(
-            @RequestBody CreateProductRequestV1 request
+            @RequestBody @Valid CreateProductRequestV1 request
     ) {
 
         CreateProductCommandV1 command = new CreateProductCommandV1(
@@ -35,7 +35,7 @@ public class ProductController {
                 request.hubId(),
                 request.stockQuantity(),
                 request.price(),
-                request.sellable()
+                request.sellable() != null ? request.sellable() : true
         );
 
         CreateProductResponseV1 response = CreateProductResponseV1.from(productFacade.createProduct(command));
