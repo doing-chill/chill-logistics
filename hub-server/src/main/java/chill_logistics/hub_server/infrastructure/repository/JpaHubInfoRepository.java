@@ -6,4 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface JpaHubInfoRepository extends JpaRepository<HubInfo, UUID> {
+
+    boolean existsByStartHubIdAndEndHubId(UUID startHubId, UUID endHubId);
+
 }

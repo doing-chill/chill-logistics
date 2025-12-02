@@ -7,6 +7,7 @@ import chill_logistics.hub_server.presentation.dto.request.CreateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.request.UpdateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.response.HubInfoResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.HubListResponseV1;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lib.entity.BaseStatus;
@@ -40,7 +41,7 @@ public class HubControllerV1 {
     @ResponseStatus(HttpStatus.CREATED)
     public BaseResponse<Void> createHub(
         //@RequestHeader("User-Id") String userId,
-        @RequestBody CreateHubRequestV1 createHubRequest) {
+        @RequestBody @Valid CreateHubRequestV1 createHubRequest) {
 
         String userId = String.valueOf(UUID.randomUUID());
 
@@ -85,7 +86,7 @@ public class HubControllerV1 {
     public BaseResponse<Void> updateHub(
         //@RequestHeader("User-Id") String userId,
         @PathVariable UUID hubId,
-    @RequestBody UpdateHubRequestV1 updateHubRequest){
+    @RequestBody @Valid UpdateHubRequestV1 updateHubRequest){
 
         String userId = String.valueOf(UUID.randomUUID());
 
