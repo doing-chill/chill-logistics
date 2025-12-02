@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RepositoryConfig {
+public class  RepositoryConfig {
 
     @Bean
     public HubRepository hubRepository(JpaHubRepository jpaHubRepository) {
