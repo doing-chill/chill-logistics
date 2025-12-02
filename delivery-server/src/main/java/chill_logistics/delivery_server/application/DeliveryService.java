@@ -9,6 +9,7 @@ import chill_logistics.delivery_server.infrastructure.client.HubClient;
 import chill_logistics.delivery_server.infrastructure.client.dto.HubForDeliveryResponseV1;
 import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderAfterCreateV1;
 import chill_logistics.delivery_server.presentation.ErrorCode;
+import chill_logistics.delivery_server.presentation.dto.DeliveryCancelRequestV1;
 import chill_logistics.delivery_server.presentation.dto.DeliveryStatusChangeRequestV1;
 import java.util.UUID;
 import lib.web.error.BusinessException;
@@ -32,7 +33,7 @@ public class DeliveryService {
     @Transactional
     public void createHubDelivery(OrderAfterCreateV1 message, UUID hubDeliveryPersonId) {
 
-        log.info("[허브 배송 생성 시작] - orderId={}", message.orderId());
+        log.info("[허브 배송 생성 시작] orderId={}", message.orderId());
 
         // 1. Hub 서비스에서 허브 정보 조회 (Feign)
         HubForDeliveryResponseV1 startHub = hubClient.getHub(message.startHubId());
@@ -58,7 +59,7 @@ public class DeliveryService {
         // 4. 허브 배송 저장
         HubDelivery savedHubDelivery = hubDeliveryRepository.save(hubDelivery);
 
-        log.info("[허브 배송 생성 완료] - hubDeliveryId={}, orderId={}",
+        log.info("[허브 배송 생성 완료] hubDeliveryId={}, orderId={}",
             savedHubDelivery.getId(), savedHubDelivery.getOrderId());
     }
 
@@ -68,7 +69,7 @@ public class DeliveryService {
     @Transactional
     public void createFirmDelivery(OrderAfterCreateV1 message, UUID firmDeliveryPersonId) {
 
-        log.info("[업체 배송 생성 시작] - orderId={}", message.orderId());
+        log.info("[업체 배송 생성 시작] orderId={}", message.orderId());
 
         // 1. 초기 배송 상태 & 배송 순서 셋팅
         DeliveryStatus deliveryStatus = DeliveryStatus.MOVING_TO_FIRM;
@@ -85,7 +86,7 @@ public class DeliveryService {
         // 3. 업체 배송 저장
         FirmDelivery savedFirmDelivery = firmDeliveryRepository.save(firmDelivery);
 
-        log.info("[업체 배송 생성 완료] - firmDeliveryId={}, orderId={}",
+        log.info("[업체 배송 생성 완료] firmDeliveryId={}, orderId={}",
             savedFirmDelivery.getId(), savedFirmDelivery.getOrderId());
     }
 
@@ -98,12 +99,12 @@ public class DeliveryService {
         UUID hubDeliveryPersonId,
         UUID firmDeliveryPersonId) {
 
-        log.info("[배송 생성 시작] - orderId={}", message.orderId());
+        log.info("[배송 생성 시작] orderId={}", message.orderId());
 
         createHubDelivery(message, hubDeliveryPersonId);
         createFirmDelivery(message, firmDeliveryPersonId);
 
-        log.info("[배송 생성 완료] - orderId={}", message.orderId());
+        log.info("[배송 생성 완료] orderId={}", message.orderId());
     }
 
     /* [배송 상태 변경]
@@ -130,10 +131,36 @@ public class DeliveryService {
                 deliveryId, request.nextDeliveryStatus());
         }
     }
+
+    /* [배송 취소]
+     * 허브 배송 / 업체 배송 취소
+     */
+    @Transactional
+    public void cancelDelivery(UUID deliveryId, DeliveryCancelRequestV1 request) {
+
+        if (request.deliveryType() == DeliveryType.HUB) {
+            HubDelivery hubDelivery = hubDeliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.HUB_DELIVERY_NOT_FOUND));
+
+            hubDelivery.cancelDelivery();
+
+            log.info("[허브 배송 취소] deliveryId={}, orderId={}", deliveryId, hubDelivery.getOrderId());
+        }
+
+        if (request.deliveryType() == DeliveryType.FIRM) {
+            FirmDelivery firmDelivery = firmDeliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_DELIVERY_NOT_FOUND));
+
+            firmDelivery.cancelDelivery();
+
+            log.info("[업체 배송 취소] deliveryId={}, orderId={}", deliveryId, firmDelivery.getOrderId());
+        }
+    }
 }
 
 /* TODO
  * deliveryPersonId 배정 로직 필요
+ * 배송 추적에 따라 상태 변경 로직 추가 필요
  * deliverySequenceNum 알고리즘에 따라 수정 필요
  * 허브 배송 + 업체 배송 = 전체 배송 생성 (이 때, 나머지 데이터 필요: requestNote, productName, productQuantity, orderCreatedAt)
    → @Async로 AsyncAiService 호출해서 데이터 전달

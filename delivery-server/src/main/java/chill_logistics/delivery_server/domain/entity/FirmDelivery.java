@@ -96,10 +96,23 @@ public class FirmDelivery extends BaseEntity {
         );
     }
 
+    // 배송 상태 변경용 메서드
     public void changeStatus(DeliveryStatus nextDeliveryStatus) {
 
         if (!this.deliveryStatus.canTransitTo(nextDeliveryStatus)) {
             throw new BusinessException(ErrorCode.CHANGE_DELIVERY_STATUS_UNAVAILABLE);
+        }
+
+        this.deliveryStatus = nextDeliveryStatus;
+    }
+
+    // 배송 취소용 메서드
+    public void cancelDelivery() {
+
+        DeliveryStatus nextDeliveryStatus = DeliveryStatus.DELIVERY_CANCELLED;
+
+        if (!this.deliveryStatus.canTransitTo(nextDeliveryStatus)) {
+            throw new BusinessException(ErrorCode.DELIVERY_ALREADY_COMPLETED_OR_CANCELED);
         }
 
         this.deliveryStatus = nextDeliveryStatus;

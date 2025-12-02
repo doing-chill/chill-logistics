@@ -1,6 +1,7 @@
 package chill_logistics.delivery_server.presentation;
 
 import chill_logistics.delivery_server.application.DeliveryService;
+import chill_logistics.delivery_server.presentation.dto.DeliveryCancelRequestV1;
 import chill_logistics.delivery_server.presentation.dto.DeliveryCreateRequestV1;
 import chill_logistics.delivery_server.presentation.dto.DeliveryStatusChangeRequestV1;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,5 +58,22 @@ public class DeliveryController {
         deliveryService.changeDeliveryStatus(deliveryId, request);
 
         return BaseResponse.ok(BaseStatus.UPDATED);
+    }
+
+    /**
+     * [배송 취소]
+     *
+     * @param deliveryId 취소하려는 허브배송/업체배송의 UUID
+     * @param request deliveryType(허브/업체)
+     * @return status DELETED 반환
+     */
+    @DeleteMapping("/deliveries/{deliveryId}")
+    public BaseResponse<Void> cancelDelivery(
+        @PathVariable("deliveryId") UUID deliveryId,
+        @RequestBody DeliveryCancelRequestV1 request) {
+
+        deliveryService.cancelDelivery(deliveryId, request);
+
+        return BaseResponse.ok(BaseStatus.DELETED);
     }
 }
