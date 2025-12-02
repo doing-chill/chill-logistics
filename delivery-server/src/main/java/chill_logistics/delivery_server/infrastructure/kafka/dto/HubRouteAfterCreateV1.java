@@ -14,5 +14,5 @@ public record HubRouteAfterCreateV1(
     String productName,
     int productQuantity,
     LocalDateTime orderCreatedAt
-    // + 예상 소요 시간 (허브 간 이동 정보 기반)
+    // TODO: + 예상 소요 시간 (허브 간 이동 정보 기반)
 ) {}

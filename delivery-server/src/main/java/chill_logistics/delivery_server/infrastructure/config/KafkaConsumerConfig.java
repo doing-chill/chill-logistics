@@ -16,7 +16,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, HubRouteAfterCreateV1> orderConsumerFactory() {
+    public ConsumerFactory<String, HubRouteAfterCreateV1> hubConsumerFactory() {
 
         // JSON → HubRouteAfterCreateV1 역직렬화를 위한 Deserializer
         JsonDeserializer<HubRouteAfterCreateV1> deserializer =
@@ -53,13 +53,13 @@ public class KafkaConsumerConfig {
     // @KafkaListener가 사용할 Listener 컨테이너 생성 (ConsumerFactory를 주입하여 실제 Kafka Consumer 동작을 구성)
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, HubRouteAfterCreateV1>
-    orderKafkaListenerContainerFactory() {
+    hubKafkaListenerContainerFactory() {
 
         ConcurrentKafkaListenerContainerFactory<String, HubRouteAfterCreateV1> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
 
         // ConsumerFactory 설정
-        factory.setConsumerFactory(orderConsumerFactory());
+        factory.setConsumerFactory(hubConsumerFactory());
 
         return factory;
     }

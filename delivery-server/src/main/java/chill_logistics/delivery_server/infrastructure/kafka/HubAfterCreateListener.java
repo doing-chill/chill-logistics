@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OrderAfterCreateListener {
+public class HubAfterCreateListener {
 
     private final DeliveryService deliveryService;
 
     @KafkaListener(
         topics = "order-after-create",
-        containerFactory = "orderKafkaListenerContainerFactory"
+        containerFactory = "hubKafkaListenerContainerFactory"
     )
     public void listen(HubRouteAfterCreateV1 message) {
 
