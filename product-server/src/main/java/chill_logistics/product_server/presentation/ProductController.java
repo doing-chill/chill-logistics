@@ -2,6 +2,7 @@ package chill_logistics.product_server.presentation;
 
 import chill_logistics.product_server.application.ProductFacade;
 import chill_logistics.product_server.application.command.CreateProductCommandV1;
+import chill_logistics.product_server.application.command.DeleteProductCommandV1;
 import chill_logistics.product_server.application.command.UpdateProductCommandV1;
 import chill_logistics.product_server.presentation.dto.request.CreateProductRequestV1;
 import chill_logistics.product_server.presentation.dto.request.UpdateProductRequestV1;
@@ -59,6 +60,19 @@ public class ProductController {
         );
 
         productFacade.updateProduct(command);
+
+        return BaseResponse.ok(BaseStatus.OK);
+    }
+
+    /* 상품 삭제 */
+    @DeleteMapping("/{id}")
+    public BaseResponse<Void> deleteProduct(
+            @PathVariable UUID id
+    ) {
+
+        DeleteProductCommandV1 command = new DeleteProductCommandV1(id);
+
+        productFacade.deleteProduct(command);
 
         return BaseResponse.ok(BaseStatus.OK);
     }

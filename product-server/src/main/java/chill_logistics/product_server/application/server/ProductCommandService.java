@@ -1,6 +1,7 @@
 package chill_logistics.product_server.application.server;
 
 import chill_logistics.product_server.application.command.CreateProductCommandV1;
+import chill_logistics.product_server.application.command.DeleteProductCommandV1;
 import chill_logistics.product_server.application.command.UpdateProductCommandV1;
 import chill_logistics.product_server.application.dto.CreateProductResultV1;
 import chill_logistics.product_server.domain.entity.Product;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -65,5 +68,23 @@ public class ProductCommandService {
                 command.price(),
                 command.sellable()
         );
+    }
+
+    @Transactional
+    public void deleteProduct(DeleteProductCommandV1 command) {
+
+        Product product =
+                productRepository
+                        .findById(command.id())
+                        .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        // 임시 유저 id
+        UUID userId = null;
+
+        // 권한 체크
+
+        // 허브 관리자면 관리 허브 소속 상품인지 체크
+
+        product.delete(userId);
     }
 }
