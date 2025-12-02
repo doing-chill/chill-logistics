@@ -14,6 +14,7 @@ import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +39,11 @@ public class HubControllerV1 {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BaseResponse<Void> createHub(
-        @RequestHeader("User-Id") String userId, @RequestBody CreateHubRequestV1 createHubRequest) {
+        //@RequestHeader("User-Id") String userId,
+        @RequestBody CreateHubRequestV1 createHubRequest) {
+
+        String userId = String.valueOf(UUID.randomUUID());
+
         hubService.createHub(UUID.fromString(userId), CreateHubRequestV1.toCreateHubCommand(createHubRequest));
         return BaseResponse.ok(BaseStatus.CREATED);
     }
@@ -47,10 +52,13 @@ public class HubControllerV1 {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<List<HubListResponseV1>> readAllHub(
-        @RequestHeader("User-Id") String userId,
+        //@RequestHeader("User-Id") String userId,
         @RequestParam(required = false) String hubName,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
+
+        String userId = String.valueOf(UUID.randomUUID());
+
         List<HubListQueryV1> hubListQueries = hubService.readAllHub(UUID.fromString(userId), hubName, page, size);
         return BaseResponse.ok(HubListResponseV1.fromHubListQuery(hubListQueries), BaseStatus.OK);
     }
@@ -61,7 +69,12 @@ public class HubControllerV1 {
     @GetMapping("/{hubId}")
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<HubInfoResponseV1> readOneHub(
-        @RequestHeader("User-Id") String userId, @PathVariable UUID hubId) {
+        //@RequestHeader("User-Id") String userId,
+        @PathVariable UUID hubId) {
+
+        // TODO 지워야 함
+        String userId = String.valueOf(UUID.randomUUID());
+
         HubInfoQueryV1 hubInfoQuery = hubService.readOneHub(UUID.fromString(userId), hubId);
         return BaseResponse.ok(HubInfoResponseV1.from(hubInfoQuery), BaseStatus.OK);
     }
@@ -69,18 +82,36 @@ public class HubControllerV1 {
     // 허브 업데이트
     @PatchMapping("/{hubId}")
     @ResponseStatus(HttpStatus.OK)
-    public BaseResponse<Void> updateHub(@RequestHeader("User-Id") String userId, @PathVariable UUID hubId,
+    public BaseResponse<Void> updateHub(
+        //@RequestHeader("User-Id") String userId,
+        @PathVariable UUID hubId,
     @RequestBody UpdateHubRequestV1 updateHubRequest){
-        hubService.updateHub(userId, hubId, updateHubRequest.toUpdateHubCommandV1());
+
+        String userId = String.valueOf(UUID.randomUUID());
+
+        hubService.updateHub(UUID.fromString(userId), hubId, updateHubRequest.toUpdateHubCommandV1());
         return BaseResponse.ok(BaseStatus.OK);
+    }
+
+
+    @DeleteMapping({"{hubId}"})
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<Void> deleteHub(
+        //@RequestHeader("User-Id") String userId,
+        @PathVariable UUID hubId) {
+
+        String userId = String.valueOf(UUID.randomUUID());
+
+        hubService.deleteHub(UUID.fromString(userId), hubId);
+        return BaseResponse.ok(BaseStatus.OK);
+
     }
 
 
 
 
-
     // 존재하는 허브인지 확인
-    @GetMapping("/{hubId}")
+    @GetMapping("/check/{hubId}")
     public boolean validateHub(@PathVariable UUID hubId) {
         return hubService.validateHub(hubId);
     }

@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 @RequiredArgsConstructor
@@ -26,8 +27,8 @@ public class HubRepositoryAdapter implements HubRepository {
 
     @Override
     public List<Hub> findAll(int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("name").ascending());
-        return jpaHubRepository.findAll(pageRequest).getContent();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        return jpaHubRepository.findAllByDeletedAtIsNull(pageable);
     }
 
     @Override
@@ -37,13 +38,13 @@ public class HubRepositoryAdapter implements HubRepository {
 
     @Override
     public Optional<Hub> findById(UUID hubId) {
-        return jpaHubRepository.findById(hubId);
+        return jpaHubRepository.findByIdAndDeletedAtIsNull(hubId);
     }
 
     @Override
     public List<Hub> findByNameOrFullAddressContaining(String nameOrFullAddress, int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        return jpaHubRepository.findByNameAndFullAddressContaining(nameOrFullAddress, nameOrFullAddress, pageRequest);
+        Pageable pageable = PageRequest.of(page, size);
+        return jpaHubRepository.findByNameAndFullAddressContainingAndDeletedAtIsNotNull(nameOrFullAddress, nameOrFullAddress, pageable);
     }
 
 

@@ -112,7 +112,7 @@ public class HubService {
 
 
     @Transactional
-    public void updateHub(String userId, UUID hubId, UpdateHubCommandV1 updateHubCommand) {
+    public void updateHub(UUID userId, UUID hubId, UpdateHubCommandV1 updateHubCommand) {
 
         // 유저 검증 부분
 //        UserResponseV1 user = userFeign.getUser(userId);

@@ -11,6 +11,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "p_hub")
+
 public class Hub extends BaseEntity {
 
     @Id
