@@ -114,8 +114,7 @@ public class DeliveryService {
     public void changeDeliveryStatus(UUID deliveryId, DeliveryStatusChangeRequestV1 request) {
 
         if (request.deliveryType() == DeliveryType.HUB) {
-            HubDelivery hubDelivery = hubDeliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.HUB_DELIVERY_NOT_FOUND));
+            HubDelivery hubDelivery = getHubDeliveryByIdOrThrow(deliveryId);
 
             hubDelivery.changeStatus(request.nextDeliveryStatus());
             log.info("[허브 배송 상태 변경] deliveryId={}, nextDeliveryStatus={}",
@@ -123,8 +122,7 @@ public class DeliveryService {
         }
 
         if (request.deliveryType() == DeliveryType.FIRM) {
-            FirmDelivery firmDelivery = firmDeliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_DELIVERY_NOT_FOUND));
+            FirmDelivery firmDelivery = getFirmDeliveryByIdOrThrow(deliveryId);
 
             firmDelivery.changeStatus(request.nextDeliveryStatus());
             log.info("[업체 배송 상태 변경] deliveryId={}, nextDeliveryStatus={}",
@@ -139,8 +137,7 @@ public class DeliveryService {
     public void cancelDelivery(UUID deliveryId, DeliveryCancelRequestV1 request) {
 
         if (request.deliveryType() == DeliveryType.HUB) {
-            HubDelivery hubDelivery = hubDeliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.HUB_DELIVERY_NOT_FOUND));
+            HubDelivery hubDelivery = getHubDeliveryByIdOrThrow(deliveryId);
 
             hubDelivery.cancelDelivery();
 
@@ -148,13 +145,24 @@ public class DeliveryService {
         }
 
         if (request.deliveryType() == DeliveryType.FIRM) {
-            FirmDelivery firmDelivery = firmDeliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_DELIVERY_NOT_FOUND));
+            FirmDelivery firmDelivery = getFirmDeliveryByIdOrThrow(deliveryId);
 
             firmDelivery.cancelDelivery();
 
             log.info("[업체 배송 취소] deliveryId={}, orderId={}", deliveryId, firmDelivery.getOrderId());
         }
+    }
+
+    private HubDelivery getHubDeliveryByIdOrThrow(UUID deliveryId) {
+
+        return hubDeliveryRepository.findById(deliveryId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.HUB_DELIVERY_NOT_FOUND));
+    }
+
+    private FirmDelivery getFirmDeliveryByIdOrThrow(UUID deliveryId) {
+
+        return firmDeliveryRepository.findById(deliveryId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_DELIVERY_NOT_FOUND));
     }
 }
 
