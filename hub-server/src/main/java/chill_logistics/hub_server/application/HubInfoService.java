@@ -1,6 +1,7 @@
 package chill_logistics.hub_server.application;
 
 import chill_logistics.hub_server.application.dto.command.CreateHubInfoCommandV1;
+import chill_logistics.hub_server.application.dto.query.HubRoadInfoQueryV1;
 import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.entity.HubInfo;
 import chill_logistics.hub_server.domain.repository.HubInfoRepository;
@@ -18,13 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class HubInfoService {
 
     private final HubInfoRepository hubInfoRepository;
+
+    // CQS로 바꿔야 함
     private final HubRepository hubRepository;
     private final UserFeign userFeign;
 
 
     // 경로 생성
     @Transactional
-    public void createHubInfo(UUID userId, CreateHubInfoCommandV1 command) {
+    public void createHubInfo(UUID userId, CreateHubInfoCommandV1 command, String startHubName, String endHubName) {
 
         // 유저 검증 부분
 //        UserResponseV1 user = userFeign.getUser(userId);
@@ -50,6 +53,30 @@ public class HubInfoService {
         hubInfoRepository.save(hubInfo);
     }
 
+
+    public HubRoadInfoQueryV1 readHubInfo(UUID userId, UUID hubInfoId) {
+
+        // user 검증 부분       -- 다 공통 메서드로 뺄 예정
+//        UserResponseV1 user = userFeign.getUser(userId);
+
+//        // 권한 검증
+//        if (!"MASTER".equals(user.role() || !"HUB_MANAGER".equals(user.role()
+//        !"DELIVERY_MANAGER".equals(user.role() || !"FIRM_MANAGER".equals(user.role())) {
+//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+//        }
+
+        HubInfo hubInfo = hubInfoRepository.findById(hubInfoId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.HUB_INFO_NOT_FOUND));
+
+        Hub startHub = hubRepository.findById(hubInfo.getStartHubId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
+
+        Hub endHub = hubRepository.findById(hubInfo.getEndHubId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
+
+
+        return HubRoadInfoQueryV1.from(hubInfo, startHub.getName(), endHub.getName());
+    }
 
 
 

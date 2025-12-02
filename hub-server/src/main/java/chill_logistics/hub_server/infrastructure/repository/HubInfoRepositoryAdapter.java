@@ -2,6 +2,7 @@ package chill_logistics.hub_server.infrastructure.repository;
 
 import chill_logistics.hub_server.domain.entity.HubInfo;
 import chill_logistics.hub_server.domain.repository.HubInfoRepository;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
@@ -12,12 +13,17 @@ public class HubInfoRepositoryAdapter implements HubInfoRepository {
 
     @Override
     public boolean existsByStartHubIdAndEndHubId(UUID startHubId, UUID endHubId) {
-        return jpaHubInfoRepository.existsByStartHubIdAndEndHubId(startHubId, endHubId);
+        return jpaHubInfoRepository.existsByStartHubIdAndEndHubIdAndDeletedAtIsNull(startHubId, endHubId);
     }
 
     @Override
     public void save(HubInfo hubInfo) {
         jpaHubInfoRepository.save(hubInfo);
+    }
+
+    @Override
+    public Optional<HubInfo> findById(UUID hubInfoId) {
+        return jpaHubInfoRepository.findByIdAndDeletedAtIsNull(hubInfoId);
     }
 
 

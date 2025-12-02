@@ -1,7 +1,9 @@
 package chill_logistics.hub_server.presentation.controller;
 
 import chill_logistics.hub_server.application.HubInfoService;
+import chill_logistics.hub_server.application.dto.query.HubRoadInfoQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubInfoRequestV1;
+import chill_logistics.hub_server.presentation.dto.response.HubRoadInfoResponseV1;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lib.entity.BaseStatus;
@@ -40,6 +42,15 @@ public class HubInfoControllerV1 {
         return BaseResponse.ok(BaseStatus.CREATED);
     }
 
+
+    @GetMapping("/{hubInfoId}")
+    public BaseResponse<HubRoadInfoResponseV1> readHubInfo(
+        //@RequestHeader("User-Id") String userId
+        @PathVariable UUID hubInfoId) {
+        String userId = String.valueOf(UUID.randomUUID());
+        HubRoadInfoQueryV1 hubRoadInfoQuery = hubInfoService.readHubInfo(UUID.fromString(userId), hubInfoId);
+        return BaseResponse.ok(HubRoadInfoResponseV1.from(hubRoadInfoQuery), BaseStatus.OK);
+    }
 
 
 
