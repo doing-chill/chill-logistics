@@ -1,6 +1,7 @@
 package chill_logistics.product_server.application;
 
 import chill_logistics.product_server.application.command.CreateProductCommandV1;
+import chill_logistics.product_server.application.command.UpdateProductCommandV1;
 import chill_logistics.product_server.application.dto.CreateProductResultV1;
 import chill_logistics.product_server.application.server.ProductCommandService;
 import chill_logistics.product_server.application.server.ProductQueryService;
@@ -18,5 +19,9 @@ public class ProductFacade {
 
     public CreateProductResultV1 createProduct(CreateProductCommandV1 command) {
         return productCommandService.createProduct(command);
+    }
+
+    public void updateProduct(UpdateProductCommandV1 command) {
+        productCommandService.updateProduct(command);
     }
 }

@@ -62,4 +62,16 @@ public class Product extends BaseEntity {
 
         return product;
     }
+
+    public void update(
+            String name,
+            Integer stockQuantity,
+            Integer price,
+            Boolean sellable) {
+
+        if (name != null) this.name = name;
+        if (stockQuantity != null) this.stockQuantity = stockQuantity;
+        if (price != null) this.price = price;
+        if (sellable != null) this.sellable = sellable;
+    }
 }
