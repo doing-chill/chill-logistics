@@ -4,6 +4,7 @@ import chill_logistics.hub_server.application.HubService;
 import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
 import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubRequestV1;
+import chill_logistics.hub_server.presentation.dto.request.UpdateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.response.HubInfoResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.HubListResponseV1;
 import java.util.List;
@@ -14,8 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,8 +63,20 @@ public class HubControllerV1 {
     public BaseResponse<HubInfoResponseV1> readOneHub(
         @RequestHeader("User-Id") String userId, @PathVariable UUID hubId) {
         HubInfoQueryV1 hubInfoQuery = hubService.readOneHub(UUID.fromString(userId), hubId);
-        return BaseResponse.ok(hubInfoResponse, BaseStatus.OK );
+        return BaseResponse.ok(HubInfoResponseV1.from(hubInfoQuery), BaseStatus.OK);
     }
+
+    // 허브 업데이트
+    @PatchMapping("/{hubId}")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<Void> updateHub(@RequestHeader("User-Id") String userId, @PathVariable UUID hubId,
+    @RequestBody UpdateHubRequestV1 updateHubRequest){
+        hubService.updateHub(userId, hubId, updateHubRequest.toUpdateHubCommandV1());
+        return BaseResponse.ok(BaseStatus.OK);
+    }
+
+
+
 
 
     // 존재하는 허브인지 확인

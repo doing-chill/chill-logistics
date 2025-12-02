@@ -13,6 +13,5 @@ public interface JpaHubRepository extends JpaRepository<Hub, UUID> {
 
     List<Hub> findByNameAndFullAddressContaining(String name, String address, PageRequest pageRequest);
 
-
     boolean existsByName(String name);
 }

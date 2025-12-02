@@ -93,5 +93,37 @@ public class Hub extends BaseEntity {
         return hub;
     }
 
+    public void update(
+        String name,
+        UUID hubManagerId,
+        String postalCode,
+        String country,
+        String region,
+        String city,
+        String district,
+        String roadName,
+        String buildingName,
+        String detailAddress,
+        String fullAddress,
+        BigDecimal latitude,
+        BigDecimal longitude){
+
+        if (name != null) this.name = name;
+        if (hubManagerId != null) this.hubManagerId = hubManagerId;
+        if (postalCode != null) this.postalCode = postalCode;
+        if (country != null) this.country = country;
+        if (region != null) this.region = region;
+        if (city != null) this.city = city;
+        if (district != null) this.district = district;
+        if (roadName != null) this.roadName = roadName;
+        if (buildingName != null) this.buildingName = buildingName;
+        if (detailAddress != null) this.detailAddress = detailAddress;
+        if (fullAddress != null) this.fullAddress = fullAddress;
+        if (latitude != null) this.latitude = latitude;
+        if (longitude != null) this.longitude = longitude;
+    }
+
+
+
 
 }

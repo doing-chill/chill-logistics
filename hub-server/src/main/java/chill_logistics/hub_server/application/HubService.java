@@ -1,11 +1,15 @@
 package chill_logistics.hub_server.application;
 
 import chill_logistics.hub_server.application.dto.command.CreateHubCommandV1;
+import chill_logistics.hub_server.application.dto.command.UpdateHubCommandV1;
 import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
 import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.repository.HubRepository;
+import chill_logistics.hub_server.infrastructure.external.UserFeign;
+import chill_logistics.hub_server.infrastructure.external.dto.response.UserResponseV1;
 import chill_logistics.hub_server.lib.error.ErrorCode;
+import chill_logistics.hub_server.presentation.dto.request.UpdateHubRequestV1;
 import java.util.List;
 import java.util.UUID;
 import lib.web.error.BusinessException;
@@ -22,17 +26,17 @@ public class HubService {
     //facade 패턴으로 변경 예정
 
     private final HubRepository hubRepository;
+    private final UserFeign userFeign;
 
     @Transactional
     public void createHub(UUID userId, CreateHubCommandV1 createHubCommand) {
 
 
         // 유저 검증 부분
-
+//        UserResponseV1 user = userFeign.getUser(userId);
 
 //        // 권한 검증: MASTER만 허브 생성 가능
 //        if (!"MASTER".equals(userInfo.role())) {
-//            log.warn(userInfo.role());
 //            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
 //        }
 
@@ -43,7 +47,7 @@ public class HubService {
 
 
         // 현재 로그인한 사용자를 허브 관리자로 설정
-        //UUID hubManagerId = userInfo.userId(); 이게 맞지만 user가 없어서
+        //UUID hubManagerId = user.userId(); 이게 맞지만 user가 없어서
         UUID hubManagerId = userId;
 
         Hub hub = Hub.create(createHubCommand.name(), userId, createHubCommand.postalCode(),
@@ -62,9 +66,13 @@ public class HubService {
     public List<HubListQueryV1> readAllHub(UUID uuid, String hubName, int page, int size) {
 
         // user 검증 부분
+//        UserResponseV1 user = userFeign.getUser(userId);
 
-
-        // 조회한 유저의 권한 검증
+//        // 권한 검증
+//        if (!"MASTER".equals(user.role() || !"HUB_MANAGER".equals(user.role()
+//        !"DELIVERY_MANAGER".equals(user.role() || !"FIRM_MANAGER".equals(user.role())) {
+//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+//        }
 
 
         // 허브에 이름이나 주소로 검색
@@ -83,10 +91,14 @@ public class HubService {
     @Transactional(readOnly = true)
     public HubInfoQueryV1 readOneHub(UUID uuid, UUID hubId) {
 
-        // user 검증 부분
+        // user 검증 부분       -- 다 공통 메서드로 뺄 예정
+//        UserResponseV1 user = userFeign.getUser(userId);
 
-
-        // 조회한 유저의 권한 검증
+//        // 권한 검증
+//        if (!"MASTER".equals(user.role() || !"HUB_MANAGER".equals(user.role()
+//        !"DELIVERY_MANAGER".equals(user.role() || !"FIRM_MANAGER".equals(user.role())) {
+//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+//        }
 
         Hub hub = hubRepository.findById(hubId)
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
@@ -97,6 +109,44 @@ public class HubService {
         // 허브 담당자의 이름이 필요할 거 같은데
         return HubInfoQueryV1.fromHub(hub, hubManagerName);
     }
+
+
+    @Transactional
+    public void updateHub(String userId, UUID hubId, UpdateHubCommandV1 updateHubCommand) {
+
+        // 유저 검증 부분
+//        UserResponseV1 user = userFeign.getUser(userId);
+
+//        // 권한 검증: MASTER만 허브 수정 가능    -- 다 공통 메서드로 뺄 예정
+//        if (!"MASTER".equals(userInfo.role())) {
+//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+//        }
+
+        Hub hub = hubRepository.findById(hubId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
+
+        hub.update(updateHubCommand.name(), updateHubCommand.hubManagerId(),
+            updateHubCommand.postalCode(), updateHubCommand.country(), updateHubCommand.region(),
+            updateHubCommand.city(), updateHubCommand.district(), updateHubCommand.roadName(), updateHubCommand.buildingName(),
+            updateHubCommand.detailAddress(), updateHubCommand.fullAddress(), updateHubCommand.latitude(),updateHubCommand.longitude());
+    }
+
+
+
+    @Transactional
+    public void deleteHub(UUID userId, UUID hubId) {
+        // 유저 검증 부분
+//        UserResponseV1 user = userFeign.getUser(userId);
+
+//        // 권한 검증: MASTER만 허브 삭제 가능
+//        if (!"MASTER".equals(userInfo.role())) {
+//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+//        }
+
+        Hub hub = hubRepository.findById(hubId).orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
+        hub.delete(userId);
+    }
+
 
 
 
