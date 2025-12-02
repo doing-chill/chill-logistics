@@ -1,6 +1,7 @@
 package chill_logistics.delivery_server.domain.entity;
 
 import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderAfterCreateV1;
+import chill_logistics.delivery_server.presentation.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lib.entity.BaseEntity;
+import lib.web.error.BusinessException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -97,9 +99,7 @@ public class FirmDelivery extends BaseEntity {
     public void changeStatus(DeliveryStatus nextDeliveryStatus) {
 
         if (!this.deliveryStatus.canTransitTo(nextDeliveryStatus)) {
-            throw new IllegalArgumentException(
-                "허용되지 않는 배송 상태 변경입니다. 현재 배송 상태=" + this.deliveryStatus
-                    + ", 다음 배송 상태=" + nextDeliveryStatus);
+            throw new BusinessException(ErrorCode.CHANGE_DELIVERY_STATUS_UNAVAILABLE);
         }
 
         this.deliveryStatus = nextDeliveryStatus;
