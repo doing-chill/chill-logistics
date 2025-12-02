@@ -1,15 +1,20 @@
 package chill_logistics.delivery_server.domain.entity;
 
 import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderAfterCreateV1;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.util.UUID;
 import lib.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
-
-import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -20,8 +25,8 @@ public class HubDelivery extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuidv7")
     @GenericGenerator(
-            name = "uuidv7",
-            strategy = "lib.id.UUIDv7Generator"
+        name = "uuidv7",
+        strategy = "lib.id.UUIDv7Generator"
     )
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
@@ -120,5 +125,16 @@ public class HubDelivery extends BaseEntity {
             deliveryStatus,
             null // expectedDistance: 나중에 계산해서 세팅
         );
+    }
+
+    public void changeStatus(DeliveryStatus nextDeliveryStatus) {
+
+        if (!this.deliveryStatus.canTransitTo(nextDeliveryStatus)) {
+            throw new IllegalArgumentException(
+                "허용되지 않는 배송 상태 변경입니다. 현재 배송 상태=" + this.deliveryStatus
+                    + ", 다음 배송 상태=" + nextDeliveryStatus);
+        }
+
+        this.deliveryStatus = nextDeliveryStatus;
     }
 }

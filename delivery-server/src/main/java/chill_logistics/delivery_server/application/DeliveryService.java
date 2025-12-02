@@ -8,7 +8,10 @@ import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;
 import chill_logistics.delivery_server.infrastructure.client.HubClient;
 import chill_logistics.delivery_server.infrastructure.client.dto.HubForDeliveryResponseV1;
 import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderAfterCreateV1;
+import chill_logistics.delivery_server.presentation.ErrorCode;
+import chill_logistics.delivery_server.presentation.dto.DeliveryStatusChangeRequestV1;
 import java.util.UUID;
+import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -90,7 +93,10 @@ public class DeliveryService {
      * 허브 배송 + 업체 배송 = 전체 배송 생성
      */
     @Transactional
-    public void createDelivery(OrderAfterCreateV1 message, UUID hubDeliveryPersonId, UUID firmDeliveryPersonId) {
+    public void createDelivery(
+        OrderAfterCreateV1 message,
+        UUID hubDeliveryPersonId,
+        UUID firmDeliveryPersonId) {
 
         log.info("[배송 생성 시작] - orderId={}", message.orderId());
 
@@ -99,11 +105,35 @@ public class DeliveryService {
 
         log.info("[배송 생성 완료] - orderId={}", message.orderId());
     }
+
+    /* [배송 상태 변경]
+     * 허브 배송 / 업체 배송 상태 변경
+     */
+    @Transactional
+    public void changeDeliveryStatus(UUID deliveryId, DeliveryStatusChangeRequestV1 request) {
+
+        if (request.deliveryType() == DeliveryType.HUB) {
+            HubDelivery hubDelivery = hubDeliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.HUB_DELIVERY_NOT_FOUND));
+
+            hubDelivery.changeStatus(request.nextDeliveryStatus());
+            log.info("[허브 배송 상태 변경] deliveryId={}, nextDeliveryStatus={}",
+                deliveryId, request.nextDeliveryStatus());
+        }
+
+        if (request.deliveryType() == DeliveryType.FIRM) {
+            FirmDelivery firmDelivery = firmDeliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_DELIVERY_NOT_FOUND));
+
+            firmDelivery.changeStatus(request.nextDeliveryStatus());
+            log.info("[업체 배송 상태 변경] deliveryId={}, nextDeliveryStatus={}",
+                deliveryId, request.nextDeliveryStatus());
+        }
+    }
 }
 
 /* TODO
  * deliveryPersonId 배정 로직 필요
- * 배송 상태에 따라 deliveryStatus 변경 로직 필요
  * deliverySequenceNum 알고리즘에 따라 수정 필요
  * 허브 배송 + 업체 배송 = 전체 배송 생성 (이 때, 나머지 데이터 필요: requestNote, productName, productQuantity, orderCreatedAt)
    → @Async로 AsyncAiService 호출해서 데이터 전달

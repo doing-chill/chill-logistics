@@ -93,4 +93,15 @@ public class FirmDelivery extends BaseEntity {
             deliveryStatus
         );
     }
+
+    public void changeStatus(DeliveryStatus nextDeliveryStatus) {
+
+        if (!this.deliveryStatus.canTransitTo(nextDeliveryStatus)) {
+            throw new IllegalArgumentException(
+                "허용되지 않는 배송 상태 변경입니다. 현재 배송 상태=" + this.deliveryStatus
+                    + ", 다음 배송 상태=" + nextDeliveryStatus);
+        }
+
+        this.deliveryStatus = nextDeliveryStatus;
+    }
 }
