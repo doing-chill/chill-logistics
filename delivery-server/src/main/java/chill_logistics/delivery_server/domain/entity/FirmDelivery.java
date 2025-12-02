@@ -100,7 +100,7 @@ public class FirmDelivery extends BaseEntity {
     public void changeStatus(DeliveryStatus nextDeliveryStatus) {
 
         if (!this.deliveryStatus.canTransitTo(nextDeliveryStatus)) {
-            throw new BusinessException(ErrorCode.CHANGE_DELIVERY_STATUS_UNAVAILABLE);
+            throw new BusinessException(ErrorCode.INVALID_CHANGE_DELIVERY_STATUS);
         }
 
         this.deliveryStatus = nextDeliveryStatus;
