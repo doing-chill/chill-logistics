@@ -12,6 +12,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "p_hub")
+
 public class Hub extends BaseEntity {
 
     @Id
@@ -61,4 +62,70 @@ public class Hub extends BaseEntity {
 
     @Column(name = "longitude", nullable = false, precision = 10, scale = 7)
     private BigDecimal longitude;
+
+    public static Hub create(
+        String name,
+        UUID hubManagerId,
+        String postalCode,
+        String country,
+        String region,
+        String city,
+        String district,
+        String roadName,
+        String buildingName,
+        String detailAddress,
+        String fullAddress,
+        BigDecimal latitude,
+        BigDecimal longitude
+    ) {
+        Hub hub = new Hub();
+        hub.name = name;
+        hub.hubManagerId = hubManagerId;
+        hub.postalCode = postalCode;
+        hub.country = country;
+        hub.region = region;
+        hub.city = city;
+        hub.district = district;
+        hub.roadName = roadName;
+        hub.buildingName = buildingName;
+        hub.detailAddress = detailAddress;
+        hub.fullAddress = fullAddress;
+        hub.latitude = latitude;
+        hub.longitude = longitude;
+        return hub;
+    }
+
+    public void update(
+        String name,
+        UUID hubManagerId,
+        String postalCode,
+        String country,
+        String region,
+        String city,
+        String district,
+        String roadName,
+        String buildingName,
+        String detailAddress,
+        String fullAddress,
+        BigDecimal latitude,
+        BigDecimal longitude){
+
+        if (name != null) this.name = name;
+        if (hubManagerId != null) this.hubManagerId = hubManagerId;
+        if (postalCode != null) this.postalCode = postalCode;
+        if (country != null) this.country = country;
+        if (region != null) this.region = region;
+        if (city != null) this.city = city;
+        if (district != null) this.district = district;
+        if (roadName != null) this.roadName = roadName;
+        if (buildingName != null) this.buildingName = buildingName;
+        if (detailAddress != null) this.detailAddress = detailAddress;
+        if (fullAddress != null) this.fullAddress = fullAddress;
+        if (latitude != null) this.latitude = latitude;
+        if (longitude != null) this.longitude = longitude;
+    }
+
+
+
+
 }

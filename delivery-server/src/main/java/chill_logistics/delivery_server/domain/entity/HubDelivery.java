@@ -1,23 +1,34 @@
 package chill_logistics.delivery_server.domain.entity;
 
-import jakarta.persistence.*;
-import lib.entity.BaseEntity;
-import lombok.Getter;
-import org.hibernate.annotations.GenericGenerator;
-
+import chill_logistics.delivery_server.infrastructure.kafka.dto.HubRouteAfterCreateV1;
+import chill_logistics.delivery_server.presentation.ErrorCode;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.UUID;
+import lib.entity.BaseEntity;
+import lib.web.error.BusinessException;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Entity
 @Table(name = "p_hub_delivery")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class HubDelivery extends BaseEntity {
 
     @Id
     @GeneratedValue(generator = "uuidv7")
     @GenericGenerator(
-            name = "uuidv7",
-            strategy = "lib.id.UUIDv7Generator"
+        name = "uuidv7",
+        strategy = "lib.id.UUIDv7Generator"
     )
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
@@ -64,4 +75,79 @@ public class HubDelivery extends BaseEntity {
 
     @Column(name = "delivery_duration")
     private Integer deliveryDuration;
+
+    protected HubDelivery(
+        UUID orderId,
+        UUID startHubId,
+        String startHubName,
+        String startHubFullAddress,
+        UUID endHubId,
+        String endHubName,
+        String endHubFullAddress,
+        UUID deliveryPersonId,
+        Integer deliverySequenceNum,
+        DeliveryStatus deliveryStatus,
+        BigDecimal expectedDistance
+    ) {
+        this.orderId = orderId;
+        this.startHubId = startHubId;
+        this.startHubName = startHubName;
+        this.startHubFullAddress = startHubFullAddress;
+        this.endHubId = endHubId;
+        this.endHubName = endHubName;
+        this.endHubFullAddress = endHubFullAddress;
+        this.deliveryPersonId = deliveryPersonId;
+        this.deliverySequenceNum = deliverySequenceNum;
+        this.deliveryStatus = deliveryStatus;
+        this.expectedDistance = expectedDistance;
+        // TODO: expectedDeliveryDuration, distance, deliveryDuration 은 아직 null 유지 (추후 계산/갱신)
+    }
+
+    // Kafka 메시지 + Hub 정보(이름/주소)를 기반으로 허브 배송 엔티티 생성
+    public static HubDelivery createFrom(
+        HubRouteAfterCreateV1 message,
+        String startHubName,
+        String startHubFullAddress,
+        String endHubName,
+        String endHubFullAddress,
+        UUID deliveryPersonId,
+        Integer deliverySequenceNum,
+        DeliveryStatus deliveryStatus
+    ) {
+        return new HubDelivery(
+            message.orderId(),
+            message.startHubId(),
+            startHubName,
+            startHubFullAddress,
+            message.endHubId(),
+            endHubName,
+            endHubFullAddress,
+            deliveryPersonId,
+            deliverySequenceNum,
+            deliveryStatus,
+            null // expectedDistance: 나중에 계산해서 세팅
+        );
+    }
+
+    // 배송 상태 변경용 메서드
+    public void changeStatus(DeliveryStatus nextDeliveryStatus) {
+
+        if (!this.deliveryStatus.canTransitTo(nextDeliveryStatus)) {
+            throw new BusinessException(ErrorCode.INVALID_CHANGE_DELIVERY_STATUS);
+        }
+
+        this.deliveryStatus = nextDeliveryStatus;
+    }
+
+    // 배송 취소용 메서드
+    public void cancelDelivery() {
+
+        DeliveryStatus nextDeliveryStatus = DeliveryStatus.DELIVERY_CANCELLED;
+
+        if (!this.deliveryStatus.canTransitTo(nextDeliveryStatus)) {
+            throw new BusinessException(ErrorCode.DELIVERY_ALREADY_COMPLETED_OR_CANCELED);
+        }
+
+        this.deliveryStatus = nextDeliveryStatus;
+    }
 }

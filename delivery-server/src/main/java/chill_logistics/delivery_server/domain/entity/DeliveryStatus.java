@@ -18,4 +18,16 @@ public enum DeliveryStatus {
             throw new IllegalArgumentException("지원하지 않는 배송 상태입니다. status=" + status);
         }
     }
+
+    public boolean canTransitTo(DeliveryStatus nextDeliveryStatus) {
+
+        return switch (this) {
+            case WAITING_FOR_HUB -> nextDeliveryStatus == MOVING_TO_HUB || nextDeliveryStatus == DELIVERY_CANCELLED;
+            case MOVING_TO_HUB -> nextDeliveryStatus == ARRIVED_DESTINATION_HUB || nextDeliveryStatus == DELIVERY_CANCELLED;
+            case ARRIVED_DESTINATION_HUB -> nextDeliveryStatus == MOVING_TO_FIRM || nextDeliveryStatus == DELIVERY_CANCELLED;
+            case MOVING_TO_FIRM -> nextDeliveryStatus == DELIVERY_IN_PROGRESS || nextDeliveryStatus == DELIVERY_CANCELLED;
+            case DELIVERY_IN_PROGRESS -> nextDeliveryStatus == DELIVERY_COMPLETED || nextDeliveryStatus == DELIVERY_CANCELLED;
+            case DELIVERY_COMPLETED, DELIVERY_CANCELLED -> false;
+        };
+    }
 }
