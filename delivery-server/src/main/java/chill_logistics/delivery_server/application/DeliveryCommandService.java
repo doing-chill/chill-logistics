@@ -142,15 +142,15 @@ public class DeliveryCommandService {
         }
     }
 
-    private HubDelivery getHubDeliveryByIdOrThrow(UUID deliveryId) {
+    private HubDelivery getHubDeliveryByIdOrThrow(UUID hubDeliveryId) {
 
-        return hubDeliveryRepository.findById(deliveryId)
+        return hubDeliveryRepository.findById(hubDeliveryId)
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_DELIVERY_NOT_FOUND));
     }
 
-    private FirmDelivery getFirmDeliveryByIdOrThrow(UUID deliveryId) {
+    private FirmDelivery getFirmDeliveryByIdOrThrow(UUID firmDeliveryId) {
 
-        return firmDeliveryRepository.findById(deliveryId)
+        return firmDeliveryRepository.findById(firmDeliveryId)
             .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_DELIVERY_NOT_FOUND));
     }
 }
