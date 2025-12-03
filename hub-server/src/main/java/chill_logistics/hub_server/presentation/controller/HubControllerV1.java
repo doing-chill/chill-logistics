@@ -45,7 +45,7 @@ public class HubControllerV1 {
 
         String userId = String.valueOf(UUID.randomUUID());
 
-        hubService.createHub(UUID.fromString(userId), CreateHubRequestV1.toCreateHubCommand(createHubRequest));
+        hubService.createHub(UUID.fromString(userId), createHubRequest.toCreateHubCommand(createHubRequest));
         return BaseResponse.ok(BaseStatus.CREATED);
     }
 
@@ -86,11 +86,11 @@ public class HubControllerV1 {
     public BaseResponse<Void> updateHub(
         //@RequestHeader("User-Id") String userId,
         @PathVariable UUID hubId,
-    @RequestBody @Valid UpdateHubRequestV1 updateHubRequest){
+        @RequestBody @Valid UpdateHubRequestV1 updateHubRequest) {
 
         String userId = String.valueOf(UUID.randomUUID());
-
         hubService.updateHub(UUID.fromString(userId), hubId, updateHubRequest.toUpdateHubCommandV1());
+
         return BaseResponse.ok(BaseStatus.OK);
     }
 
@@ -102,18 +102,17 @@ public class HubControllerV1 {
         @PathVariable UUID hubId) {
 
         String userId = String.valueOf(UUID.randomUUID());
-
         hubService.deleteHub(UUID.fromString(userId), hubId);
+
         return BaseResponse.ok(BaseStatus.OK);
-
     }
-
 
 
 
     // 존재하는 허브인지 확인
     @GetMapping("/check/{hubId}")
     public boolean validateHub(@PathVariable UUID hubId) {
+
         return hubService.validateHub(hubId);
     }
 

@@ -1,6 +1,7 @@
 package chill_logistics.hub_server.application;
 
 import chill_logistics.hub_server.application.dto.command.CreateHubInfoCommandV1;
+import chill_logistics.hub_server.application.dto.command.UpdateHubInfoCommandV1;
 import chill_logistics.hub_server.application.dto.query.HubRoadInfoQueryV1;
 import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.entity.HubInfo;
@@ -27,7 +28,7 @@ public class HubInfoService {
 
     // 경로 생성
     @Transactional
-    public void createHubInfo(UUID userId, CreateHubInfoCommandV1 command, String startHubName, String endHubName) {
+    public void createHubInfo(UUID userId, CreateHubInfoCommandV1 command) {
 
         // 유저 검증 부분
 //        UserResponseV1 user = userFeign.getUser(userId);
@@ -74,8 +75,43 @@ public class HubInfoService {
         Hub endHub = hubRepository.findById(hubInfo.getEndHubId())
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
 
-
         return HubRoadInfoQueryV1.from(hubInfo, startHub.getName(), endHub.getName());
+    }
+
+
+    public void updateHubInfo(UUID uuid, UUID hubInfoId, UpdateHubInfoCommandV1 command) {
+        // 유저 검증 부분
+//        UserResponseV1 user = userFeign.getUser(userId);
+
+//        // 권한 검증: MASTER만 수정 가능
+//        if (!"MASTER".equals(userInfo.role())) {
+//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+//        }
+
+        HubInfo hubInfo = hubInfoRepository.findById(hubInfoId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.HUB_INFO_NOT_FOUND));
+
+        // 이미 중복 된 연결인지 체크
+        if (hubInfoRepository.existsByStartHubIdAndEndHubId(command.startHubId(), command.endHubId())) {
+            throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
+        }
+        hubInfo.updateHubInfo(command.startHubId(), command.endHubId());
+    }
+
+
+    public void deleteHubInfo(UUID userId, UUID hubInfoId) {
+        // 유저 검증 부분
+//        UserResponseV1 user = userFeign.getUser(userId);
+
+//        // 권한 검증: MASTER만 삭제 가능
+//        if (!"MASTER".equals(userInfo.role())) {
+//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+//        }
+
+        HubInfo hubInfo = hubInfoRepository.findById(hubInfoId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.HUB_INFO_NOT_FOUND));
+
+        hubInfo.delete(userId);
     }
 
 

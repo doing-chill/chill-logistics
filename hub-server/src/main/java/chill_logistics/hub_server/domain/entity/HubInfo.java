@@ -48,4 +48,9 @@ public class HubInfo extends BaseEntity {
         this.distance = distance;
     }
 
+    public void updateHubInfo(UUID startHubId, UUID endHubId) {
+        if(startHubId != null) this.startHubId = startHubId;
+        if(endHubId != null) this.endHubId = endHubId;
+    }
+
 }
