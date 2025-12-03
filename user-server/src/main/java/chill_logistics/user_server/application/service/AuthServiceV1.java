@@ -26,7 +26,7 @@ public class AuthServiceV1 {
         User user = userRepository.findByEmail(command.email())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if(!passwordEncoder.matches(command.password(), user.getPassword())){
+        if(!passwordEncoder.matches(command.password(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
 
@@ -50,8 +50,7 @@ public class AuthServiceV1 {
     // 회원가입
     public void signup(SignupCommandV1 command) {
 
-        if(userRepository.existsByEmail(command.email())){
-
+        if(userRepository.existsByEmail(command.email())) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
 
@@ -75,7 +74,6 @@ public class AuthServiceV1 {
         String refreshToken = command.refreshToken();
 
         if(!jwtTokenProvider.validate(refreshToken)) {
-
             throw new RuntimeException("유효하지 않은 토큰입니다.");
         }
 
