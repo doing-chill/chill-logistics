@@ -35,13 +35,11 @@ public class HubInfoControllerV1 {
 
     private final HubInfoService hubInfoService;
 
-
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BaseResponse<Void> createHubInfo(
         //@RequestHeader("User-Id") String userId
-        @Valid @RequestBody CreateHubInfoRequestV1 createHubInfoRequest) {
+        @RequestBody @Valid CreateHubInfoRequestV1 createHubInfoRequest) {
 
         String userId = String.valueOf(UUID.randomUUID());
         hubInfoService.createHubInfo(UUID.fromString(userId), createHubInfoRequest.toCreateHubInfoCommand());
@@ -51,6 +49,7 @@ public class HubInfoControllerV1 {
 
 
     @GetMapping("/{hubInfoId}")
+    @ResponseStatus(HttpStatus.OK)
     public BaseResponse<HubRoadInfoResponseV1> readHubInfo(
         //@RequestHeader("User-Id") String userId
         @PathVariable UUID hubInfoId) {
@@ -62,27 +61,26 @@ public class HubInfoControllerV1 {
     }
 
 
-    @GetMapping()
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public BaseResponse<List<HubRoadInfoListResponseV1>> readAllHubInfo(
         //@RequestHeader("User-Id") String userId
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
         String userId = String.valueOf(UUID.randomUUID());
-        List<HubRoadInfoListQuery> hubRoadInfoListQueries = hubInfoService.readAllHubInfo(
-            UUID.fromString(userId), page, size);
+        List<HubRoadInfoListQuery> hubRoadInfoListQueries = hubInfoService.readAllHubInfo(UUID.fromString(userId), page, size);
 
         return BaseResponse.ok(HubRoadInfoListResponseV1.from(hubRoadInfoListQueries), BaseStatus.OK);
     }
 
 
-
-
     @PatchMapping("/{hubInfoId}")
+    @ResponseStatus(HttpStatus.OK)
     public BaseResponse<Void> updateHubInfo(
         //@RequestHeader("User-Id") String userId
         @PathVariable UUID hubInfoId,
-        @RequestBody UpdateHubInfoRequestV1 updateHubInfoRequest){
+        @RequestBody @Valid UpdateHubInfoRequestV1 updateHubInfoRequest){
 
         String userId = String.valueOf(UUID.randomUUID());
         hubInfoService.updateHubInfo(UUID.fromString(userId), hubInfoId, updateHubInfoRequest.to());
@@ -92,6 +90,7 @@ public class HubInfoControllerV1 {
 
 
     @DeleteMapping("/{hubInfoId}")
+    @ResponseStatus(HttpStatus.OK)
     public BaseResponse<Void> deleteHubInfo(
         //@RequestHeader("User-Id") String userId
         @PathVariable UUID hubInfoId){
