@@ -2,6 +2,7 @@ package chill_logistics.delivery_server.presentation;
 
 import chill_logistics.delivery_server.application.DeliveryCommandService;
 import chill_logistics.delivery_server.application.DeliveryQueryService;
+import chill_logistics.delivery_server.application.dto.query.FirmDeliveryInfoResponseV1;
 import chill_logistics.delivery_server.application.dto.query.HubDeliveryInfoResponseV1;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryCancelRequestV1;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryCreateRequestV1;
@@ -89,10 +90,10 @@ public class DeliveryController {
     }
 
     /**
-     * [허브 배송 단건 조회]
+     * [허브배송 단건 조회]
      *
      * @param hubDeliveryId 조회하고자 하는 허브배송의 UUID
-     * @return 허브 배송 상세 정보
+     * @return 허브배송 상세 정보
      */
     @GetMapping("/hub-deliveries/{hubDeliveryId}")
     @ResponseStatus(HttpStatus.OK)
@@ -105,12 +106,12 @@ public class DeliveryController {
     }
 
     /**
-     * [허브 배송 목록 조회]
+     * [허브배송 목록 조회]
      *
-     * @param startHubName 허브 배송에서 검색하고자 하는 허브명
+     * @param startHubName 허브배송에서 검색하고자 하는 허브명
      * @param page 조회할 페이지 번호 (0부터 시작)
      * @param size 페이지 당 조회할 데이터 개수
-     * @return 허브 배송 요약 정보 목록 + 페이징 정보
+     * @return 허브배송 요약 정보 목록 + 페이징 정보
      */
     @GetMapping("/hub-deliveries")
     @ResponseStatus(HttpStatus.OK)
@@ -123,5 +124,21 @@ public class DeliveryController {
             startHubName, page, size);
 
         return BaseResponse.ok(response, BaseStatus.OK);
+    }
+
+    /**
+     * [업체배송 단건 조회]
+     *
+     * @param firmDeliveryId 조회하고자 하는 업체배송의 UUID
+     * @return 업체배송 상세 정보
+     */
+    @GetMapping("/firm-deliveries/{firmDeliveryId}")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<FirmDeliveryInfoResponseV1> getFirmDelivery(
+        @PathVariable("firmDeliveryId") UUID firmDeliveryId) {
+
+        FirmDeliveryInfoResponseV1 response = deliveryQueryService.getFirmDelivery(firmDeliveryId);
+
+        return  BaseResponse.ok(response, BaseStatus.OK);
     }
 }

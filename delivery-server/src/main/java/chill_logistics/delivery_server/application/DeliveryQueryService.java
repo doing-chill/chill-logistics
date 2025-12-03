@@ -1,8 +1,11 @@
 package chill_logistics.delivery_server.application;
 
+import chill_logistics.delivery_server.application.dto.query.FirmDeliveryInfoResponseV1;
 import chill_logistics.delivery_server.application.dto.query.HubDeliveryInfoResponseV1;
 import chill_logistics.delivery_server.application.dto.query.HubDeliverySummaryResponseV1;
+import chill_logistics.delivery_server.domain.entity.FirmDelivery;
 import chill_logistics.delivery_server.domain.entity.HubDelivery;
+import chill_logistics.delivery_server.domain.repository.FirmDeliveryRepository;
 import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;
 import chill_logistics.delivery_server.presentation.ErrorCode;
 import chill_logistics.delivery_server.presentation.dto.response.HubDeliveryPageResponseV1;
@@ -21,8 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeliveryQueryService {
 
     private final HubDeliveryRepository hubDeliveryRepository;
+    private final FirmDeliveryRepository firmDeliveryRepository;
 
-    /* [허브 배송 단건 조회]
+    /* [허브배송 단건 조회]
      */
     public HubDeliveryInfoResponseV1 getHubDelivery(UUID hubDeliveryId) {
 
@@ -36,7 +40,7 @@ public class DeliveryQueryService {
         return HubDeliveryInfoResponseV1.from(hubDelivery);
     }
 
-    /* [허브 배송 검색 조회]
+    /* [허브배송 검색 조회]
      * 검색 기준: startHubName
      * 검색어 없으면 전체 목록 조회, 있으면 조건 검색 결과 반환
      */
@@ -55,11 +59,21 @@ public class DeliveryQueryService {
         return HubDeliveryPageResponseV1.of(entityPage, dataSummaryList);
     }
 
-    /* [업체 배송 단건 조회]
-     *
+    /* [업체배송 단건 조회]
      */
+    public FirmDeliveryInfoResponseV1  getFirmDelivery(UUID firmDeliveryId) {
 
-    /* [업체 배송 검색 조회]
+        FirmDelivery firmDelivery = firmDeliveryRepository.findById(firmDeliveryId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_DELIVERY_NOT_FOUND));
+
+        if (!(firmDelivery.getDeletedAt() == null)) {
+            throw new BusinessException(ErrorCode.DELIVERY_HAS_BEEN_DELETED);
+        }
+
+        return FirmDeliveryInfoResponseV1.from(firmDelivery);
+    }
+
+    /* [업체배송 검색 조회]
      *
      */
 }
