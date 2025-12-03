@@ -30,7 +30,27 @@ public class HubInfo extends BaseEntity {
 
     @Column(name = "delivery_duration")
     private Integer deliveryDuration;
+    // 배송 예측 소요 시간
 
     @Column(name = "distance", precision = 10, scale = 3)
     private BigDecimal distance;
+    // 배송 거리 km 단위
+
+    public static HubInfo create(UUID startHubId, UUID endHubId) {
+        HubInfo hubInfo = new HubInfo();
+        hubInfo.startHubId = startHubId;
+        hubInfo.endHubId = endHubId;
+        return hubInfo;
+    }
+
+    public void updateDeliveryInfo(Integer deliveryDuration, BigDecimal distance) {
+        this.deliveryDuration = deliveryDuration;
+        this.distance = distance;
+    }
+
+    public void updateHubInfo(UUID startHubId, UUID endHubId) {
+        if(startHubId != null) this.startHubId = startHubId;
+        if(endHubId != null) this.endHubId = endHubId;
+    }
+
 }
