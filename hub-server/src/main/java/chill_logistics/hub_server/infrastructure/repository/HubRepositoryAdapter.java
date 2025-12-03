@@ -4,6 +4,7 @@ import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.repository.HubRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +29,7 @@ public class HubRepositoryAdapter implements HubRepository {
     @Override
     public List<Hub> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+
         return jpaHubRepository.findAllByDeletedAtIsNull(pageable);
     }
 
@@ -44,7 +46,13 @@ public class HubRepositoryAdapter implements HubRepository {
     @Override
     public List<Hub> findByNameOrFullAddressContaining(String nameOrFullAddress, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
+
         return jpaHubRepository.findByNameAndFullAddressContainingAndDeletedAtIsNotNull(nameOrFullAddress, nameOrFullAddress, pageable);
+    }
+
+    @Override
+    public List<Hub> findByIds(Set<UUID> hubIds) {
+        return jpaHubRepository.findAllByIdInAndDeletedAtIsNull(hubIds);
     }
 
 

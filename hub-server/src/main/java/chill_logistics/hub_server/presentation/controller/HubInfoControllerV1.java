@@ -1,11 +1,14 @@
 package chill_logistics.hub_server.presentation.controller;
 
 import chill_logistics.hub_server.application.HubInfoService;
+import chill_logistics.hub_server.application.dto.query.HubRoadInfoListQuery;
 import chill_logistics.hub_server.application.dto.query.HubRoadInfoQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubInfoRequestV1;
 import chill_logistics.hub_server.presentation.dto.request.UpdateHubInfoRequestV1;
+import chill_logistics.hub_server.presentation.dto.response.HubRoadInfoListResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.HubRoadInfoResponseV1;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -56,6 +60,22 @@ public class HubInfoControllerV1 {
 
         return BaseResponse.ok(HubRoadInfoResponseV1.from(hubRoadInfoQuery), BaseStatus.OK);
     }
+
+
+    @GetMapping()
+    public BaseResponse<List<HubRoadInfoListResponseV1>> readAllHubInfo(
+        //@RequestHeader("User-Id") String userId
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+
+        String userId = String.valueOf(UUID.randomUUID());
+        List<HubRoadInfoListQuery> hubRoadInfoListQueries = hubInfoService.readAllHubInfo(
+            UUID.fromString(userId), page, size);
+
+        return BaseResponse.ok(HubRoadInfoListResponseV1.from(hubRoadInfoListQueries), BaseStatus.OK);
+    }
+
+
 
 
     @PatchMapping("/{hubInfoId}")
