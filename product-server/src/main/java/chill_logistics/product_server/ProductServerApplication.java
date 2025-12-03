@@ -8,13 +8,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication(
     scanBasePackages = {
         "chill_logistics.product_server",
-        "lib.entity",
-        "lib.web",
-        "lib.util"
+        "lib"
     }
 )
 @EnableDiscoveryClient
-@EnableJpaAuditing
 public class ProductServerApplication {
 
     public static void main(String[] args) {

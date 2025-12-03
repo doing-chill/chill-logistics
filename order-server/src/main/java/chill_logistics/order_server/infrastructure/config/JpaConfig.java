@@ -1,4 +1,4 @@
-package chill_logistics.user_server.infrastructure.config;
+package chill_logistics.order_server.infrastructure.config;
 
 import lib.audit.CommonAuditorAware;
 import org.springframework.context.annotation.Bean;

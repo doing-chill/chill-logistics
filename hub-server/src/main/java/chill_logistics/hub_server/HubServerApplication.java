@@ -9,13 +9,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication(
     scanBasePackages = {
         "chill_logistics.hub_server",
-        "lib.entity",
-        "lib.web",
-        "lib.util"
+        "lib"
     }
 )
 @EnableDiscoveryClient
-@EnableJpaAuditing
 @EnableFeignClients(basePackages = "chill_logistics.hub_server.infrastructure")
 public class HubServerApplication {
 
