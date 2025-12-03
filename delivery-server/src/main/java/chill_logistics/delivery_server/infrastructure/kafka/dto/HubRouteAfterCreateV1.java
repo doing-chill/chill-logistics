@@ -1,5 +1,6 @@
 package chill_logistics.delivery_server.infrastructure.kafka.dto;
 
+import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -18,5 +19,26 @@ public record HubRouteAfterCreateV1(
     String productName,
     int productQuantity,
     LocalDateTime orderCreatedAt,
-    Integer expectedDeliveryDuration
-) {}
+    Integer expectedDeliveryDuration) {
+
+    // application 계층의 command 변환 메서드
+    public HubRouteAfterCommandV1 toCommand() {
+        return new HubRouteAfterCommandV1(
+            orderId(),
+            startHubId(),
+            startHubName(),
+            startHubFullAddress(),
+            endHubId(),
+            endHubName(),
+            endHubFullAddress(),
+            receiverFirmId(),
+            receiverFirmFullAddress(),
+            receiverFirmOwnerName(),
+            requestNote(),
+            productName(),
+            productQuantity(),
+            orderCreatedAt(),
+            expectedDeliveryDuration()
+        );
+    }
+}
