@@ -9,4 +9,4 @@ public record CreateProductCommandV1(
         int stockQuantity,
         int price,
         boolean sellable
-) { }
+) {}

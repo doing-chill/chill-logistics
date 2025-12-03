@@ -8,4 +8,4 @@ public record UpdateProductCommandV1(
         Integer stockQuantity,
         Integer price,
         Boolean sellable
-) { }
+) {}

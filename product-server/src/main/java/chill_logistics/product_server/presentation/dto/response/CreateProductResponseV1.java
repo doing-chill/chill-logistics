@@ -1,6 +1,6 @@
 package chill_logistics.product_server.presentation.dto.response;
 
-import chill_logistics.product_server.application.dto.CreateProductResultV1;
+import chill_logistics.product_server.application.dto.command.CreateProductResultV1;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

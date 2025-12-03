@@ -1,4 +1,4 @@
-package chill_logistics.product_server.application.dto;
+package chill_logistics.product_server.application.dto.command;
 
 import chill_logistics.product_server.domain.entity.Product;
 

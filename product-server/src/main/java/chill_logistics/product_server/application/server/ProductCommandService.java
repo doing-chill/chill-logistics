@@ -3,7 +3,7 @@ package chill_logistics.product_server.application.server;
 import chill_logistics.product_server.application.command.CreateProductCommandV1;
 import chill_logistics.product_server.application.command.DeleteProductCommandV1;
 import chill_logistics.product_server.application.command.UpdateProductCommandV1;
-import chill_logistics.product_server.application.dto.CreateProductResultV1;
+import chill_logistics.product_server.application.dto.command.CreateProductResultV1;
 import chill_logistics.product_server.domain.entity.Product;
 import chill_logistics.product_server.domain.repository.ProductRepository;
 import chill_logistics.product_server.lib.exception.ErrorCode;
@@ -51,10 +51,8 @@ public class ProductCommandService {
     @Transactional
     public void updateProduct(UpdateProductCommandV1 command) {
 
-        Product product =
-                productRepository
-                        .findById(command.id())
-                        .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findById(command.id())
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
         // 권한 체크
 
@@ -73,10 +71,8 @@ public class ProductCommandService {
     @Transactional
     public void deleteProduct(DeleteProductCommandV1 command) {
 
-        Product product =
-                productRepository
-                        .findById(command.id())
-                        .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findById(command.id())
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
         // 임시 유저 id
         UUID userId = null;

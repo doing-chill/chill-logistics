@@ -4,4 +4,4 @@ import java.util.UUID;
 
 public record DeleteProductCommandV1(
         UUID id
-) { }
+) {}

@@ -24,4 +24,4 @@ public record CreateProductRequestV1(
         Integer price,
 
         Boolean sellable
-) { }
+) {}

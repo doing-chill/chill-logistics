@@ -13,4 +13,4 @@ public record UpdateProductRequestV1(
         Integer price,
 
         Boolean sellable
-) { }
+) {}
