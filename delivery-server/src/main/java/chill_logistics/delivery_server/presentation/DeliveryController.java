@@ -2,6 +2,7 @@ package chill_logistics.delivery_server.presentation;
 
 import chill_logistics.delivery_server.application.DeliveryCommandService;
 import chill_logistics.delivery_server.application.DeliveryQueryService;
+import chill_logistics.delivery_server.application.dto.query.HubDeliveryInfoResponseV1;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryCancelRequestV1;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryCreateRequestV1;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryStatusChangeRequestV1;
@@ -85,6 +86,22 @@ public class DeliveryController {
         deliveryCommandService.cancelDelivery(deliveryId, request);
 
         return BaseResponse.ok(BaseStatus.OK);
+    }
+
+    /**
+     * [허브 배송 단건 조회]
+     *
+     * @param hubDeliveryId 조회하고자 하는 허브배송의 UUID
+     * @return 허브 배송 상세 정보
+     */
+    @GetMapping("/hub-deliveries/{hubDeliveryId}")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<HubDeliveryInfoResponseV1> getHubDelivery(
+        @PathVariable("hubDeliveryId") UUID hubDeliveryId) {
+
+        HubDeliveryInfoResponseV1 response = deliveryQueryService.getHubDelivery(hubDeliveryId);
+
+        return BaseResponse.ok(response, BaseStatus.OK);
     }
 
     /**
