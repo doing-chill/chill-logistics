@@ -9,6 +9,7 @@ import chill_logistics.product_server.presentation.dto.request.CreateProductRequ
 import chill_logistics.product_server.presentation.dto.request.SearchProductRequestV1;
 import chill_logistics.product_server.presentation.dto.request.UpdateProductRequestV1;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
+import chill_logistics.product_server.presentation.dto.response.ReadProductDetailResponseV1;
 import chill_logistics.product_server.presentation.dto.response.SearchProductSummaryResponseV1;
 import jakarta.validation.Valid;
 import lib.entity.BaseStatus;
@@ -95,6 +96,15 @@ public class ProductController {
                         .stream()
                         .map(SearchProductSummaryResponseV1::from)
                         .toList();
+
+        return BaseResponse.ok(response, BaseStatus.OK);
+    }
+
+    /* 상품 단건 조회 */
+    @GetMapping("/{id}")
+    public BaseResponse<ReadProductDetailResponseV1> readProduct(@PathVariable UUID id) {
+
+        ReadProductDetailResponseV1 response = ReadProductDetailResponseV1.from(productFacade.readProduct(id));
 
         return BaseResponse.ok(response, BaseStatus.OK);
     }

@@ -5,6 +5,7 @@ import chill_logistics.product_server.application.command.DeleteProductCommandV1
 import chill_logistics.product_server.application.command.SearchProductCommandV1;
 import chill_logistics.product_server.application.command.UpdateProductCommandV1;
 import chill_logistics.product_server.application.dto.command.CreateProductResultV1;
+import chill_logistics.product_server.application.dto.query.ReadProductDetailResultV1;
 import chill_logistics.product_server.application.dto.query.SearchProductSummaryResultV1;
 import chill_logistics.product_server.application.server.ProductCommandService;
 import chill_logistics.product_server.application.server.ProductQueryService;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -36,5 +38,9 @@ public class ProductFacade {
 
     public List<SearchProductSummaryResultV1> searchProductList(SearchProductCommandV1 command) {
         return productQueryService.searchProductList(command);
+    }
+
+    public ReadProductDetailResultV1 readProduct(UUID id) {
+        return productQueryService.readProduct(id);
     }
 }
