@@ -1,17 +1,12 @@
 package chill_logistics.firm_server.domain.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.util.UUID;
+import jakarta.persistence.*;
 import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
+
+import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -55,7 +50,7 @@ public class Firm extends BaseEntity {
     @Column(name = "city", nullable = false, length = 50)
     private String city;
 
-    @Column(name = "district", nullable = false, length = 50)
+    @Column(name = "district", length = 50)
     private String district;
 
     @Column(name = "road_name", nullable = false, length = 100)
