@@ -1,8 +1,8 @@
 package chill_logistics.product_server.application.server;
 
-import chill_logistics.product_server.application.command.SearchProductCommandV1;
+import chill_logistics.product_server.application.command.ReadProductCommandV1;
 import chill_logistics.product_server.application.dto.query.ReadProductDetailResultV1;
-import chill_logistics.product_server.application.dto.query.SearchProductSummaryResultV1;
+import chill_logistics.product_server.application.dto.query.ReadProductSummaryResultV1;
 import chill_logistics.product_server.domain.entity.Product;
 import chill_logistics.product_server.domain.repository.ProductRepository;
 import chill_logistics.product_server.lib.exception.ErrorCode;
@@ -23,11 +23,11 @@ public class ProductQueryService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public List<SearchProductSummaryResultV1> searchProductList(SearchProductCommandV1 command) {
+    public List<ReadProductSummaryResultV1> readProductList(ReadProductCommandV1 command) {
 
         // 권한 체크
 
-        List<Product> productList = productRepository.searchProductList(
+        List<Product> productList = productRepository.readProductList(
                 command.name(),
                 command.firmId(),
                 command.hubId(),
@@ -36,7 +36,7 @@ public class ProductQueryService {
 
         return productList
                 .stream()
-                .map(SearchProductSummaryResultV1::from)
+                .map(ReadProductSummaryResultV1::from)
                 .toList();
     }
 

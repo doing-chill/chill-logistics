@@ -3,14 +3,14 @@ package chill_logistics.product_server.presentation;
 import chill_logistics.product_server.application.ProductFacade;
 import chill_logistics.product_server.application.command.CreateProductCommandV1;
 import chill_logistics.product_server.application.command.DeleteProductCommandV1;
-import chill_logistics.product_server.application.command.SearchProductCommandV1;
+import chill_logistics.product_server.application.command.ReadProductCommandV1;
 import chill_logistics.product_server.application.command.UpdateProductCommandV1;
 import chill_logistics.product_server.presentation.dto.request.CreateProductRequestV1;
-import chill_logistics.product_server.presentation.dto.request.SearchProductRequestV1;
+import chill_logistics.product_server.presentation.dto.request.ReadProductRequestV1;
 import chill_logistics.product_server.presentation.dto.request.UpdateProductRequestV1;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
 import chill_logistics.product_server.presentation.dto.response.ReadProductDetailResponseV1;
-import chill_logistics.product_server.presentation.dto.response.SearchProductSummaryResponseV1;
+import chill_logistics.product_server.presentation.dto.response.ReadProductSummaryResponseV1;
 import jakarta.validation.Valid;
 import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
@@ -80,21 +80,21 @@ public class ProductController {
 
     /* 상품 목록 조회 */
     @GetMapping()
-    public BaseResponse<List<SearchProductSummaryResponseV1>> searchProductList(
-            @ModelAttribute SearchProductRequestV1 search) {
+    public BaseResponse<List<ReadProductSummaryResponseV1>> readProductList(
+            @ModelAttribute ReadProductRequestV1 request) {
 
-        SearchProductCommandV1 command = new SearchProductCommandV1(
-                search.name(),
-                search.firmId(),
-                search.hubId(),
-                search.sellable()
+        ReadProductCommandV1 command = new ReadProductCommandV1(
+                request.name(),
+                request.firmId(),
+                request.hubId(),
+                request.sellable()
         );
 
-        List<SearchProductSummaryResponseV1> response =
+        List<ReadProductSummaryResponseV1> response =
                 productFacade
-                        .searchProductList(command)
+                        .readProductList(command)
                         .stream()
-                        .map(SearchProductSummaryResponseV1::from)
+                        .map(ReadProductSummaryResponseV1::from)
                         .toList();
 
         return BaseResponse.ok(response, BaseStatus.OK);

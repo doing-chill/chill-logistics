@@ -19,7 +19,7 @@ public interface JpaProductRepository extends JpaRepository<Product, UUID> {
             AND (:sellable IS NULL OR p.sellable = :sellable)
     """
     )
-    List<Product> searchProductList(
+    List<Product> readProductList(
             @Param("name") String name,
             @Param("firmId") UUID firmId,
             @Param("hubId") UUID hubId,

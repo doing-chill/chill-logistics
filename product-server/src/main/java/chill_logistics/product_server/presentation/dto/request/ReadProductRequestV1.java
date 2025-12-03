@@ -1,8 +1,8 @@
-package chill_logistics.product_server.application.command;
+package chill_logistics.product_server.presentation.dto.request;
 
 import java.util.UUID;
 
-public record SearchProductCommandV1(
+public record ReadProductRequestV1(
         String name,
         UUID firmId,
         UUID hubId,

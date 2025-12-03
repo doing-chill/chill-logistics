@@ -4,7 +4,7 @@ import chill_logistics.product_server.domain.entity.Product;
 
 import java.util.UUID;
 
-public record SearchProductSummaryResultV1(
+public record ReadProductSummaryResultV1(
         UUID id,
         String name,
         UUID firmId,
@@ -13,8 +13,8 @@ public record SearchProductSummaryResultV1(
         int price,
         boolean sellable
 ) {
-    public static SearchProductSummaryResultV1 from(Product product) {
-        return new SearchProductSummaryResultV1(
+    public static ReadProductSummaryResultV1 from(Product product) {
+        return new ReadProductSummaryResultV1(
                 product.getId(),
                 product.getName(),
                 product.getFirmId(),

@@ -11,5 +11,5 @@ public interface ProductRepository {
 
     Optional<Product> findById(UUID id);
 
-    List<Product> searchProductList(String name, UUID firmId, UUID hubId, Boolean sellable);
+    List<Product> readProductList(String name, UUID firmId, UUID hubId, Boolean sellable);
 }

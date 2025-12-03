@@ -2,11 +2,11 @@ package chill_logistics.product_server.application;
 
 import chill_logistics.product_server.application.command.CreateProductCommandV1;
 import chill_logistics.product_server.application.command.DeleteProductCommandV1;
-import chill_logistics.product_server.application.command.SearchProductCommandV1;
+import chill_logistics.product_server.application.command.ReadProductCommandV1;
 import chill_logistics.product_server.application.command.UpdateProductCommandV1;
 import chill_logistics.product_server.application.dto.command.CreateProductResultV1;
 import chill_logistics.product_server.application.dto.query.ReadProductDetailResultV1;
-import chill_logistics.product_server.application.dto.query.SearchProductSummaryResultV1;
+import chill_logistics.product_server.application.dto.query.ReadProductSummaryResultV1;
 import chill_logistics.product_server.application.server.ProductCommandService;
 import chill_logistics.product_server.application.server.ProductQueryService;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +36,8 @@ public class ProductFacade {
         productCommandService.deleteProduct(command);
     }
 
-    public List<SearchProductSummaryResultV1> searchProductList(SearchProductCommandV1 command) {
-        return productQueryService.searchProductList(command);
+    public List<ReadProductSummaryResultV1> readProductList(ReadProductCommandV1 command) {
+        return productQueryService.readProductList(command);
     }
 
     public ReadProductDetailResultV1 readProduct(UUID id) {
