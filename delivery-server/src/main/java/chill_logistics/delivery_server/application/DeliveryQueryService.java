@@ -1,6 +1,7 @@
 package chill_logistics.delivery_server.application;
 
 import chill_logistics.delivery_server.application.dto.query.FirmDeliveryInfoResponseV1;
+import chill_logistics.delivery_server.application.dto.query.FirmDeliverySummaryResponseV1;
 import chill_logistics.delivery_server.application.dto.query.HubDeliveryInfoResponseV1;
 import chill_logistics.delivery_server.application.dto.query.HubDeliverySummaryResponseV1;
 import chill_logistics.delivery_server.domain.entity.FirmDelivery;
@@ -8,6 +9,7 @@ import chill_logistics.delivery_server.domain.entity.HubDelivery;
 import chill_logistics.delivery_server.domain.repository.FirmDeliveryRepository;
 import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;
 import chill_logistics.delivery_server.presentation.ErrorCode;
+import chill_logistics.delivery_server.presentation.dto.response.FirmDeliveryPageResponseV1;
 import chill_logistics.delivery_server.presentation.dto.response.HubDeliveryPageResponseV1;
 import java.util.List;
 import java.util.UUID;
@@ -74,6 +76,19 @@ public class DeliveryQueryService {
     }
 
     /* [업체배송 검색 조회]
-     *
+     * 검색 기준: receiverFirmOwnerName
+     * 검색어 없으면 전체 목록 조회, 있으면 조건 검색 결과 반환
      */
+    public FirmDeliveryPageResponseV1 searchFirmDeliveryByFirmOwnerName(String firmOwnerName, int page, int size) {
+
+        CustomPageRequest pageRequest = new CustomPageRequest(page, size);
+
+        CustomPageResult<FirmDelivery> entityPage = firmDeliveryRepository.searchByFirmOwnerName(firmOwnerName, pageRequest);
+
+        List<FirmDeliverySummaryResponseV1> dataSummaryList = entityPage.getItemList().stream()
+            .map(FirmDeliverySummaryResponseV1::from)
+            .toList();
+
+        return FirmDeliveryPageResponseV1.of(entityPage, dataSummaryList);
+    }
 }

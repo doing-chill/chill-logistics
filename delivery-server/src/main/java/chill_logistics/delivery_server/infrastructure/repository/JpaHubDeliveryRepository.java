@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JpaHubDeliveryRepository extends JpaRepository<HubDelivery, UUID> {
 
-    Page<HubDelivery> findByStartHubNameAndDeletedAtIsNull(String hubName, Pageable pageable);
-
     Page<HubDelivery> findByDeletedAtIsNull(Pageable pageable);
+
+    Page<HubDelivery> findByStartHubNameAndDeletedAtIsNull(String hubName, Pageable pageable);
 }
