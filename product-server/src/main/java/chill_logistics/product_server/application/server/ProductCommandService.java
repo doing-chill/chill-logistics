@@ -22,6 +22,11 @@ public class ProductCommandService {
 
     private final ProductRepository productRepository;
 
+    private Product readProductOrThrow(UUID productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+    }
+
     @Transactional
     public CreateProductResultV1 createProduct(CreateProductCommandV1 command) {
 
@@ -43,16 +48,13 @@ public class ProductCommandService {
 
         Product createProduct = productRepository.save(product);
 
-        CreateProductResultV1.from(createProduct);
-
         return CreateProductResultV1.from(createProduct);
     }
 
     @Transactional
     public void updateProduct(UpdateProductCommandV1 command) {
 
-        Product product = productRepository.findById(command.id())
-                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = readProductOrThrow(command.id());
 
         // 권한 체크
 
@@ -71,8 +73,7 @@ public class ProductCommandService {
     @Transactional
     public void deleteProduct(DeleteProductCommandV1 command) {
 
-        Product product = productRepository.findById(command.id())
-                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = readProductOrThrow(command.id());
 
         // 임시 유저 id
         UUID userId = null;
