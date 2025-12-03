@@ -81,7 +81,6 @@ public class HubService {
             hubList =  hubRepository.findByNameOrFullAddressContaining(hubName, page, size);
         }
         return HubListQueryV1.fromHubs(hubList);
-
     }
 
 

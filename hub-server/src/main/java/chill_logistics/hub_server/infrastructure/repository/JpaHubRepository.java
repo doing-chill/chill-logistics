@@ -15,7 +15,7 @@ public interface JpaHubRepository extends JpaRepository<Hub, UUID> {
 
     Optional<Hub> findByIdAndDeletedAtIsNull(UUID id);
 
-    List<Hub> findByNameAndFullAddressContainingAndDeletedAtIsNotNull(String name, String address, Pageable pageable);
+    List<Hub> findByNameContainingOrFullAddressContainingAndDeletedAtIsNotNull(String name, String address, Pageable pageable);
 
     boolean existsByName(String name);
 

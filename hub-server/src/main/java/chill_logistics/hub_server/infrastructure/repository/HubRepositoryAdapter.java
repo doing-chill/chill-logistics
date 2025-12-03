@@ -47,7 +47,7 @@ public class HubRepositoryAdapter implements HubRepository {
     public List<Hub> findByNameOrFullAddressContaining(String nameOrFullAddress, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        return jpaHubRepository.findByNameAndFullAddressContainingAndDeletedAtIsNotNull(nameOrFullAddress, nameOrFullAddress, pageable);
+        return jpaHubRepository.findByNameContainingOrFullAddressContainingAndDeletedAtIsNotNull(nameOrFullAddress, nameOrFullAddress, pageable);
     }
 
     @Override
