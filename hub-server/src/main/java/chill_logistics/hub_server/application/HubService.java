@@ -7,9 +7,7 @@ import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.repository.HubRepository;
 import chill_logistics.hub_server.infrastructure.external.UserFeign;
-import chill_logistics.hub_server.infrastructure.external.dto.response.UserResponseV1;
 import chill_logistics.hub_server.lib.error.ErrorCode;
-import chill_logistics.hub_server.presentation.dto.request.UpdateHubRequestV1;
 import java.util.List;
 import java.util.UUID;
 import lib.web.error.BusinessException;
@@ -83,7 +81,6 @@ public class HubService {
             hubList =  hubRepository.findByNameOrFullAddressContaining(hubName, page, size);
         }
         return HubListQueryV1.fromHubs(hubList);
-
     }
 
 
@@ -143,7 +140,8 @@ public class HubService {
 //            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
 //        }
 
-        Hub hub = hubRepository.findById(hubId).orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
+        Hub hub = hubRepository.findById(hubId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
         hub.delete(userId);
     }
 

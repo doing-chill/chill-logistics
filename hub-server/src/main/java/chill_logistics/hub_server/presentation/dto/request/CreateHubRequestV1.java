@@ -45,19 +45,19 @@ public record CreateHubRequestV1 (
     BigDecimal longitude
 ){
 
-    public static CreateHubCommandV1 toCreateHubCommand(CreateHubRequestV1 createHubRequest){
+    public CreateHubCommandV1 toCreateHubCommand(CreateHubRequestV1 createHubRequest){
         return CreateHubCommandV1.builder()
-            .name(createHubRequest.name)
-            .postalCode(createHubRequest.postalCode)
-            .country(createHubRequest.country)
-            .region(createHubRequest.region)
-            .city(createHubRequest.city)
-            .district(createHubRequest.district)
-            .roadName(createHubRequest.roadName)
-            .buildingName(createHubRequest.buildingName)
-            .detailAddress(createHubRequest.detailAddress)
-            .fullAddress(createHubRequest.fullAddress)
-            .latitude(createHubRequest.latitude)
-            .longitude(createHubRequest.longitude).build();
+            .name(this.name)
+            .postalCode(this.postalCode)
+            .country(this.country)
+            .region(this.region)
+            .city(this.city)
+            .district(this.district)
+            .roadName(this.roadName)
+            .buildingName(this.buildingName)
+            .detailAddress(this.detailAddress)
+            .fullAddress(this.fullAddress)
+            .latitude(this.latitude)
+            .longitude(this.longitude).build();
     }
 }

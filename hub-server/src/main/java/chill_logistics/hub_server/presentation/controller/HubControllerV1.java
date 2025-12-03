@@ -7,6 +7,7 @@ import chill_logistics.hub_server.presentation.dto.request.CreateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.request.UpdateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.response.HubInfoResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.HubListResponseV1;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lib.entity.BaseStatus;
@@ -40,11 +41,11 @@ public class HubControllerV1 {
     @ResponseStatus(HttpStatus.CREATED)
     public BaseResponse<Void> createHub(
         //@RequestHeader("User-Id") String userId,
-        @RequestBody CreateHubRequestV1 createHubRequest) {
+        @RequestBody @Valid CreateHubRequestV1 createHubRequest) {
 
         String userId = String.valueOf(UUID.randomUUID());
 
-        hubService.createHub(UUID.fromString(userId), CreateHubRequestV1.toCreateHubCommand(createHubRequest));
+        hubService.createHub(UUID.fromString(userId), createHubRequest.toCreateHubCommand(createHubRequest));
         return BaseResponse.ok(BaseStatus.CREATED);
     }
 
@@ -85,11 +86,11 @@ public class HubControllerV1 {
     public BaseResponse<Void> updateHub(
         //@RequestHeader("User-Id") String userId,
         @PathVariable UUID hubId,
-    @RequestBody UpdateHubRequestV1 updateHubRequest){
+        @RequestBody @Valid UpdateHubRequestV1 updateHubRequest) {
 
         String userId = String.valueOf(UUID.randomUUID());
-
         hubService.updateHub(UUID.fromString(userId), hubId, updateHubRequest.toUpdateHubCommandV1());
+
         return BaseResponse.ok(BaseStatus.OK);
     }
 
@@ -101,18 +102,17 @@ public class HubControllerV1 {
         @PathVariable UUID hubId) {
 
         String userId = String.valueOf(UUID.randomUUID());
-
         hubService.deleteHub(UUID.fromString(userId), hubId);
+
         return BaseResponse.ok(BaseStatus.OK);
-
     }
-
 
 
 
     // 존재하는 허브인지 확인
     @GetMapping("/check/{hubId}")
     public boolean validateHub(@PathVariable UUID hubId) {
+
         return hubService.validateHub(hubId);
     }
 
