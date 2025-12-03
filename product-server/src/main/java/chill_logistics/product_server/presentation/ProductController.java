@@ -16,6 +16,7 @@ import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class ProductController {
 
     /* 상품 추가 */
     @PostMapping()
+    @ResponseStatus(HttpStatus.CREATED)
     public BaseResponse<CreateProductResponseV1> createProduct(
             @RequestBody @Valid CreateProductRequestV1 request) {
 
@@ -50,6 +52,7 @@ public class ProductController {
 
     /* 상품 정보 수정 */
     @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public BaseResponse<Void> updateProduct(
             @PathVariable UUID id,
             @RequestBody @Valid UpdateProductRequestV1 request) {
@@ -69,6 +72,7 @@ public class ProductController {
 
     /* 상품 삭제 */
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public BaseResponse<Void> deleteProduct(@PathVariable UUID id) {
 
         DeleteProductCommandV1 command = new DeleteProductCommandV1(id);
@@ -80,6 +84,7 @@ public class ProductController {
 
     /* 상품 목록 조회 */
     @GetMapping()
+    @ResponseStatus(HttpStatus.OK)
     public BaseResponse<List<ReadProductSummaryResponseV1>> readProductList(
             @ModelAttribute ReadProductRequestV1 request) {
 
@@ -102,6 +107,7 @@ public class ProductController {
 
     /* 상품 단건 조회 */
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public BaseResponse<ReadProductDetailResponseV1> readProduct(@PathVariable UUID id) {
 
         ReadProductDetailResponseV1 response = ReadProductDetailResponseV1.from(productFacade.readProduct(id));
