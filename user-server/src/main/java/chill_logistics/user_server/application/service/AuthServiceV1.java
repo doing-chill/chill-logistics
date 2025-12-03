@@ -9,11 +9,14 @@ import lib.entity.Role;
 import lib.jwt.JwtTokenProvider;
 import lib.jwt.TokenBody;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceV1 {
 
     private final UserRepository userRepository;
@@ -48,24 +51,25 @@ public class AuthServiceV1 {
     }
 
     // 회원가입
+    @Transactional
     public void signup(SignupCommandV1 command) {
 
-        if(userRepository.existsByEmail(command.email())) {
+        if (userRepository.existsByEmail(command.email())) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
 
-        String encodePw = passwordEncoder.encode(command.password());
+        String encodedPw = passwordEncoder.encode(command.password());
 
-        // 기본 role은 FIRM_MANAGER로 사용
         User user = User.createForSignup(
                 command.email(),
                 command.username(),
                 command.nickname(),
-                encodePw,
-                UserRole.FIRM_MANAGER
+                encodedPw,
+                UserRole.MASTER
         );
 
-        User saved = userRepository.save(user);
+        // AuditorAware + JPA Auditing이 createdBy / updatedBy 를 자동으로 채워줌 (SYSTEM UUID)
+        userRepository.save(user);
     }
 
     // 리프레시 토큰 발급

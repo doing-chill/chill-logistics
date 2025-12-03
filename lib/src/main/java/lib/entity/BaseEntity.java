@@ -26,16 +26,13 @@ public class BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-
-    //TODO UUID 제거해야 함
-
     @CreatedBy
     @Column(name = "created_by", updatable = false, columnDefinition = "BINARY(16)", nullable = false)
-    protected UUID createdBy = UUID.randomUUID();
+    protected UUID createdBy;
 
     @LastModifiedBy
     @Column(name = "updated_by", columnDefinition = "BINARY(16)", nullable = false)
-    protected UUID updatedBy = UUID.randomUUID();
+    protected UUID updatedBy;
 
     @Column(name = "deleted_by", columnDefinition = "BINARY(16)")
     protected UUID deletedBy;
