@@ -13,13 +13,11 @@ public class HubDeliveryRepositoryAdapter implements HubDeliveryRepository {
 
     @Override
     public HubDelivery save(HubDelivery hubDelivery) {
-
         return jpaHubDeliveryRepository.save(hubDelivery);
     }
 
     @Override
     public Optional<HubDelivery> findById(UUID hubDeliveryId) {
-
         return jpaHubDeliveryRepository.findById(hubDeliveryId);
     }
 }
