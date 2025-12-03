@@ -1,7 +1,6 @@
 package chill_logistics.hub_server.domain.entity;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
@@ -42,7 +41,7 @@ public class Hub extends BaseEntity {
     @Column(name = "city", nullable = false, length = 50)
     private String city;
 
-    @Column(name = "district", nullable = false, length = 50)
+    @Column(name = "district", length = 50)
     private String district;
 
     @Column(name = "road_name", nullable = false, length = 100)

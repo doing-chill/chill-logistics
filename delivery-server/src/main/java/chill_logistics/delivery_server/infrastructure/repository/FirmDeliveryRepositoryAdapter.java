@@ -13,13 +13,11 @@ public class FirmDeliveryRepositoryAdapter implements FirmDeliveryRepository {
 
     @Override
     public FirmDelivery save(FirmDelivery firmDelivery) {
-
         return jpaFirmDeliveryRepository.save(firmDelivery);
     }
 
     @Override
     public Optional<FirmDelivery> findById(UUID firmDeliveryId) {
-
         return jpaFirmDeliveryRepository.findById(firmDeliveryId);
     }
 }

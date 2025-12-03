@@ -38,4 +38,40 @@ public class Product extends BaseEntity {
 
     @Column(name = "sellable", nullable = false)
     private boolean sellable = true;
+
+    public boolean getSellable() {
+        return sellable;
+    }
+
+    public static Product create(
+            String name,
+            UUID firmId,
+            UUID hubId,
+            int stockQuantity,
+            int price,
+            boolean sellable
+    ) {
+
+        Product product = new Product();
+        product.name = name;
+        product.firmId = firmId;
+        product.hubId = hubId;
+        product.stockQuantity = stockQuantity;
+        product.price = price;
+        product.sellable = sellable;
+
+        return product;
+    }
+
+    public void update(
+            String name,
+            Integer stockQuantity,
+            Integer price,
+            Boolean sellable) {
+
+        if (name != null) this.name = name;
+        if (stockQuantity != null) this.stockQuantity = stockQuantity;
+        if (price != null) this.price = price;
+        if (sellable != null) this.sellable = sellable;
+    }
 }
