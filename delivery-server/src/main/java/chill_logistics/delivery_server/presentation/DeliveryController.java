@@ -7,6 +7,7 @@ import chill_logistics.delivery_server.application.dto.query.HubDeliveryInfoResp
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryCancelRequestV1;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryCreateRequestV1;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryStatusChangeRequestV1;
+import chill_logistics.delivery_server.presentation.dto.response.FirmDeliveryPageResponseV1;
 import chill_logistics.delivery_server.presentation.dto.response.HubDeliveryPageResponseV1;
 import java.util.UUID;
 import lib.entity.BaseStatus;
@@ -106,11 +107,11 @@ public class DeliveryController {
     }
 
     /**
-     * [허브배송 목록 조회]
+     * [허브배송 검색 조회]
      *
      * @param startHubName 허브배송에서 검색하고자 하는 허브명
-     * @param page 조회할 페이지 번호 (0부터 시작)
-     * @param size 페이지 당 조회할 데이터 개수
+     * @param page         조회할 페이지 번호 (0부터 시작)
+     * @param size         페이지 당 조회할 데이터 개수
      * @return 허브배송 요약 정보 목록 + 페이징 정보
      */
     @GetMapping("/hub-deliveries")
@@ -139,6 +140,27 @@ public class DeliveryController {
 
         FirmDeliveryInfoResponseV1 response = deliveryQueryService.getFirmDelivery(firmDeliveryId);
 
-        return  BaseResponse.ok(response, BaseStatus.OK);
+        return BaseResponse.ok(response, BaseStatus.OK);
+    }
+
+    /**
+     * [업체배송 검색 조회]
+     *
+     * @param firmOwnerName 업체배송에서 검색하고자 하는 주문자명
+     * @param page 조회할 페이지 번호 (0부터 시작)
+     * @param size 페이지 당 조회할 데이터 개수
+     * @return 업체배송 요약 정보 목록 + 페이징 정보
+     */
+    @GetMapping("/firm-deliveries")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<FirmDeliveryPageResponseV1> searchFirmDeliveries(
+        @RequestParam(required = false) String firmOwnerName,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size) {
+
+        FirmDeliveryPageResponseV1 response = deliveryQueryService.searchFirmDeliveryByFirmOwnerName(
+            firmOwnerName, page, size);
+
+        return BaseResponse.ok(response, BaseStatus.OK);
     }
 }
