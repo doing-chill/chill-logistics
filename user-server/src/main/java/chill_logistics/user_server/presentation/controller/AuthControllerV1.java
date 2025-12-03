@@ -49,8 +49,8 @@ public class AuthControllerV1 {
 
     @PostMapping("/reissue-token")
     public BaseResponse<ReissueTokenResponseDtoV1> reissueToken(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
-    ) {
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+
         if (authHeader == null || authHeader.isBlank()) {
             throw new IllegalArgumentException("Authorization 헤더가 없습니다.");
         }
