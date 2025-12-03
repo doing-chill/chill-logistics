@@ -2,6 +2,7 @@ package chill_logistics.delivery_server.application.dto.query;
 
 import chill_logistics.delivery_server.domain.entity.DeliveryStatus;
 import chill_logistics.delivery_server.domain.entity.HubDelivery;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record HubDeliveryInfoResponseV1(
@@ -16,7 +17,13 @@ public record HubDeliveryInfoResponseV1(
     UUID deliveryPersonId,
     Integer deliverySequenceNum,
     DeliveryStatus deliveryStatus,
-    Integer expectedDeliveryDuration) {
+    Integer expectedDeliveryDuration,
+    LocalDateTime createdAt,
+    UUID createdBy,
+    LocalDateTime updatedAt,
+    UUID updatedBy,
+    LocalDateTime deletedAt,
+    UUID deletedBy) {
 
     public static HubDeliveryInfoResponseV1 from(HubDelivery hubDelivery) {
 
@@ -32,7 +39,13 @@ public record HubDeliveryInfoResponseV1(
             hubDelivery.getDeliveryPersonId(),
             hubDelivery.getDeliverySequenceNum(),
             hubDelivery.getDeliveryStatus(),
-            hubDelivery.getExpectedDeliveryDuration()
+            hubDelivery.getExpectedDeliveryDuration(),
+            hubDelivery.getCreatedAt(),
+            hubDelivery.getCreatedBy(),
+            hubDelivery.getUpdatedAt(),
+            hubDelivery.getUpdatedBy(),
+            hubDelivery.getDeletedAt(),
+            hubDelivery.getDeletedBy()
         );
     }
 }
