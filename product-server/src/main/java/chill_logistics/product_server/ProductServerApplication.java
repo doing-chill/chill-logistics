@@ -3,6 +3,7 @@ package chill_logistics.product_server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication(
     scanBasePackages = {
@@ -13,6 +14,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
     }
 )
 @EnableDiscoveryClient
+@EnableJpaAuditing
 public class ProductServerApplication {
 
     public static void main(String[] args) {
