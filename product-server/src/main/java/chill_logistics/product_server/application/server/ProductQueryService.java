@@ -5,7 +5,7 @@ import chill_logistics.product_server.application.dto.query.ReadProductDetailRes
 import chill_logistics.product_server.application.dto.query.ReadProductSummaryResultV1;
 import chill_logistics.product_server.domain.entity.Product;
 import chill_logistics.product_server.domain.repository.ProductRepository;
-import chill_logistics.product_server.lib.exception.ErrorCode;
+import chill_logistics.product_server.lib.error.ErrorCode;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

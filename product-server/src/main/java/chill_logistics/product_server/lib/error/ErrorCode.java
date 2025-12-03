@@ -1,4 +1,4 @@
-package chill_logistics.product_server.lib.exception;
+package chill_logistics.product_server.lib.error;
 
 import lib.web.error.BaseErrorCode;
 import lombok.Getter;
