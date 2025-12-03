@@ -6,13 +6,17 @@ import java.util.UUID;
 public record HubRouteAfterCreateV1(
     UUID orderId,
     UUID startHubId,
+    String startHubName,
+    String startHubFullAddress,
     UUID endHubId,
+    String endHubName,
+    String endHubFullAddress,
     UUID receiverFirmId,
     String receiverFirmFullAddress,
     String receiverFirmOwnerName,
     String requestNote,
     String productName,
     int productQuantity,
-    LocalDateTime orderCreatedAt
-    // TODO: + 예상 소요 시간 (허브 간 이동 정보 기반)
+    LocalDateTime orderCreatedAt,
+    Integer expectedDeliveryDuration
 ) {}
