@@ -1,6 +1,6 @@
 package chill_logistics.product_server.application.server;
 
-import chill_logistics.product_server.application.command.ReadProductCommandV1;
+import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
 import chill_logistics.product_server.application.dto.query.ReadProductDetailResultV1;
 import chill_logistics.product_server.application.dto.query.ReadProductSummaryResultV1;
 import chill_logistics.product_server.domain.entity.Product;

@@ -1,10 +1,10 @@
 package chill_logistics.product_server.presentation;
 
 import chill_logistics.product_server.application.ProductFacade;
-import chill_logistics.product_server.application.command.CreateProductCommandV1;
-import chill_logistics.product_server.application.command.DeleteProductCommandV1;
-import chill_logistics.product_server.application.command.ReadProductCommandV1;
-import chill_logistics.product_server.application.command.UpdateProductCommandV1;
+import chill_logistics.product_server.application.dto.command.CreateProductCommandV1;
+import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
+import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
+import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
 import chill_logistics.product_server.presentation.dto.request.CreateProductRequestV1;
 import chill_logistics.product_server.presentation.dto.request.ReadProductRequestV1;
 import chill_logistics.product_server.presentation.dto.request.UpdateProductRequestV1;
