@@ -1,6 +1,7 @@
 package chill_logistics.user_server.infrastructure.config;
 
-import chill_logistics.user_server.infrastructure.security.JwtAuthenticationFilter;
+import lib.jwt.JwtTokenProvider;
+import lib.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.Set;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -22,7 +25,20 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        // user-server 에서 토큰 없이 열어둘 URL prefix들
+        return new JwtAuthenticationFilter(
+                jwtTokenProvider,
+                Set.of(
+                        "/v1/user/login",
+                        "/v1/user/signup",
+                        "/v1/user/reissue-token"
+                )
+        );
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,7 +55,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
