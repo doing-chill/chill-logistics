@@ -1,6 +1,7 @@
 package chill_logistics.delivery_server.infrastructure.kafka;
 
-import chill_logistics.delivery_server.application.DeliveryService;
+import chill_logistics.delivery_server.application.DeliveryCommandService;
+import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
 import chill_logistics.delivery_server.infrastructure.kafka.dto.HubRouteAfterCreateV1;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class HubAfterCreateListener {
 
-    private final DeliveryService deliveryService;
+    private final DeliveryCommandService deliveryCommandService;
 
     @KafkaListener(
         topics = "order-after-create",
@@ -23,11 +24,13 @@ public class HubAfterCreateListener {
 
         log.info("Kafka 메시지 수신: {}", message);
 
-        // 브/업체 배송 담당자 배정 (임시 스텁)
+        // 허브/업체 배송 담당자 배정 (임시 스텁)
         UUID hubDeliveryPersonId = assignHubDeliveryPerson(message);
         UUID firmDeliveryPersonId = assignFirmDeliveryPerson(message);
 
-        deliveryService.createDelivery(message, hubDeliveryPersonId, firmDeliveryPersonId);
+        HubRouteAfterCommandV1 command = message.toCommand();
+
+        deliveryCommandService.createDelivery(command, hubDeliveryPersonId, firmDeliveryPersonId);
     }
 
     // 허브 배송 담당자 배정 (임시 버전 - 이후 배정 로직으로 교체)
