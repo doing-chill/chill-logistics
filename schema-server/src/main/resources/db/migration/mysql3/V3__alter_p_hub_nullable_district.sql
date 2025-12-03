@@ -1,0 +1,2 @@
+ALTER TABLE p_hub
+    MODIFY COLUMN district VARCHAR(50) NULL;
