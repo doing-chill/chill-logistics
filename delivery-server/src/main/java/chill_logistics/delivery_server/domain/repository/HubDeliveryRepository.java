@@ -12,5 +12,5 @@ public interface HubDeliveryRepository {
 
     Optional<HubDelivery> findById(UUID hubDeliveryId);
 
-    CustomPageResult<HubDelivery> searchByHubName(String hubName, CustomPageRequest customPageRequest);
+    CustomPageResult<HubDelivery> searchByStartHubName(String startHubName, CustomPageRequest customPageRequest);
 }

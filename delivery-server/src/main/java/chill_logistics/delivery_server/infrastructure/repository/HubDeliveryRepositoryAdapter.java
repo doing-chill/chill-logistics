@@ -26,14 +26,14 @@ public class HubDeliveryRepositoryAdapter implements HubDeliveryRepository {
     }
 
     @Override
-    public CustomPageResult<HubDelivery> searchByHubName(
-        String hubName,
+    public CustomPageResult<HubDelivery> searchByStartHubName(
+        String startHubName,
         CustomPageRequest customPageRequest) {
 
         PageRequest pageable = PageRequest.of(customPageRequest.page(), customPageRequest.size());
 
         Page<HubDelivery> page =
-            jpaHubDeliveryRepository.findByStartHubNameAndDeletedAtIsNull(hubName, pageable);
+            jpaHubDeliveryRepository.findByStartHubNameAndDeletedAtIsNull(startHubName, pageable);
 
         return CustomPageResult.of(
             page.getContent(),
