@@ -1,9 +1,9 @@
 package chill_logistics.delivery_server.presentation;
 
 import chill_logistics.delivery_server.application.DeliveryCommandService;
-import chill_logistics.delivery_server.presentation.dto.DeliveryCancelRequestV1;
-import chill_logistics.delivery_server.presentation.dto.DeliveryCreateRequestV1;
-import chill_logistics.delivery_server.presentation.dto.DeliveryStatusChangeRequestV1;
+import chill_logistics.delivery_server.presentation.dto.request.DeliveryCancelRequestV1;
+import chill_logistics.delivery_server.presentation.dto.request.DeliveryCreateRequestV1;
+import chill_logistics.delivery_server.presentation.dto.request.DeliveryStatusChangeRequestV1;
 import java.util.UUID;
 import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
