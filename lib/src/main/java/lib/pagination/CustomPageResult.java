@@ -33,4 +33,14 @@ public class CustomPageResult<T> {
     public static <T> CustomPageResult<T> sliceOf(List<T> itemList, int page, int size, boolean hasNext) {
         return new CustomPageResult<>(itemList, page, size, -1, hasNext);
     }
+
+    // 총 페이지 수 계산
+    public int totalPages() {
+
+        if (totalCount <= 0 || size <= 0) {
+            return 0;
+        }
+
+        return  (int) Math.ceil((double) totalCount / size);
+    }
 }
