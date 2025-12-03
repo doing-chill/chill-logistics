@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DeliveryService {
+public class DeliveryCommandService {
 
     private final HubDeliveryRepository hubDeliveryRepository;
     private final FirmDeliveryRepository firmDeliveryRepository;

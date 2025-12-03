@@ -1,6 +1,6 @@
 package chill_logistics.delivery_server.presentation;
 
-import chill_logistics.delivery_server.application.DeliveryService;
+import chill_logistics.delivery_server.application.DeliveryCommandService;
 import chill_logistics.delivery_server.presentation.dto.DeliveryCancelRequestV1;
 import chill_logistics.delivery_server.presentation.dto.DeliveryCreateRequestV1;
 import chill_logistics.delivery_server.presentation.dto.DeliveryStatusChangeRequestV1;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1")
 public class DeliveryController {
 
-    private final DeliveryService deliveryService;
+    private final DeliveryCommandService deliveryCommandService;
 
     /**
      * [배송 생성]
@@ -37,7 +37,7 @@ public class DeliveryController {
     @ResponseStatus(HttpStatus.CREATED)
     public BaseResponse<Void> createDelivery(@RequestBody DeliveryCreateRequestV1 request) {
 
-        deliveryService.createDelivery(
+        deliveryCommandService.createDelivery(
             request.orderInfo(),
             request.hubDeliveryPersonId(),
             request.firmDeliveryPersonId()
@@ -59,7 +59,7 @@ public class DeliveryController {
         @PathVariable("deliveryId") UUID deliveryId,
         @RequestBody DeliveryStatusChangeRequestV1 request) {
 
-        deliveryService.changeDeliveryStatus(deliveryId, request);
+        deliveryCommandService.changeDeliveryStatus(deliveryId, request);
 
         return BaseResponse.ok(BaseStatus.OK);
     }
@@ -77,7 +77,7 @@ public class DeliveryController {
         @PathVariable("deliveryId") UUID deliveryId,
         @RequestBody DeliveryCancelRequestV1 request) {
 
-        deliveryService.cancelDelivery(deliveryId, request);
+        deliveryCommandService.cancelDelivery(deliveryId, request);
 
         return BaseResponse.ok(BaseStatus.OK);
     }
