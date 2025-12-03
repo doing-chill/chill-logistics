@@ -1,0 +1,2 @@
+ALTER TABLE p_firm
+    MODIFY COLUMN district VARCHAR(50) NULL;
