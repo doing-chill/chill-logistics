@@ -3,10 +3,13 @@ package chill_logistics.product_server.presentation;
 import chill_logistics.product_server.application.ProductFacade;
 import chill_logistics.product_server.application.command.CreateProductCommandV1;
 import chill_logistics.product_server.application.command.DeleteProductCommandV1;
+import chill_logistics.product_server.application.command.SearchProductCommandV1;
 import chill_logistics.product_server.application.command.UpdateProductCommandV1;
 import chill_logistics.product_server.presentation.dto.request.CreateProductRequestV1;
+import chill_logistics.product_server.presentation.dto.request.SearchProductRequestV1;
 import chill_logistics.product_server.presentation.dto.request.UpdateProductRequestV1;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
+import chill_logistics.product_server.presentation.dto.response.SearchProductSummaryResponseV1;
 import jakarta.validation.Valid;
 import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
@@ -14,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -27,8 +31,7 @@ public class ProductController {
     /* 상품 추가 */
     @PostMapping()
     public BaseResponse<CreateProductResponseV1> createProduct(
-            @RequestBody @Valid CreateProductRequestV1 request
-    ) {
+            @RequestBody @Valid CreateProductRequestV1 request) {
 
         CreateProductCommandV1 command = new CreateProductCommandV1(
                 request.name(),
@@ -48,8 +51,7 @@ public class ProductController {
     @PatchMapping("/{id}")
     public BaseResponse<Void> updateProduct(
             @PathVariable UUID id,
-            @RequestBody @Valid UpdateProductRequestV1 request
-    ) {
+            @RequestBody @Valid UpdateProductRequestV1 request) {
 
         UpdateProductCommandV1 command = new UpdateProductCommandV1(
                 id,
@@ -66,14 +68,34 @@ public class ProductController {
 
     /* 상품 삭제 */
     @DeleteMapping("/{id}")
-    public BaseResponse<Void> deleteProduct(
-            @PathVariable UUID id
-    ) {
+    public BaseResponse<Void> deleteProduct(@PathVariable UUID id) {
 
         DeleteProductCommandV1 command = new DeleteProductCommandV1(id);
 
         productFacade.deleteProduct(command);
 
         return BaseResponse.ok(BaseStatus.OK);
+    }
+
+    /* 상품 목록 조회 */
+    @GetMapping()
+    public BaseResponse<List<SearchProductSummaryResponseV1>> searchProductList(
+            @ModelAttribute SearchProductRequestV1 search) {
+
+        SearchProductCommandV1 command = new SearchProductCommandV1(
+                search.name(),
+                search.firmId(),
+                search.hubId(),
+                search.sellable()
+        );
+
+        List<SearchProductSummaryResponseV1> response =
+                productFacade
+                        .searchProductList(command)
+                        .stream()
+                        .map(SearchProductSummaryResponseV1::from)
+                        .toList();
+
+        return BaseResponse.ok(response, BaseStatus.OK);
     }
 }

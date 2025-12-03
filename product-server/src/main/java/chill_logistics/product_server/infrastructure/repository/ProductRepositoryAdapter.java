@@ -4,6 +4,7 @@ import chill_logistics.product_server.domain.entity.Product;
 import chill_logistics.product_server.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,5 +21,10 @@ public class ProductRepositoryAdapter implements ProductRepository {
     @Override
     public Optional<Product> findById(UUID id) {
         return jpaProductRepository.findById(id);
+    }
+
+    @Override
+    public List<Product> searchProductList(String name, UUID firmId, UUID hubId, Boolean sellable) {
+        return jpaProductRepository.searchProductList(name, firmId, hubId, sellable);
     }
 }
