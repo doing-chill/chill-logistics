@@ -4,7 +4,9 @@ import chill_logistics.order_server.application.dto.ProductResultV1;
 import chill_logistics.order_server.application.dto.command.*;
 import chill_logistics.order_server.domain.entity.Order;
 import chill_logistics.order_server.domain.entity.OrderProduct;
+import chill_logistics.order_server.domain.entity.OrderQuery;
 import chill_logistics.order_server.domain.entity.OrderStatus;
+import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
 import chill_logistics.order_server.lib.error.ErrorCode;
 import lib.web.error.BusinessException;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class OrderCommandService {
 
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     private Order readProductOrThrow(UUID orderId) {
         return orderRepository.findById(orderId)
@@ -67,10 +70,24 @@ public class OrderCommandService {
 
         Order createOrder = orderRepository.save(order);
 
-        // TODO: 주문 생성 시 order_after_create_message 발행
-        // TODO: 주문 생성 시 주문 읽기도 생성
+        // 주문 생성 시 주문 읽기 생성
+        // TODO: supplier, receiver 정보 수정 예정, info dto로 수정 예정
+        // TODO: 추후 주문 읽기 전략 수정예정 (임시: 대표 상품)
+        OrderQuery orderQuery = OrderQuery.from(
+                createOrder,
+                supplierResult,
+                receiverResult
+        );
 
-        return CreateOrderResultV1.from(createOrder, FirmInfoV1.from(supplierResult), FirmInfoV1.from(receiverResult));
+        orderQueryRepository.save(orderQuery);
+
+        // TODO: 주문 생성 시 order_after_create_message 발행
+
+        return CreateOrderResultV1.from(
+                createOrder,
+                FirmInfoV1.from(supplierResult),
+                FirmInfoV1.from(receiverResult)
+        );
     }
 
     @Transactional
