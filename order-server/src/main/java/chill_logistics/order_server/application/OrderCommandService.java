@@ -3,6 +3,8 @@ package chill_logistics.order_server.application;
 import chill_logistics.order_server.application.dto.ProductResultV1;
 import chill_logistics.order_server.application.dto.command.*;
 import chill_logistics.order_server.domain.entity.Order;
+import chill_logistics.order_server.domain.entity.OrderProduct;
+import chill_logistics.order_server.domain.entity.OrderStatus;
 import chill_logistics.order_server.domain.repository.OrderRepository;
 import chill_logistics.order_server.lib.error.ErrorCode;
 import lib.web.error.BusinessException;
@@ -82,6 +84,24 @@ public class OrderCommandService {
         // 상태 변경
         order.updateStatus(command.status());
 
-        // TODO: 주문 읽기 업데이트
+        // TODO: 주문 읽기 업데이트 (OrderStatus)
+    }
+
+    @Transactional
+    public void deleteOrder(UUID id) {
+
+        // TODO: 권한 체크
+
+        // 주문 조회
+        Order order = readProductOrThrow(id);
+
+        order.updateStatus(OrderStatus.CANCELED);
+        UUID userId = null;
+        order.delete(userId);  // TODO: 로그인 유저id로 변경해야 함
+
+        // TODO: 재고 복원 (상품 서버 api 호출 )
+        List<OrderProduct> orderProductList= order.getOrderProductList();
+
+        // TODO: 주문 읽기 업데이트 (OrderStatus, delete)
     }
 }

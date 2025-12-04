@@ -49,4 +49,14 @@ public class OrderController {
 
         return BaseResponse.ok(BaseStatus.OK);
     }
+
+    /* 주문 취소 */
+    @DeleteMapping("/{id}/cancel")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<Void> deleteOrder(@PathVariable UUID id) {
+
+        orderFacade.deleteOrder(id);
+
+        return BaseResponse.ok(BaseStatus.OK);
+    }
 }

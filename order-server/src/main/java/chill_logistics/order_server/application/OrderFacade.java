@@ -24,4 +24,8 @@ public class OrderFacade {
     public void updateOrderStatus(UUID id, UpdateOrderStatusCommandV1 command) {
         orderCommandService.updateOrderStatus(id, command);
     }
+
+    public void deleteOrder(UUID id) {
+        orderCommandService.deleteOrder(id);
+    }
 }

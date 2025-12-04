@@ -5,7 +5,9 @@ import chill_logistics.order_server.lib.error.ErrorCode;
 import jakarta.persistence.*;
 import lib.entity.BaseEntity;
 import lib.web.error.BusinessException;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "p_order")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
 
     @Id
@@ -78,8 +81,8 @@ public class Order extends BaseEntity {
 
     private boolean canTransitionTo(OrderStatus status) {
         return switch (this.orderStatus) {
-            case CREATED -> status == OrderStatus.PROCESSING;
-            case PROCESSING -> status == OrderStatus.IN_TRANSIT;
+            case CREATED -> status == OrderStatus.PROCESSING || status == OrderStatus.CANCELED;
+            case PROCESSING -> status == OrderStatus.IN_TRANSIT || status == OrderStatus.CANCELED;
             case IN_TRANSIT -> status == OrderStatus.COMPLETED;
             case COMPLETED, CANCELED -> false;
         };
