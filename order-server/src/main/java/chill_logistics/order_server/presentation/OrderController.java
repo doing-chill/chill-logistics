@@ -2,8 +2,10 @@ package chill_logistics.order_server.presentation;
 
 import chill_logistics.order_server.application.OrderFacade;
 import chill_logistics.order_server.presentation.dto.request.CreateOrderRequestV1;
+import chill_logistics.order_server.presentation.dto.request.ReadOrderRequestV1;
 import chill_logistics.order_server.presentation.dto.request.UpdateOrderStatusRequestV1;
 import chill_logistics.order_server.presentation.dto.response.CreateOrderResponseV1;
+import chill_logistics.order_server.presentation.dto.response.ReadOrderSummaryResponseV1;
 import jakarta.validation.Valid;
 import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -58,5 +61,20 @@ public class OrderController {
         orderFacade.deleteOrder(id);
 
         return BaseResponse.ok(BaseStatus.OK);
+    }
+
+    /* 주문 목록 조회 */
+    @GetMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<List<ReadOrderSummaryResponseV1>> readOrderList(
+            @ModelAttribute ReadOrderRequestV1 request) {
+
+        List<ReadOrderSummaryResponseV1> response =
+                orderFacade.readOrderList(request.toCommand())
+                        .stream()
+                        .map(ReadOrderSummaryResponseV1::from)
+                        .toList();
+
+        return BaseResponse.ok(response, BaseStatus.OK);
     }
 }
