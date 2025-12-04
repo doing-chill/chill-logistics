@@ -39,7 +39,7 @@ public class OrderController {
     }
 
     /* 주문 상태 수정 */
-    @PatchMapping()
+    @PatchMapping("/{id}/status")
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<Void> updateOrderStatus(
             @PathVariable UUID id,

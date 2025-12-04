@@ -82,6 +82,6 @@ public class Order extends BaseEntity {
             case PROCESSING -> status == OrderStatus.IN_TRANSIT;
             case IN_TRANSIT -> status == OrderStatus.COMPLETED;
             case COMPLETED, CANCELED -> false;
-        }
+        };
     }
 }
