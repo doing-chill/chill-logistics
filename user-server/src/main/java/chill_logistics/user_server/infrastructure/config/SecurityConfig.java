@@ -33,9 +33,9 @@ public class SecurityConfig {
         return new JwtAuthenticationFilter(
                 jwtTokenProvider,
                 Set.of(
-                        "/v1/user/login",
-                        "/v1/user/signup",
-                        "/v1/user/reissue-token"
+                        "/v1/users/login",
+                        "/v1/users/signup",
+                        "/v1/users/reissue-token"
                 )
         );
     }
@@ -48,10 +48,11 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/v1/user/login",
-                                "/v1/user/signup",
-                                "/v1/user/reissue-token"
+                                "/v1/users/login",
+                                "/v1/users/signup",
+                                "/v1/users/reissue-token"
                         ).permitAll()
+                        .requestMatchers("/v1/master/**").hasRole("MASTER")
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)

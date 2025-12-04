@@ -33,4 +33,8 @@ public class DeliveryAdmin extends BaseEntity {
 
     @Column(name = "delivery_sequence_num", nullable = false)
     private int deliverySequenceNum;
+
+    public void updateHubId(UUID hubId) {
+        this.hubId = hubId;
+    }
 }
