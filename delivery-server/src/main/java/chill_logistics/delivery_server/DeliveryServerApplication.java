@@ -8,9 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication(
 	scanBasePackages = {
 		"chill_logistics.delivery_server",
-		"lib.entity",
-		"lib.web",
-		"lib.util"
+		"lib"
 	}
 )
 @EnableDiscoveryClient
