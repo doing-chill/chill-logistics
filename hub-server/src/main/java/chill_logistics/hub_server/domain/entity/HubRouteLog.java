@@ -30,7 +30,9 @@ public class HubRouteLog extends BaseEntity {
 
     @Column(name = "total_duration")
     private Integer totalDuration;
+    //총 소요 시간
 
     @Column(name = "total_distance", precision = 10, scale = 3)
     private BigDecimal totalDistance;
+    // 총 거리 km
 }

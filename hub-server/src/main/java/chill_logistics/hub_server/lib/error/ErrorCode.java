@@ -18,6 +18,9 @@ public enum ErrorCode implements BaseErrorCode {
 
     // 409
     HUB_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 허브명입니다."),
+
+    KAKAO_SERVER_ERROR(HttpStatus.BAD_REQUEST, "카카오 요청 API가 동작하지 않습니다")
+
     ;
 
 
