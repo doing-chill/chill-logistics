@@ -32,8 +32,14 @@ public class HubDeliveryRepositoryAdapter implements HubDeliveryRepository {
 
         PageRequest pageable = PageRequest.of(customPageRequest.page(), customPageRequest.size());
 
-        Page<HubDelivery> page =
-            jpaHubDeliveryRepository.findByStartHubNameAndDeletedAtIsNull(startHubName, pageable);
+        Page<HubDelivery> page;
+
+        // 검색어 없으면 전체 조회, 있으면 조건 검색
+        if (startHubName == null || startHubName.isBlank()) {
+            page = jpaHubDeliveryRepository.findByDeletedAtIsNull(pageable);
+        } else {
+            page = jpaHubDeliveryRepository.findByStartHubNameAndDeletedAtIsNull(startHubName, pageable);
+        }
 
         return CustomPageResult.of(
             page.getContent(),

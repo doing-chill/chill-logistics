@@ -7,8 +7,8 @@ import chill_logistics.delivery_server.domain.entity.HubDelivery;
 import chill_logistics.delivery_server.domain.repository.FirmDeliveryRepository;
 import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;
 import chill_logistics.delivery_server.presentation.ErrorCode;
-import chill_logistics.delivery_server.presentation.dto.DeliveryCancelRequestV1;
-import chill_logistics.delivery_server.presentation.dto.DeliveryStatusChangeRequestV1;
+import chill_logistics.delivery_server.presentation.dto.request.DeliveryCancelRequestV1;
+import chill_logistics.delivery_server.presentation.dto.request.DeliveryStatusChangeRequestV1;
 import java.util.UUID;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -142,15 +142,15 @@ public class DeliveryCommandService {
         }
     }
 
-    private HubDelivery getHubDeliveryByIdOrThrow(UUID deliveryId) {
+    private HubDelivery getHubDeliveryByIdOrThrow(UUID hubDeliveryId) {
 
-        return hubDeliveryRepository.findById(deliveryId)
+        return hubDeliveryRepository.findById(hubDeliveryId)
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_DELIVERY_NOT_FOUND));
     }
 
-    private FirmDelivery getFirmDeliveryByIdOrThrow(UUID deliveryId) {
+    private FirmDelivery getFirmDeliveryByIdOrThrow(UUID firmDeliveryId) {
 
-        return firmDeliveryRepository.findById(deliveryId)
+        return firmDeliveryRepository.findById(firmDeliveryId)
             .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_DELIVERY_NOT_FOUND));
     }
 }

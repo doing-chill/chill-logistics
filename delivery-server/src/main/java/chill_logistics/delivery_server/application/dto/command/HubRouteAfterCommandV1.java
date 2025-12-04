@@ -20,3 +20,5 @@ public record HubRouteAfterCommandV1(
     LocalDateTime orderCreatedAt,
     Integer expectedDeliveryDuration
 ) {}
+
+// TODO: expectedDeliveryDuration 타입 수정 필요한지 확인

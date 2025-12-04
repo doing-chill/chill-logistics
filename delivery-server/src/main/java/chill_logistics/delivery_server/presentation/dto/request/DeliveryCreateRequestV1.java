@@ -1,4 +1,4 @@
-package chill_logistics.delivery_server.presentation.dto;
+package chill_logistics.delivery_server.presentation.dto.request;
 
 import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
 import jakarta.validation.constraints.NotNull;
