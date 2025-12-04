@@ -4,12 +4,15 @@ import chill_logistics.order_server.application.dto.ProductResultV1;
 import chill_logistics.order_server.application.dto.command.*;
 import chill_logistics.order_server.domain.entity.Order;
 import chill_logistics.order_server.domain.repository.OrderRepository;
+import chill_logistics.order_server.lib.error.ErrorCode;
+import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -17,6 +20,11 @@ import java.util.List;
 public class OrderCommandService {
 
     private final OrderRepository orderRepository;
+
+    private Order readProductOrThrow(UUID orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+    }
 
     @Transactional
     public CreateOrderResultV1 createOrder(CreateOrderCommandV1 command) {
@@ -61,5 +69,19 @@ public class OrderCommandService {
         // TODO: 주문 생성 시 주문 읽기도 생성
 
         return CreateOrderResultV1.from(createOrder, FirmInfoV1.from(supplierResult), FirmInfoV1.from(receiverResult));
+    }
+
+    @Transactional
+    public void updateOrderStatus(UUID id, UpdateOrderStatusCommandV1 command) {
+
+        // TODO: 권한 체크
+
+        // 주문 조회
+        Order order = readProductOrThrow(id);
+
+        // 상태 변경
+        order.updateStatus(command.status());
+
+        // TODO: 주문 읽기 업데이트
     }
 }

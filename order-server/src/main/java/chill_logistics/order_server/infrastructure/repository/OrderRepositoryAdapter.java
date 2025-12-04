@@ -4,6 +4,9 @@ import chill_logistics.order_server.domain.entity.Order;
 import chill_logistics.order_server.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @RequiredArgsConstructor
 public class OrderRepositoryAdapter implements OrderRepository {
 
@@ -12,5 +15,10 @@ public class OrderRepositoryAdapter implements OrderRepository {
     @Override
     public Order save(Order order) {
         return jpaOrderRepository.save(order);
+    }
+
+    @Override
+    public Optional<Order> findById(UUID orderId) {
+        return jpaOrderRepository.findById(orderId);
     }
 }

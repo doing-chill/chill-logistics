@@ -1,8 +1,10 @@
 package chill_logistics.order_server.domain.entity;
 
 import chill_logistics.order_server.application.dto.command.OrderProductInfoV1;
+import chill_logistics.order_server.lib.error.ErrorCode;
 import jakarta.persistence.*;
 import lib.entity.BaseEntity;
+import lib.web.error.BusinessException;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -65,4 +67,21 @@ public class Order extends BaseEntity {
         orderProduct.setOrder(this);
     }
 
+    public void updateStatus(OrderStatus status) {
+
+        if (!canTransitionTo(status)) {
+            throw new BusinessException(ErrorCode.INVALID_ORDER_STATUS_TRANSITION);
+        }
+
+        this.orderStatus = status;
+    }
+
+    private boolean canTransitionTo(OrderStatus status) {
+        return switch (this.orderStatus) {
+            case CREATED -> status == OrderStatus.PROCESSING;
+            case PROCESSING -> status == OrderStatus.IN_TRANSIT;
+            case IN_TRANSIT -> status == OrderStatus.COMPLETED;
+            case COMPLETED, CANCELED -> false;
+        }
+    }
 }
