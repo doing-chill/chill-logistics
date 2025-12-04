@@ -23,13 +23,12 @@ public class OrderCommandService {
 
         // TODO: 권한 체크
 
-        // TODO: 업체 조회 후 업체 이름, hub id 가져오기
+        // TODO: 업체 조회 후 업체 이름, hub id, (수령)업체 주소, (수령)업체 주인 이름 가져오기
         FirmResultV1 supplierResult = null;
         FirmResultV1 receiverResult = null;
 
-        // TODO: 허브 조회 후 허브 주소 가져오기
-
         // TODO: 상품 조회 후 상품 정보(이름, 가격) 가져오기
+        // TODO: 공급 업체 소속 삼품들인지 체크
         List<OrderProductInfoV1> orderProductInfoList =
                 command.productList()
                         .stream()
@@ -46,6 +45,8 @@ public class OrderCommandService {
                         })
                         .toList();
 
+        // TODO: 상품 재고 체크
+
         // 주문 생성
         Order order = Order.create(
                 command.supplierFirmId(),
@@ -57,6 +58,7 @@ public class OrderCommandService {
         Order createOrder = orderRepository.save(order);
 
         // TODO: 주문 생성 시 order_after_create_message 발행
+        // TODO: 주문 생성 시 주문 읽기도 생성
 
         return CreateOrderResultV1.from(createOrder, FirmInfoV1.from(supplierResult), FirmInfoV1.from(receiverResult));
     }
