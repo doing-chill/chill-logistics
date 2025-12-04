@@ -1,16 +1,23 @@
 package chill_logistics.order_server.domain.entity;
 
+import chill_logistics.order_server.application.dto.command.OrderProductInfoV1;
 import jakarta.persistence.*;
-import lib.entity.BaseEntity;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 @Entity
 @Table(name = "p_order_product")
-public class OrderProduct extends BaseEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
+public class OrderProduct {
 
     @Id
     @GeneratedValue(generator = "uuidv7")
@@ -41,4 +48,23 @@ public class OrderProduct extends BaseEntity {
 
     @Column(name = "quantity", nullable = false)
     private int quantity;
+
+    @CreatedDate
+    @Column(name = "created_at", updatable = false, nullable = false)
+    private LocalDateTime createdAt;
+
+    public static OrderProduct create(OrderProductInfoV1 orderProductInfo) {
+
+        OrderProduct orderProduct = new OrderProduct();
+        orderProduct.productId = orderProductInfo.productId();
+        orderProduct.productName = orderProductInfo.productName();
+        orderProduct.productPrice = orderProductInfo.price();
+        orderProduct.quantity = orderProductInfo.quantity();
+
+        return orderProduct;
+    }
+
+    protected void setOrder(Order order) {
+        this.order = order;
+    }
 }
