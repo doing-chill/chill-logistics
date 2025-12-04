@@ -5,6 +5,7 @@ import chill_logistics.order_server.presentation.dto.request.CreateOrderRequestV
 import chill_logistics.order_server.presentation.dto.request.ReadOrderRequestV1;
 import chill_logistics.order_server.presentation.dto.request.UpdateOrderStatusRequestV1;
 import chill_logistics.order_server.presentation.dto.response.CreateOrderResponseV1;
+import chill_logistics.order_server.presentation.dto.response.ReadOrderDetailResponseV1;
 import chill_logistics.order_server.presentation.dto.response.ReadOrderSummaryResponseV1;
 import jakarta.validation.Valid;
 import lib.entity.BaseStatus;
@@ -74,6 +75,16 @@ public class OrderController {
                         .stream()
                         .map(ReadOrderSummaryResponseV1::from)
                         .toList();
+
+        return BaseResponse.ok(response, BaseStatus.OK);
+    }
+
+    /* 주문 단건 조회 */
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<ReadOrderDetailResponseV1> readOrder(@PathVariable UUID id) {
+
+        ReadOrderDetailResponseV1 response = ReadOrderDetailResponseV1.from(orderFacade.readOrder(id));
 
         return BaseResponse.ok(response, BaseStatus.OK);
     }

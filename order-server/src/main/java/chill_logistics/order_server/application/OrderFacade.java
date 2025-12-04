@@ -4,6 +4,7 @@ import chill_logistics.order_server.application.dto.command.CreateOrderCommandV1
 import chill_logistics.order_server.application.dto.command.CreateOrderResultV1;
 import chill_logistics.order_server.application.dto.command.UpdateOrderStatusCommandV1;
 import chill_logistics.order_server.application.dto.query.ReadOrderCommandV1;
+import chill_logistics.order_server.application.dto.query.ReadOrderDetailResultV1;
 import chill_logistics.order_server.application.dto.query.ReadOrderSummaryResultV1;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,5 +35,9 @@ public class OrderFacade {
 
     public List<ReadOrderSummaryResultV1> readOrderList(ReadOrderCommandV1 command) {
         return orderQueryService.readOrderList(command);
+    }
+
+    public ReadOrderDetailResultV1 readOrder(UUID id) {
+        return orderQueryService.readOrder(id);
     }
 }
