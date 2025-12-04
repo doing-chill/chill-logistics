@@ -9,6 +9,8 @@ public interface HubInfoRepository {
 
     boolean existsByStartHubIdAndEndHubId(UUID startHubId, UUID endHubId);
 
+    Optional<HubInfo> findByStartHubIdAdnEndHubId(UUID startHubId, UUID endHubId);
+
     void save(HubInfo hubInfo);
 
     Optional<HubInfo> findById(UUID hubInfoId);

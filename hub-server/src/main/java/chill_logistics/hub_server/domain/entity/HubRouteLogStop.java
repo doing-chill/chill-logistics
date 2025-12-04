@@ -10,6 +10,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "p_hub_route_log_stop")
+// 허브 경로 정보
 public class HubRouteLogStop extends BaseEntity {
 
     @Id
@@ -31,6 +32,16 @@ public class HubRouteLogStop extends BaseEntity {
 
     @Column(name = "sequence_num", nullable = false)
     private Integer sequenceNum;
+
+    public static HubRouteLogStop create(UUID hubId, int sequenceNum, UUID hubRouteLogId) {
+        HubRouteLogStop stop = new HubRouteLogStop();
+        stop.hubRouteLogId = hubRouteLogId;
+        stop.hubId = hubId;
+        stop.sequenceNum = sequenceNum;
+        return stop;
+    }
+
 }
 
-// 허브 경로 정보
+
+

@@ -20,6 +20,11 @@ public class HubInfoRepositoryAdapter implements HubInfoRepository {
     }
 
     @Override
+    public Optional<HubInfo> findByStartHubIdAdnEndHubId(UUID startHubId, UUID endHubId) {
+        return jpaHubInfoRepository.findByStartHubIdAndEndHubIdAndDeletedAtIsNull(startHubId, endHubId);
+    }
+
+    @Override
     public void save(HubInfo hubInfo) {
         jpaHubInfoRepository.save(hubInfo);
     }

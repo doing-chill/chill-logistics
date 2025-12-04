@@ -35,4 +35,19 @@ public class HubRouteLog extends BaseEntity {
     @Column(name = "total_distance", precision = 10, scale = 3)
     private BigDecimal totalDistance;
     // 총 거리 km
+
+    public static HubRouteLog create(
+        UUID startHubId,
+        UUID endHubId,
+        Integer totalDuration,
+        BigDecimal totalDistance
+    ){
+        HubRouteLog log = new HubRouteLog();
+        log.startHubId = startHubId;
+        log.endHubId = endHubId;
+        log.totalDuration = totalDuration;
+        log.totalDistance = totalDistance;
+        return log;
+    }
+
 }
