@@ -1,5 +1,6 @@
 package chill_logistics.order_server.domain.entity;
 
+import chill_logistics.order_server.application.dto.command.OrderProductInfoV1;
 import jakarta.persistence.*;
 import lib.entity.BaseEntity;
 import lombok.Getter;
@@ -41,4 +42,19 @@ public class OrderProduct extends BaseEntity {
 
     @Column(name = "quantity", nullable = false)
     private int quantity;
+
+    public static OrderProduct create(OrderProductInfoV1 orderProductInfo) {
+
+        OrderProduct orderProduct = new OrderProduct();
+        orderProduct.productId = orderProductInfo.productId();
+        orderProduct.productName = orderProductInfo.productName();
+        orderProduct.productPrice = orderProductInfo.price();
+        orderProduct.quantity = orderProductInfo.quantity();
+
+        return orderProduct;
+    }
+
+    protected void setOrder(Order order) {
+        this.order = order;
+    }
 }

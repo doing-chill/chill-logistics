@@ -1,10 +1,13 @@
 package chill_logistics.order_server.domain.entity;
 
+import chill_logistics.order_server.application.dto.command.OrderProductInfoV1;
 import jakarta.persistence.*;
 import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -33,4 +36,33 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false, length = 15)
     private OrderStatus orderStatus;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderProduct> orderProductList = new ArrayList<>();
+
+    public static Order create(
+            UUID supplierFirmId,
+            UUID receiverFirmId,
+            String requestNote,
+            List<OrderProductInfoV1> orderProductList) {
+
+        Order order = new Order();
+        order.supplierFirmId = supplierFirmId;
+        order.receiverFirmId = receiverFirmId;
+        order.requestNote = requestNote;
+        order.orderStatus = OrderStatus.CREATED;
+
+        for (OrderProductInfoV1 orderProductInfo : orderProductList) {
+            OrderProduct orderProduct = OrderProduct.create(orderProductInfo);
+            order.addOrderProduct(orderProduct);
+        }
+
+        return order;
+    }
+
+    public void addOrderProduct(OrderProduct orderProduct) {
+        this.orderProductList.add(orderProduct);
+        orderProduct.setOrder(this);
+    }
+
 }
