@@ -59,4 +59,18 @@ public class User extends BaseEntity {
         user.signupStatus = SignupStatus.PENDING; // 기본 가입 상태
         return user;
     }
+
+    public void updateInfoFromMaster(
+            String email,
+            String username,
+            String nickname,
+            String encodedPassword,
+            UserRole role
+    ) {
+        this.email = email;
+        this.username = username;
+        this.nickname = nickname;
+        this.password = encodedPassword;
+        this.role = role;
+    }
 }

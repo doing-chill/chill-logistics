@@ -1,9 +1,11 @@
 package chill_logistics.order_server.domain.entity;
 
+import chill_logistics.order_server.application.dto.command.FirmResultV1;
 import jakarta.persistence.*;
 import lib.entity.BaseEntity;
+import lombok.AccessLevel;
 import lombok.Getter;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
 import java.util.UUID;
@@ -12,14 +14,10 @@ import java.util.UUID;
 @Immutable  // 조회 전용 테이블이므로 불변 선언
 @Entity
 @Table(name = "p_order_query")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderQuery extends BaseEntity {
 
     @Id
-    @GeneratedValue(generator = "uuidv7")
-    @GenericGenerator(
-            name = "uuidv7",
-            strategy = "lib.id.UUIDv7Generator"
-    )
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
@@ -53,4 +51,27 @@ public class OrderQuery extends BaseEntity {
 
     @Column(name = "product_quantity", nullable = false)
     private int productQuantity;
+
+    public static OrderQuery from(
+            Order order,
+            FirmResultV1 supplier,
+            FirmResultV1 receiver) {
+
+        OrderProduct mainProduct = order.getOrderProductList().get(0);
+
+        OrderQuery query = new OrderQuery();
+        query.id = order.getId();
+        query.supplierFirmId = order.getSupplierFirmId();
+        query.receiverFirmId = order.getReceiverFirmId();
+        query.receiverFirmFullAddress = null;
+        query.receiverFirmOwnerName = null;
+        query.supplierFirmId = supplier.hubId();
+        query.receiverFirmId = receiver.hubId();
+        query.requestNote = order.getRequestNote();
+        query.orderStatus = order.getOrderStatus();
+        query.productName = mainProduct.getProductName();
+        query.productQuantity = mainProduct.getQuantity();
+
+        return query;
+    }
 }
