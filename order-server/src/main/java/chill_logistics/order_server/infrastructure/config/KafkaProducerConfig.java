@@ -1,6 +1,6 @@
 package chill_logistics.order_server.infrastructure.config;
 
-import chill_logistics.order_server.infrastructure.kafka.dto.OrderAfterCreateV1;
+import chill_logistics.order_server.application.dto.command.OrderAfterCreateV1;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
