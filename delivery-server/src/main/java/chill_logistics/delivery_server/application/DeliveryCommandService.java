@@ -23,9 +23,10 @@ public class DeliveryCommandService {
 
     private final HubDeliveryRepository hubDeliveryRepository;
     private final FirmDeliveryRepository firmDeliveryRepository;
+    private final AsyncAiService asyncAiService;
 
     /* [허브 배송 생성 메서드]
-     * Kafka 메시지로 order 정보 + FeignClient로 hub 정보 받아와서 허브 배송 생성
+     * Kafka 메시지로 order 정보 받아와서 허브 배송 생성
      */
     @Transactional
     public void createHubDelivery(HubRouteAfterCommandV1 message, UUID hubDeliveryPersonId) {
@@ -81,6 +82,7 @@ public class DeliveryCommandService {
 
     /* [전체 배송 생성]
      * 허브 배송 + 업체 배송 = 전체 배송 생성
+     * 전체 배송 생성 + AI 비동기 호출
      */
     @Transactional
     public void createDelivery(
@@ -94,6 +96,8 @@ public class DeliveryCommandService {
         createFirmDelivery(message, firmDeliveryPersonId);
 
         log.info("[배송 생성 완료] orderId={}", message.orderId());
+
+        asyncAiService.sendDeadlineRequest(message);
     }
 
     /* [배송 상태 변경]
@@ -156,7 +160,7 @@ public class DeliveryCommandService {
 }
 
 /* TODO
- * deliveryPersonId 배정 로직 필요
+ * deliveryPersonId 기반 deliveryPersonName 배정 필요
  * 배송 추적에 따라 상태 변경 로직 추가 필요
  * deliverySequenceNum 알고리즘에 따라 수정 필요
  * 전체 배송 생성 → @Async로 AsyncAiService 호출해서 데이터 전달
