@@ -6,8 +6,10 @@ import chill_logistics.order_server.domain.entity.Order;
 import chill_logistics.order_server.domain.entity.OrderProduct;
 import chill_logistics.order_server.domain.entity.OrderQuery;
 import chill_logistics.order_server.domain.entity.OrderStatus;
+import chill_logistics.order_server.domain.event.EventPublisher;
 import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
+import chill_logistics.order_server.application.dto.command.OrderAfterCreateV1;
 import chill_logistics.order_server.lib.error.ErrorCode;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class OrderCommandService {
 
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
+    private final EventPublisher eventPublisher;
 
     private Order readProductOrThrow(UUID orderId) {
         return orderRepository.findById(orderId)
@@ -37,8 +40,8 @@ public class OrderCommandService {
         // TODO: 권한 체크
 
         // TODO: 업체 조회 후 업체 이름, hub id, (수령)업체 주소, (수령)업체 주인 이름 가져오기
-        FirmResultV1 supplierResult = null;
-        FirmResultV1 receiverResult = null;
+        FirmResultV1 supplierResult = new FirmResultV1(null, null, null, null, null);
+        FirmResultV1 receiverResult = new FirmResultV1(null, null, null, null, null);
 
         // TODO: 상품 조회 후 상품 정보(이름, 가격) 가져오기
         // TODO: 공급 업체 소속 삼품들인지 체크
@@ -51,8 +54,10 @@ public class OrderCommandService {
 
                             return new OrderProductInfoV1(
                                     p.productId(),
-                                    product.name(),
-                                    product.price(),
+//                                    product.name(),
+//                                    product.price(),
+                                    "임시 상품",
+                                    1234,
                                     p.quantity()
                             );
                         })
@@ -82,6 +87,23 @@ public class OrderCommandService {
         orderQueryRepository.save(orderQuery);
 
         // TODO: 주문 생성 시 order_after_create_message 발행
+        // Kafka 메시지 생성
+        OrderAfterCreateV1 message = new OrderAfterCreateV1(
+                createOrder.getId(),
+                supplierResult.hubId(),
+                receiverResult.hubId(),
+                createOrder.getReceiverFirmId(),
+                receiverResult.firmFullAddress(),
+                receiverResult.firmOwnerName(),
+                createOrder.getRequestNote(),
+                // TODO: 추후 주문 읽기 전략 수정예정 (임시: 대표 상품)
+                createOrder.getOrderProductList().get(0).getProductName(),
+                createOrder.getOrderProductList().get(0).getQuantity(),
+                createOrder.getCreatedAt()
+        );
+
+        // Kafka 메시지 발행
+        eventPublisher.sendOrderAfterCreate(message);
 
         return CreateOrderResultV1.from(
                 createOrder,
