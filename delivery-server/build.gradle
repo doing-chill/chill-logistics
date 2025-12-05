@@ -1,3 +1,6 @@
+ext {
+	set('springAiVersion', "1.0.3")
+}
 dependencies {
 	implementation project(":lib")
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -5,6 +8,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -15,10 +19,16 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
 
-	// OpenFeign
-	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-
 	implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+
+	// OpenAi
+	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+	}
 }
 
 tasks.named('test') {
