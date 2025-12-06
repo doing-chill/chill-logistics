@@ -32,7 +32,7 @@ public class JwtAuthPreFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getPath().toString();
 
         // 로그인, 회원가입 등 화이트리스트 경로는 통과
-        if (path.startsWith("/v1/user/login") || path.startsWith("/v1/user/signup") || path.startsWith("/v1/user/reissue-token")) {
+        if (path.startsWith("/v1/users/login") || path.startsWith("/v1/users/signup") || path.startsWith("/v1/users/reissue-token")) {
             return chain.filter(exchange);
         }
 
