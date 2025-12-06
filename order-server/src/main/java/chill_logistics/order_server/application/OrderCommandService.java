@@ -7,6 +7,7 @@ import chill_logistics.order_server.domain.entity.OrderProduct;
 import chill_logistics.order_server.domain.entity.OrderQuery;
 import chill_logistics.order_server.domain.entity.OrderStatus;
 import chill_logistics.order_server.domain.event.EventPublisher;
+import chill_logistics.order_server.domain.port.ProductPort;
 import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
 import chill_logistics.order_server.application.dto.command.OrderAfterCreateV1;
@@ -27,6 +28,7 @@ public class OrderCommandService {
 
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
+    private final ProductPort productPort;
     private final EventPublisher eventPublisher;
 
     private Order readProductOrThrow(UUID orderId) {
@@ -49,21 +51,20 @@ public class OrderCommandService {
                 command.productList()
                         .stream()
                         .map(p -> {
-                            // TODO: 상품 조회
-                            ProductResultV1 product = null;
+                            // 상품 조회
+                            ProductResultV1 product = productPort.readProductById(p.productId());
+
+                            // TODO: 상품 재고 체크
+                            // TODO: 상품 재고 감소
 
                             return new OrderProductInfoV1(
                                     p.productId(),
-//                                    product.name(),
-//                                    product.price(),
-                                    "임시 상품",
-                                    1234,
+                                    product.name(),
+                                    product.price(),
                                     p.quantity()
                             );
                         })
                         .toList();
-
-        // TODO: 상품 재고 체크
 
         // 주문 생성
         Order order = Order.create(
