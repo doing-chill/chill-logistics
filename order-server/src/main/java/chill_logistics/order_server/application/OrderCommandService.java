@@ -45,8 +45,7 @@ public class OrderCommandService {
         FirmResultV1 supplierResult = new FirmResultV1(command.supplierFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
         FirmResultV1 receiverResult = new FirmResultV1(command.receiverFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
 
-        // TODO: 상품 조회 후 상품 정보(이름, 가격) 가져오기
-        // TODO: 공급 업체 소속 삼품들인지 체크
+        // 주문 상품 체크 및 재고 감소
         List<OrderProductInfoV1> orderProductInfoList =
                 command.productList()
                         .stream()
@@ -54,7 +53,16 @@ public class OrderCommandService {
                             // 상품 조회
                             ProductResultV1 product = productPort.readProductById(p.productId());
 
-                            // TODO: 상품 재고 체크
+                            // 공급 업체 소속 상품인지 체크
+                            if (!product.firmId().equals(command.receiverFirmId())) {
+                                throw new BusinessException(ErrorCode.PRODUCT_NOT_FROM_FIRM);
+                            }
+
+                            // 상품 재고 체크
+                            if (product.stockQuantity() < p.quantity()) {
+                                throw new BusinessException(ErrorCode.OUT_OF_STOCK);
+                            }
+
                             // TODO: 상품 재고 감소
 
                             return new OrderProductInfoV1(
