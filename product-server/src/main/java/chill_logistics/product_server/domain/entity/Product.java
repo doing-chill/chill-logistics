@@ -74,4 +74,8 @@ public class Product extends BaseEntity {
         if (price != null) this.price = price;
         if (sellable != null) this.sellable = sellable;
     }
+
+    public void decreaseStock(int quantity) {
+        this.stockQuantity -= quantity;
+    }
 }

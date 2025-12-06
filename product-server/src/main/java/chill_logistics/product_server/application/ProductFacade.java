@@ -4,10 +4,7 @@ import chill_logistics.product_server.application.dto.command.CreateProductComma
 import chill_logistics.product_server.application.dto.command.CreateProductResultV1;
 import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
 import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
-import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
-import chill_logistics.product_server.application.dto.query.ReadProductDetailResultV1;
-import chill_logistics.product_server.application.dto.query.ReadProductInternalResultV1;
-import chill_logistics.product_server.application.dto.query.ReadProductSummaryResultV1;
+import chill_logistics.product_server.application.dto.query.*;
 import chill_logistics.product_server.application.service.ProductCommandService;
 import chill_logistics.product_server.application.service.ProductQueryService;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +44,9 @@ public class ProductFacade {
 
     public ReadProductInternalResultV1 readProductInternal(UUID id) {
         return productQueryService.readProductInternal(id);
+    }
+
+    public void decreaseStockInternal(UpdateStockDecreaseCommandV1 command) {
+        productCommandService.decreaseStockInternal(command);
     }
 }

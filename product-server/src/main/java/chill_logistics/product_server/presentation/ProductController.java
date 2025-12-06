@@ -8,6 +8,7 @@ import chill_logistics.product_server.application.dto.command.UpdateProductComma
 import chill_logistics.product_server.presentation.dto.request.CreateProductRequestV1;
 import chill_logistics.product_server.presentation.dto.request.ReadProductRequestV1;
 import chill_logistics.product_server.presentation.dto.request.UpdateProductRequestV1;
+import chill_logistics.product_server.presentation.dto.request.UpdateStockDecreaseRequestV1;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
 import chill_logistics.product_server.presentation.dto.response.ReadProductDetailResponseV1;
 import chill_logistics.product_server.presentation.dto.response.ReadProductInternalResponseV1;
@@ -116,7 +117,7 @@ public class ProductController {
         return BaseResponse.ok(response, BaseStatus.OK);
     }
 
-    /* 상품 단건 조회(내부 api) */
+    /* 상품 단건 조회 (내부 API) */
     @GetMapping("/internal/{id}")
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<ReadProductInternalResponseV1> readProductInternal(@PathVariable UUID id) {
@@ -125,4 +126,17 @@ public class ProductController {
 
         return BaseResponse.ok(response, BaseStatus.OK);
     }
+
+    /* 재고 차감 (내부 API) */
+    @PatchMapping("/internal/{id}/decrease")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<Void> decreaseStockInternal(
+            @PathVariable UUID id,
+            @RequestBody @Valid UpdateStockDecreaseRequestV1 request) {
+
+        productFacade.decreaseStockInternal(request.toCommand(id));
+
+        return BaseResponse.ok(BaseStatus.OK);
+    }
+
 }

@@ -4,6 +4,7 @@ import chill_logistics.product_server.application.dto.command.CreateProductComma
 import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
 import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
 import chill_logistics.product_server.application.dto.command.CreateProductResultV1;
+import chill_logistics.product_server.application.dto.query.UpdateStockDecreaseCommandV1;
 import chill_logistics.product_server.domain.entity.Product;
 import chill_logistics.product_server.domain.repository.ProductRepository;
 import chill_logistics.product_server.lib.error.ErrorCode;
@@ -83,5 +84,13 @@ public class ProductCommandService {
         // 허브 관리자면 관리 허브 소속 상품인지 체크
 
         product.delete(userId);
+    }
+
+    @Transactional
+    public void decreaseStockInternal(UpdateStockDecreaseCommandV1 command) {
+
+        Product product = readProductOrThrow(command.id());
+
+        product.decreaseStock(command.quantity());
     }
 }
