@@ -31,50 +31,54 @@ public class JwtAuthPreFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getPath().toString();
 
-        // 로그인, 회원가입 등 화이트리스트 경로는 통과
-        if (path.startsWith("/v1/users/login") || path.startsWith("/v1/users/signup") || path.startsWith("/v1/users/reissue-token")) {
+        log.debug("JwtAuthPreFilter path = {}", path);
+
+        // 1) Swagger / 문서 관련 경로는 전부 화이트리스트
+        if (isWhitelisted(path)) {
+            log.debug("JwtAuthPreFilter whitelist pass = {}", path);
             return chain.filter(exchange);
         }
 
+        // 2) 로그인/회원가입/토큰 재발급 같은 경로도 화이트리스트
+        if (path.startsWith("/v1/users/login")
+                || path.startsWith("/v1/users/signup")
+                || path.startsWith("/v1/users/reissue-token")) {
+            return chain.filter(exchange);
+        }
+
+        // === 이 아래부터는 기존 JWT 검사 로직 그대로 ===
+
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        // Authorization 추출
         if (authHeader == null) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
-        // Bearer 제거 + 공백 정리
         String token = authHeader.trim();
         if (token.regionMatches(true, 0, "Bearer", 0, 6)) {
             token = token.substring(6).trim();
         }
         token = token.strip();
 
-        // 서명/만료 검증
         if (!jwtTokenProvider.validate(token)) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
-        // accessToken만 들어오게 하고 refreshToken은 막음
+
         TokenBody tokenBody = jwtTokenProvider.parseJwt(token);
         if (!tokenBody.getType().equals("access")) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
-        // master가 관리자인 경우 예시
-        if (path.startsWith("/v1/master")){
+        if (path.startsWith("/v1/master")) {
             if (!tokenBody.getRole().equals(Role.MASTER)) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
         }
 
-        //Trace-Id 생성
         String traceId = UUID.randomUUID().toString();
-
-
-        //토큰에서 User-Id 추출
         UUID userUUID = tokenBody.getUserId();
         if (userUUID == null) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -82,23 +86,47 @@ public class JwtAuthPreFilter implements GlobalFilter, Ordered {
         }
         String userId = userUUID.toString();
 
-
-        // 정규화한 Authorization으로 교체해서 다운스트림으로 전달 + 신뢰 헤더 붙이기도 가능
         final String cleanToken = token;
         final String traceIdHeaderValue = traceId;
         final String userIdHeaderValue = userId;
         ServerHttpRequest mutated = exchange.getRequest().mutate()
-            .headers(h -> {
-                h.set(HttpHeaders.AUTHORIZATION, cleanToken);
+                .headers(h -> {
+                    h.set(HttpHeaders.AUTHORIZATION, cleanToken);
                     h.set(TRACE_ID_HEADER, traceIdHeaderValue);
                     h.set(USER_ID_HEADER, userIdHeaderValue);
-            })
-            .build();
+                })
+                .build();
         return chain.filter(exchange.mutate().request(mutated).build());
-
     }
+
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
+    }
+
+    private boolean isWhitelisted(String path) {
+        // Swagger UI
+        if (path.equals("/swagger-ui.html") || path.startsWith("/swagger-ui")) {
+            return true;
+        }
+
+        // Gateway 자체 OpenAPI
+        if (path.equals("/v3/api-docs") || path.startsWith("/v3/api-docs")) {
+            return true;
+        }
+
+        // 각 도메인 OpenAPI 프록시 (gateway 라우트랑 동일하게)
+        if (path.equals("/user-server/v3/api-docs")
+                || path.equals("/order-server/v3/api-docs")
+                || path.equals("/product-server/v3/api-docs")
+                || path.equals("/firm-server/v3/api-docs")
+                || path.equals("/hub-server/v3/api-docs")
+                || path.equals("/delivery-server/v3/api-docs")
+                || path.equals("/external-server/v3/api-docs")) {
+            return true;
+        }
+
+        // 필요하면 actuator 등 추가
+        return false;
     }
 }
