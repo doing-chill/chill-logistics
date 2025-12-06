@@ -10,6 +10,7 @@ import chill_logistics.product_server.presentation.dto.request.ReadProductReques
 import chill_logistics.product_server.presentation.dto.request.UpdateProductRequestV1;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
 import chill_logistics.product_server.presentation.dto.response.ReadProductDetailResponseV1;
+import chill_logistics.product_server.presentation.dto.response.ReadProductInternalResponseV1;
 import chill_logistics.product_server.presentation.dto.response.ReadProductSummaryResponseV1;
 import jakarta.validation.Valid;
 import lib.entity.BaseStatus;
@@ -111,6 +112,16 @@ public class ProductController {
     public BaseResponse<ReadProductDetailResponseV1> readProduct(@PathVariable UUID id) {
 
         ReadProductDetailResponseV1 response = ReadProductDetailResponseV1.from(productFacade.readProduct(id));
+
+        return BaseResponse.ok(response, BaseStatus.OK);
+    }
+
+    /* 상품 단건 조회(내부 api) */
+    @GetMapping("/internal/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<ReadProductInternalResponseV1> readProductInternal(@PathVariable UUID id) {
+
+        ReadProductInternalResponseV1 response = ReadProductInternalResponseV1.from(productFacade.readProductInternal(id));
 
         return BaseResponse.ok(response, BaseStatus.OK);
     }

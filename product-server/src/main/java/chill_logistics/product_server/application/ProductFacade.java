@@ -1,11 +1,12 @@
 package chill_logistics.product_server.application;
 
 import chill_logistics.product_server.application.dto.command.CreateProductCommandV1;
-import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
-import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
-import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
 import chill_logistics.product_server.application.dto.command.CreateProductResultV1;
+import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
+import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
+import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
 import chill_logistics.product_server.application.dto.query.ReadProductDetailResultV1;
+import chill_logistics.product_server.application.dto.query.ReadProductInternalResultV1;
 import chill_logistics.product_server.application.dto.query.ReadProductSummaryResultV1;
 import chill_logistics.product_server.application.server.ProductCommandService;
 import chill_logistics.product_server.application.server.ProductQueryService;
@@ -42,5 +43,9 @@ public class ProductFacade {
 
     public ReadProductDetailResultV1 readProduct(UUID id) {
         return productQueryService.readProduct(id);
+    }
+
+    public ReadProductInternalResultV1 readProductInternal(UUID id) {
+        return productQueryService.readProductInternal(id);
     }
 }
