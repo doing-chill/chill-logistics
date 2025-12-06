@@ -1,4 +1,4 @@
-package chill_logistics.product_server.application.server;
+package chill_logistics.product_server.application.service;
 
 import chill_logistics.product_server.application.dto.command.CreateProductCommandV1;
 import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;

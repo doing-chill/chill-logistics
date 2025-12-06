@@ -8,8 +8,8 @@ import chill_logistics.product_server.application.dto.query.ReadProductCommandV1
 import chill_logistics.product_server.application.dto.query.ReadProductDetailResultV1;
 import chill_logistics.product_server.application.dto.query.ReadProductInternalResultV1;
 import chill_logistics.product_server.application.dto.query.ReadProductSummaryResultV1;
-import chill_logistics.product_server.application.server.ProductCommandService;
-import chill_logistics.product_server.application.server.ProductQueryService;
+import chill_logistics.product_server.application.service.ProductCommandService;
+import chill_logistics.product_server.application.service.ProductQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package chill_logistics.product_server.application.server;
+package chill_logistics.product_server.application.service;
 
 import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
 import chill_logistics.product_server.application.dto.query.ReadProductDetailResultV1;
