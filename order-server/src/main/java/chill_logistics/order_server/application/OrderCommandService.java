@@ -63,7 +63,8 @@ public class OrderCommandService {
                                 throw new BusinessException(ErrorCode.OUT_OF_STOCK);
                             }
 
-                            // TODO: 상품 재고 감소
+                            // 상품 재고 감소
+                            productPort.decreaseStock(p.productId(), p.quantity());
 
                             return new OrderProductInfoV1(
                                     p.productId(),
