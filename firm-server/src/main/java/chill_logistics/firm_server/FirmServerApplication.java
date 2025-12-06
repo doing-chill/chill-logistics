@@ -7,9 +7,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @SpringBootApplication(
     scanBasePackages = {
         "chill_logistics.firm_server",
-        "lib.entity",
-        "lib.web",
-        "lib.util"
+        "lib"
     }
 )
 @EnableDiscoveryClient

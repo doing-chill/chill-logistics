@@ -1,6 +1,6 @@
 package chill_logistics.delivery_server.domain.entity;
 
-import chill_logistics.delivery_server.infrastructure.kafka.dto.HubRouteAfterCreateV1;
+import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
 import chill_logistics.delivery_server.presentation.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,15 +64,18 @@ public class HubDelivery extends BaseEntity {
     @Column(name = "delivery_status", length = 15, nullable = false)
     private DeliveryStatus deliveryStatus;
 
+    // TODO: 삭제 예정
     @Column(name = "expected_distance", precision = 10, scale = 3)
     private BigDecimal expectedDistance;
 
     @Column(name = "expected_delivery_duration")
     private Integer expectedDeliveryDuration;
 
+    // TODO: 삭제 예정
     @Column(name = "distance", precision = 10, scale = 3)
     private BigDecimal distance;
 
+    // TODO: 삭제 예정
     @Column(name = "delivery_duration")
     private Integer deliveryDuration;
 
@@ -84,10 +87,10 @@ public class HubDelivery extends BaseEntity {
         UUID endHubId,
         String endHubName,
         String endHubFullAddress,
+        Integer expectedDeliveryDuration,
         UUID deliveryPersonId,
         Integer deliverySequenceNum,
-        DeliveryStatus deliveryStatus,
-        BigDecimal expectedDistance
+        DeliveryStatus deliveryStatus
     ) {
         this.orderId = orderId;
         this.startHubId = startHubId;
@@ -96,36 +99,31 @@ public class HubDelivery extends BaseEntity {
         this.endHubId = endHubId;
         this.endHubName = endHubName;
         this.endHubFullAddress = endHubFullAddress;
+        this.expectedDeliveryDuration = expectedDeliveryDuration;
         this.deliveryPersonId = deliveryPersonId;
         this.deliverySequenceNum = deliverySequenceNum;
         this.deliveryStatus = deliveryStatus;
-        this.expectedDistance = expectedDistance;
-        // TODO: expectedDeliveryDuration, distance, deliveryDuration 은 아직 null 유지 (추후 계산/갱신)
     }
 
     // Kafka 메시지 + Hub 정보(이름/주소)를 기반으로 허브 배송 엔티티 생성
     public static HubDelivery createFrom(
-        HubRouteAfterCreateV1 message,
-        String startHubName,
-        String startHubFullAddress,
-        String endHubName,
-        String endHubFullAddress,
+        HubRouteAfterCommandV1 message,
         UUID deliveryPersonId,
         Integer deliverySequenceNum,
-        DeliveryStatus deliveryStatus
-    ) {
+        DeliveryStatus deliveryStatus) {
+
         return new HubDelivery(
             message.orderId(),
             message.startHubId(),
-            startHubName,
-            startHubFullAddress,
+            message.startHubName(),
+            message.startHubFullAddress(),
             message.endHubId(),
-            endHubName,
-            endHubFullAddress,
+            message.endHubName(),
+            message.endHubFullAddress(),
+            message.expectedDeliveryDuration(),
             deliveryPersonId,
             deliverySequenceNum,
-            deliveryStatus,
-            null // expectedDistance: 나중에 계산해서 세팅
+            deliveryStatus
         );
     }
 

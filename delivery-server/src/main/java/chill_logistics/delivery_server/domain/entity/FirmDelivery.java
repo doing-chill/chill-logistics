@@ -1,6 +1,6 @@
 package chill_logistics.delivery_server.domain.entity;
 
-import chill_logistics.delivery_server.infrastructure.kafka.dto.HubRouteAfterCreateV1;
+import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
 import chill_logistics.delivery_server.presentation.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -79,7 +79,7 @@ public class FirmDelivery extends BaseEntity {
 
     // Kafka 메시지를 기반으로 업체 배송 엔티티 생성
     public static FirmDelivery createFrom(
-        HubRouteAfterCreateV1 message,
+        HubRouteAfterCommandV1 message,
         UUID deliveryPersonId,
         Integer deliverySequenceNum,
         DeliveryStatus deliveryStatus

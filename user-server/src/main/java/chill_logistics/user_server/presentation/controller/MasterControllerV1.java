@@ -1,0 +1,43 @@
+package chill_logistics.user_server.presentation.controller;
+
+import chill_logistics.user_server.application.command.MasterUpdateUserInfoCommandV1;
+import chill_logistics.user_server.application.service.MasterServiceV1;
+import chill_logistics.user_server.presentation.dto.MasterUpdateUserInfoRequestDtoV1;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lib.entity.BaseStatus;
+import lib.web.response.BaseResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+
+import java.util.UUID;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/v1/master/users")
+@SecurityRequirement(name = "bearerAuth")   // 컨트롤러단에서 JWT 인증을 적용하고 싶으면 이렇게 (메소드 단으로도 설정 가능)
+@Tag(name = "2.MASTER - 유저 관리", description = "마스터 계정이 사용하는 유저 관리용 API")             // (필수)
+@Slf4j
+public class MasterControllerV1 {
+
+    private final MasterServiceV1 masterService;
+
+    @PutMapping("/{userId}/info")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "유저 정보 수정", description = "MASTER 계정이 특정 유저의 정보를 수정할 때 사용하는 API입니다.")     // 메서드에 대한 부분 설명 가능 (필수)
+    public BaseResponse<Void> updateUserInfo(
+            @Parameter(description = "수정 대상 유저 ID (UUID)", example = "123e4567-e89b-12d3-a456-426614174000")   // 파라미터 부분도 설명 가능 (선택)
+            @PathVariable UUID userId,
+            @RequestBody MasterUpdateUserInfoRequestDtoV1 request) {
+
+        MasterUpdateUserInfoCommandV1 command = request.toCommand(userId);
+        masterService.updateUserInfo(command);
+
+        return BaseResponse.ok(BaseStatus.OK);
+    }
+}

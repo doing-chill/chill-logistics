@@ -26,6 +26,7 @@ dependencies {
     compileOnly 'org.springframework.boot:spring-boot-starter'
 
     compileOnly 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // BaseEntity 에 @Entity, @MappedSuperclass 등 JPA 애노테이션 사용을 위해
     compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'

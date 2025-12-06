@@ -40,4 +40,37 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "signup_status", nullable = false, length = 20)
     private SignupStatus signupStatus;
+
+    protected User() {}
+
+    public static User createForSignup(
+            String email,
+            String username,
+            String nickname,
+            String encodedPassword,
+            UserRole role
+    ) {
+        User user = new User();
+        user.email = email;
+        user.username = username;
+        user.nickname = nickname;
+        user.password = encodedPassword;
+        user.role = role;
+        user.signupStatus = SignupStatus.PENDING; // 기본 가입 상태
+        return user;
+    }
+
+    public void updateInfoFromMaster(
+            String email,
+            String username,
+            String nickname,
+            String encodedPassword,
+            UserRole role
+    ) {
+        this.email = email;
+        this.username = username;
+        this.nickname = nickname;
+        this.password = encodedPassword;
+        this.role = role;
+    }
 }
