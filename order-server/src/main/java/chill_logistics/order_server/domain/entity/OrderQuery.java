@@ -63,10 +63,10 @@ public class OrderQuery extends BaseEntity {
         query.id = order.getId();
         query.supplierFirmId = order.getSupplierFirmId();
         query.receiverFirmId = order.getReceiverFirmId();
-        query.receiverFirmFullAddress = null;
-        query.receiverFirmOwnerName = null;
-        query.supplierFirmId = supplier.hubId();
-        query.receiverFirmId = receiver.hubId();
+        query.receiverFirmFullAddress = "임시 주소";
+        query.receiverFirmOwnerName = "임시 이름";
+        query.supplierHubId = supplier.hubId();
+        query.receiverHubId = receiver.hubId();
         query.requestNote = order.getRequestNote();
         query.orderStatus = order.getOrderStatus();
         query.productName = mainProduct.getProductName();
