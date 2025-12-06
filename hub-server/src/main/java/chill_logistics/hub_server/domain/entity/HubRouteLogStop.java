@@ -33,7 +33,7 @@ public class HubRouteLogStop extends BaseEntity {
     @Column(name = "sequence_num", nullable = false)
     private Integer sequenceNum;
 
-    public static HubRouteLogStop create(UUID hubId, int sequenceNum, UUID hubRouteLogId) {
+    public static HubRouteLogStop create(UUID hubRouteLogId, UUID hubId, int sequenceNum) {
         HubRouteLogStop stop = new HubRouteLogStop();
         stop.hubRouteLogId = hubRouteLogId;
         stop.hubId = hubId;

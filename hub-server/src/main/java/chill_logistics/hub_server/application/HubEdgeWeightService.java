@@ -16,13 +16,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class HubEdgeWeightService implements HubEdgeWeightProvider {
-
-    private static final long CACHE_MINUTES = 5L;
 
     private final HubInfoRepository hubInfoRepository;
     private final HubRepository hubRepository;
@@ -31,13 +31,17 @@ public class HubEdgeWeightService implements HubEdgeWeightProvider {
     @Override
     public EdgeWeight getWeight(UUID startHubId, UUID endHubId) {
 
-        HubInfo hubInfo = hubInfoRepository.findByStartHubIdAdnEndHubId(startHubId, endHubId)
+        HubInfo hubInfo = hubInfoRepository.findByStartHubIdAndEndHubId(startHubId, endHubId)
             .orElseThrow(()-> new BusinessException(ErrorCode.HUB_INFO_NOT_FOUND));
 
         LocalDateTime now = LocalDateTime.now();
 
         // 1) 5분 이내의 캐시가 있으면 기존 값 그대로 사용
         if (hubInfo.getDeliveryDuration() != null && hubInfo.getDistance() != null && !hubInfo.checkUpdateTime(now)) {
+
+            log.info("[HubEdgeWeight] cache hit: {} -> {} ({}h {}m, {} km)",
+                startHubId, endHubId, hubInfo.getDeliveryDuration()/3600, hubInfo.getDeliveryDuration() % 3600 / 60, hubInfo.getDistance());
+
             return new EdgeWeight(startHubId, endHubId, hubInfo.getDeliveryDuration(), hubInfo.getDistance());
         }
 
@@ -48,11 +52,9 @@ public class HubEdgeWeightService implements HubEdgeWeightProvider {
         Hub endHub = hubRepository.findById(hubInfo.getEndHubId())
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
 
-
         // 해당 허브들에 위도, 경도값 추출
         String origin = startHub.getLongitude() + "," + startHub.getLatitude();
         String destination = endHub.getLongitude() + "," + endHub.getLatitude();
-
 
         DirectionInfoResponseV1 direction = kakaoMapClient.getDirection(
             origin,
@@ -62,7 +64,6 @@ public class HubEdgeWeightService implements HubEdgeWeightProvider {
             true        // carHipass
         );
 
-
         // Kakao 응답은 초 단위
         int durationSec = (int) direction.duration();
         BigDecimal distanceKm = BigDecimal
@@ -70,6 +71,9 @@ public class HubEdgeWeightService implements HubEdgeWeightProvider {
             .setScale(3, RoundingMode.HALF_UP);
 
         hubInfo.updateDeliveryInfo(durationSec, distanceKm);
+
+        log.info("[HubEdgeWeight] cache hit: {} -> {} ({}h {}m, {} km)",
+            startHubId, endHubId, hubInfo.getDeliveryDuration() / 3600, hubInfo.getDeliveryDuration() % 3600 / 60, hubInfo.getDistance());
 
         return new EdgeWeight(startHubId, endHubId, durationSec, distanceKm);
     }

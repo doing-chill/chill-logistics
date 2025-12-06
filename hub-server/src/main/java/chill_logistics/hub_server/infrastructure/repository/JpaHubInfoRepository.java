@@ -19,4 +19,6 @@ public interface JpaHubInfoRepository extends JpaRepository<HubInfo, UUID> {
 
     List<HubInfo> findAllByDeletedAtIsNull(Pageable pageable);
 
+    List<HubInfo> findByDeletedAtIsNull();
+
 }

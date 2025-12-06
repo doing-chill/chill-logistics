@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lib.web.error.BaseErrorCode;
 import lib.web.response.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,11 +16,13 @@ import lib.web.error.BusinessException;
 
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e, HttpServletRequest request) {
         BaseErrorCode code = e.getErrorCode();
         String path = request.getMethod() + " " + request.getRequestURI();
+        log.error("[UNHANDLED-EXCEPTION] {} {} - {}", request.getMethod(), request.getRequestURI(), e.getMessage(), e);
         return ResponseEntity.status(code.getStatus()).body(ErrorResponse.builder()
                 .status(code.getStatus().value())
                 .code(code.name())
@@ -79,6 +82,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
         String path = request.getMethod() + " " + request.getRequestURI();
+        log.error("[UNHANDLED-EXCEPTION] {} {} - {}",
+            request.getMethod(),
+            request.getRequestURI(),
+            e.getMessage(),
+            e);  // 마지막에 e 넣어야 stack trace가 찍힌다
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .code("INTERNAL_SERVER_ERROR")

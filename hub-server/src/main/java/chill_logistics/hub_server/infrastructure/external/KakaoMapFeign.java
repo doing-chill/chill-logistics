@@ -22,7 +22,6 @@ public interface KakaoMapFeign {
         @RequestParam(name = "car_fuel", defaultValue = "DIESEL") String carFuel,
         @RequestParam(name = "car_hipass", required = true) Boolean carHipass
     );
-
 }
 
 /**

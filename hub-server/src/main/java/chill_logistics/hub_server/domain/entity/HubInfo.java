@@ -55,15 +55,18 @@ public class HubInfo extends BaseEntity {
     // false면 기존 값 재사용
     public boolean checkUpdateTime(LocalDateTime updateTime) {
         LocalDateTime updatedAt = this.getUpdatedAt();
+        if (updatedAt == null) {
+            return true;
+        }
 
         if (this.deliveryDuration == null || this.distance == null) {
            return true;
        }
         // 두 시간 차이를 분 단위로 계산
-        long diffMinutes = Duration.between(updateTime, updateTime).toMinutes();
+        long diffMinutes = Duration.between(updatedAt, updateTime).toMinutes();
 
         // 5분 이상 차이가 난다면 true
-        return diffMinutes < 5;
+        return diffMinutes >= 5;
     }
 
 
