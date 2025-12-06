@@ -40,8 +40,8 @@ public class OrderCommandService {
         // TODO: 권한 체크
 
         // TODO: 업체 조회 후 업체 이름, hub id, (수령)업체 주소, (수령)업체 주인 이름 가져오기
-        FirmResultV1 supplierResult = new FirmResultV1(null, null, null, null, null);
-        FirmResultV1 receiverResult = new FirmResultV1(null, null, null, null, null);
+        FirmResultV1 supplierResult = new FirmResultV1(command.supplierFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
+        FirmResultV1 receiverResult = new FirmResultV1(command.receiverFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
 
         // TODO: 상품 조회 후 상품 정보(이름, 가격) 가져오기
         // TODO: 공급 업체 소속 삼품들인지 체크
