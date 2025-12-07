@@ -35,7 +35,7 @@ public class HubRepositoryAdapter implements HubRepository {
 
     @Override
     public boolean existsById(UUID hubId) {
-        return jpaHubRepository.existsById(hubId);
+        return jpaHubRepository.existsByIdAndDeletedAtIsNull(hubId);
     }
 
     @Override
