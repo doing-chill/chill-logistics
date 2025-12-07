@@ -46,8 +46,11 @@ public class HubControllerV1 {
         String userId = String.valueOf(UUID.randomUUID());
 
         hubService.createHub(UUID.fromString(userId), createHubRequest.toCreateHubCommand(createHubRequest));
+
         return BaseResponse.ok(BaseStatus.CREATED);
     }
+
+
 
     // 허브 검색
     @GetMapping
@@ -61,6 +64,7 @@ public class HubControllerV1 {
         String userId = String.valueOf(UUID.randomUUID());
 
         List<HubListQueryV1> hubListQueries = hubService.readAllHub(UUID.fromString(userId), hubName, page, size);
+
         return BaseResponse.ok(HubListResponseV1.fromHubListQuery(hubListQueries), BaseStatus.OK);
     }
 
@@ -77,8 +81,11 @@ public class HubControllerV1 {
         String userId = String.valueOf(UUID.randomUUID());
 
         HubInfoQueryV1 hubInfoQuery = hubService.readOneHub(UUID.fromString(userId), hubId);
+
         return BaseResponse.ok(HubInfoResponseV1.from(hubInfoQuery), BaseStatus.OK);
     }
+
+
 
     // 허브 업데이트
     @PatchMapping("/{hubId}")
@@ -93,6 +100,7 @@ public class HubControllerV1 {
 
         return BaseResponse.ok(BaseStatus.OK);
     }
+
 
 
     @DeleteMapping({"{hubId}"})

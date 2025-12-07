@@ -1,6 +1,8 @@
 package chill_logistics.hub_server.domain.entity;
 
 import jakarta.persistence.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
@@ -43,10 +45,30 @@ public class HubInfo extends BaseEntity {
         return hubInfo;
     }
 
+    // 시간, 거리 넣기
     public void updateDeliveryInfo(Integer deliveryDuration, BigDecimal distance) {
         this.deliveryDuration = deliveryDuration;
         this.distance = distance;
     }
+
+
+    // false면 기존 값 재사용
+    public boolean checkUpdateTime(LocalDateTime updateTime) {
+        LocalDateTime updatedAt = this.getUpdatedAt();
+        if (updatedAt == null) {
+            return true;
+        }
+
+        if (this.deliveryDuration == null || this.distance == null) {
+           return true;
+       }
+        // 두 시간 차이를 분 단위로 계산
+        long diffMinutes = Duration.between(updatedAt, updateTime).toMinutes();
+
+        // 5분 이상 차이가 난다면 true
+        return diffMinutes >= 5;
+    }
+
 
     public void updateHubInfo(UUID startHubId, UUID endHubId) {
         if(startHubId != null) this.startHubId = startHubId;

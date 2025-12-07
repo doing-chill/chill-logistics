@@ -20,6 +20,11 @@ public class HubInfoRepositoryAdapter implements HubInfoRepository {
     }
 
     @Override
+    public Optional<HubInfo> findByStartHubIdAndEndHubId(UUID startHubId, UUID endHubId) {
+        return jpaHubInfoRepository.findByStartHubIdAndEndHubIdAndDeletedAtIsNull(startHubId, endHubId);
+    }
+
+    @Override
     public void save(HubInfo hubInfo) {
         jpaHubInfoRepository.save(hubInfo);
     }
@@ -33,6 +38,11 @@ public class HubInfoRepositoryAdapter implements HubInfoRepository {
     public List<HubInfo> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return jpaHubInfoRepository.findAllByDeletedAtIsNull(pageable);
+    }
+
+    @Override
+    public List<HubInfo> findAll() {
+        return jpaHubInfoRepository.findByDeletedAtIsNull();
     }
 
 

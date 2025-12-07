@@ -48,6 +48,7 @@ public class HubInfoControllerV1 {
     }
 
 
+
     @GetMapping("/{hubInfoId}")
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<HubRoadInfoResponseV1> readHubInfo(
@@ -59,6 +60,8 @@ public class HubInfoControllerV1 {
 
         return BaseResponse.ok(HubRoadInfoResponseV1.from(hubRoadInfoQuery), BaseStatus.OK);
     }
+
+
 
 
     @GetMapping
@@ -75,6 +78,7 @@ public class HubInfoControllerV1 {
     }
 
 
+
     @PatchMapping("/{hubInfoId}")
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<Void> updateHubInfo(
@@ -89,10 +93,13 @@ public class HubInfoControllerV1 {
     }
 
 
+
     @DeleteMapping("/{hubInfoId}")
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<Void> deleteHubInfo(
+
         //@RequestHeader("User-Id") String userId
+
         @PathVariable UUID hubInfoId){
 
         String userId = String.valueOf(UUID.randomUUID());
@@ -100,6 +107,4 @@ public class HubInfoControllerV1 {
 
         return BaseResponse.ok(BaseStatus.OK);
     }
-
-
 }

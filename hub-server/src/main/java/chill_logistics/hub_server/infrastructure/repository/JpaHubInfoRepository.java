@@ -13,8 +13,12 @@ public interface JpaHubInfoRepository extends JpaRepository<HubInfo, UUID> {
 
     boolean existsByStartHubIdAndEndHubIdAndDeletedAtIsNull(UUID startHubId, UUID endHubId);
 
+    Optional<HubInfo> findByStartHubIdAndEndHubIdAndDeletedAtIsNull(UUID startHubId, UUID endHubId);
+
     Optional<HubInfo> findByIdAndDeletedAtIsNull(UUID hubInfoId);
 
     List<HubInfo> findAllByDeletedAtIsNull(Pageable pageable);
+
+    List<HubInfo> findByDeletedAtIsNull();
 
 }
