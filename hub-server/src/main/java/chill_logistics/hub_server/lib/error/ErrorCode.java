@@ -16,6 +16,7 @@ public enum ErrorCode implements BaseErrorCode {
     HUB_ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "허브 경로 정보를 찾을 수 없습니다."),
     HUB_INFO_START_EQUALS_END(HttpStatus.CONFLICT, "출발 허브와 도착 허브는 동일할 수 없습니다."),
     HUB_EDGE_NOT_FOUND(HttpStatus.NOT_FOUND, "허브 간 연결(엣지) 정보를 찾을 수 없습니다."),
+    KAKAO_DIRECTION_FAILED(HttpStatus.NOT_FOUND, "경로를 찾을 수 없습니다."),
 
     // 409
     HUB_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 허브명입니다."),

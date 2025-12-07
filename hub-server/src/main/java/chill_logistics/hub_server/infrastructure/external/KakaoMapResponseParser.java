@@ -23,10 +23,10 @@ public class KakaoMapResponseParser {
             JsonNode root = objectMapper.readTree(kakaoResponse);
 
             JsonNode routes = root.path("routes");
-//            if (!routes.isArray() || routes.isEmpty()) {
-//                log.error("[KAKAO] routes가 비어있습니다. response={}", kakaoResponse);
-//                throw new BusinessException(ErrorCode.KAKAO_DIRECTION_FAILED);
-//            }
+            if (!routes.isArray() || routes.isEmpty()) {
+                log.error("[KAKAO] routes가 비어있습니다. response={}", kakaoResponse);
+                throw new BusinessException(ErrorCode.KAKAO_DIRECTION_FAILED);
+            }
 
 
             JsonNode summary = root.path("routes").get(0).path("summary");
