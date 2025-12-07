@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 public class AsyncAiService {
 
     private final AiClient aiClient;
+    private final AsyncDiscordService asyncDiscordService;
 
     /* [배송 최종 발송 시한 계산 요청]
      * HubRouteAfterCommandV1 메시지를 기반으로 AI에 비동기 호출
@@ -49,6 +50,6 @@ public class AsyncAiService {
 
         log.info("[AI 결과] orderId={}, finalDeadline={}", message.orderId(),response.finalDeadline());
 
-        // TODO: Discord 서비스로 response.discordMessage() 전달
+        asyncDiscordService.sendDeadlineMessage(request, response);
     }
 }
