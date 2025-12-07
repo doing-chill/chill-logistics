@@ -82,7 +82,7 @@ public class DeliveryCommandService {
 
     /* [전체 배송 생성]
      * 허브 배송 + 업체 배송 = 전체 배송 생성
-     * 전체 배송 생성 + AI 비동기 호출
+     * 전체 배송 생성 + AI + Discord 비동기 호출
      */
     @Transactional
     public void createDelivery(
@@ -97,6 +97,7 @@ public class DeliveryCommandService {
 
         log.info("[배송 생성 완료] orderId={}", message.orderId());
 
+        // AI + Discord 비동기 체인 호출
         asyncAiService.sendDeadlineRequest(message);
     }
 
