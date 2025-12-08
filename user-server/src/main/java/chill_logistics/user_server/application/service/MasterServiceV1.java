@@ -1,7 +1,6 @@
 package chill_logistics.user_server.application.service;
 
-import chill_logistics.user_server.application.command.MasterUpdateUserInfoCommandV1;
-import chill_logistics.user_server.domain.entity.DeliveryAdmin;
+import chill_logistics.user_server.application.dto.command.MasterUpdateUserInfoCommandV1;
 import chill_logistics.user_server.domain.entity.User;
 import chill_logistics.user_server.domain.repository.DeliveryAdminRepository;
 import chill_logistics.user_server.domain.repository.UserRepository;

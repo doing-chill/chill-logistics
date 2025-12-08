@@ -1,11 +1,11 @@
 package chill_logistics.user_server.presentation.controller;
 
-import chill_logistics.user_server.application.command.*;
+import chill_logistics.user_server.application.dto.command.*;
 import chill_logistics.user_server.application.service.AuthServiceV1;
-import chill_logistics.user_server.presentation.dto.LoginRequestDtoV1;
-import chill_logistics.user_server.presentation.dto.LoginResponseDtoV1;
-import chill_logistics.user_server.presentation.dto.ReissueTokenResponseDtoV1;
-import chill_logistics.user_server.presentation.dto.SignupRequestDtoV1;
+import chill_logistics.user_server.presentation.dto.request.LoginRequestDtoV1;
+import chill_logistics.user_server.presentation.dto.response.LoginResponseDtoV1;
+import chill_logistics.user_server.presentation.dto.response.ReissueTokenResponseDtoV1;
+import chill_logistics.user_server.presentation.dto.request.SignupRequestDtoV1;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lib.entity.BaseStatus;

@@ -1,6 +1,6 @@
-package chill_logistics.user_server.presentation.dto;
+package chill_logistics.user_server.presentation.dto.request;
 
-import chill_logistics.user_server.application.command.MasterUpdateUserInfoCommandV1;
+import chill_logistics.user_server.application.dto.command.MasterUpdateUserInfoCommandV1;
 import chill_logistics.user_server.domain.entity.UserRole;
 
 import java.util.UUID;

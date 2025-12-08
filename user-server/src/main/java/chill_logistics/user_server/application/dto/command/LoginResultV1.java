@@ -1,4 +1,4 @@
-package chill_logistics.user_server.application.command;
+package chill_logistics.user_server.application.dto.command;
 
 public record LoginResultV1(
         String accessToken,

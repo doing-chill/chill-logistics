@@ -1,4 +1,4 @@
-package chill_logistics.user_server.presentation.dto;
+package chill_logistics.user_server.presentation.dto.response;
 
 public record LoginResponseDtoV1(
         String accessToken,
