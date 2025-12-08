@@ -1,6 +1,8 @@
 package chill_logistics.hub_server.application.dto.response;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record HubRouteResultResponse (
@@ -18,5 +20,7 @@ public record HubRouteResultResponse (
     String productName,
     int productQuantity,
     LocalDateTime orderCreatedAt,
-    int expectedDeliveryDuration
+    int expectedDeliveryDuration,
+    List<UUID>pathHubIds,
+    BigDecimal totalDistanceKm
 ){}

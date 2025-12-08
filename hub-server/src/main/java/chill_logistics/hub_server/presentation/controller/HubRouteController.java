@@ -22,6 +22,7 @@ public class HubRouteController {
     private final HubRouteService hubRouteService;
 
 
+    // 지울 예정
     @GetMapping("/route")
     public HubRouteResponseV1 getRoute(@RequestParam UUID startHubId, @RequestParam UUID endHubId) {
 
@@ -43,9 +44,6 @@ public class HubRouteController {
             result.totalDistanceKm()
         );
     }
-
-
-
 
 
 }

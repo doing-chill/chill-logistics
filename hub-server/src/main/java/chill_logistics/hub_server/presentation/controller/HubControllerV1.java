@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 import lib.entity.BaseStatus;
 import lib.jwt.TokenBody;
+import lib.util.SecurityUtils;
 import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +44,7 @@ public class HubControllerV1 {
     @PreAuthorize("hasRole('MASTER')")
     public BaseResponse<Void> createHub(@RequestBody @Valid CreateHubRequestV1 createHubRequest) {
 
-        String userId = String.valueOf(UUID.randomUUID());
-
-        hubService.createHub(UUID.fromString(userId), createHubRequest.toCreateHubCommand(createHubRequest));
+        hubService.createHub(SecurityUtils.getCurrentUserId(), createHubRequest.toCreateHubCommand(createHubRequest));
 
         return BaseResponse.ok(BaseStatus.CREATED);
     }
@@ -55,16 +54,14 @@ public class HubControllerV1 {
     // 허브 검색
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER')")
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<List<HubListResponseV1>> readAllHub(
 
         @RequestParam(required = false) String hubName,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
-        String userId = String.valueOf(UUID.randomUUID());
-
-        List<HubListQueryV1> hubListQueries = hubService.readAllHub(UUID.fromString(userId), hubName, page, size);
+        List<HubListQueryV1> hubListQueries = hubService.readAllHub(hubName, page, size);
 
         return BaseResponse.ok(HubListResponseV1.fromHubListQuery(hubListQueries), BaseStatus.OK);
     }
@@ -74,7 +71,7 @@ public class HubControllerV1 {
     // 단건 조회
     @GetMapping("/{hubId}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER')")
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<HubInfoResponseV1> readOneHub(@PathVariable UUID hubId) {
 
         HubInfoQueryV1 hubInfoQuery = hubService.readOneHub(hubId);
@@ -97,21 +94,22 @@ public class HubControllerV1 {
     }
 
 
-
     @DeleteMapping({"{hubId}"})
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('MASTER')")
     public BaseResponse<Void> deleteHub(
         @PathVariable UUID hubId) {
-        hubService.deleteHub(hubId);
+
+        hubService.deleteHub(SecurityUtils.getCurrentUserId(), hubId);
 
         return BaseResponse.ok(BaseStatus.OK);
     }
 
 
-
-    // 존재하는 허브인지 확인
+    // 존재하는 허브인지 확인 단순 boolean
     @GetMapping("/check/{hubId}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public boolean validateHub(@PathVariable UUID hubId) {
         return hubService.validateHub(hubId);
     }
