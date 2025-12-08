@@ -9,4 +9,6 @@ public interface ProductPort {
     ProductResultV1 readProductById(UUID productId);
 
     void decreaseStock(UUID productId, int quantity);
+
+    void recoverStock(UUID productId, int quantity);
 }

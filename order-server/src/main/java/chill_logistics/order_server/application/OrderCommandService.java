@@ -146,8 +146,10 @@ public class OrderCommandService {
         UUID userId = null;
         order.delete(userId);  // TODO: 로그인 유저id로 변경해야 함
 
-        // TODO: 재고 복원 (상품 서버 api 호출 )
-        List<OrderProduct> orderProductList= order.getOrderProductList();
+        // 재고 복원
+        for (OrderProduct p : order.getOrderProductList()) {
+            productPort.recoverStock(p.getProductId(), p.getQuantity());
+        }
 
         // TODO: 주문 읽기 업데이트 (OrderStatus, delete)
     }
