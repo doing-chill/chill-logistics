@@ -47,6 +47,9 @@ public class OrderCommandService {
         FirmResultV1 supplierResult = new FirmResultV1(command.supplierFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
         FirmResultV1 receiverResult = new FirmResultV1(command.receiverFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
 
+//        FirmResultV1 supplierResult = firmPort.readFirmById(command.supplierFirmId(), "SUPPLIER");
+//        FirmResultV1 receiverResult = firmPort.readFirmById(command.receiverFirmId(), "RECEIVER");
+
         // 주문 상품 체크 및 재고 감소
         List<OrderProductInfoV1> orderProductInfoList =
                 command.productList()
