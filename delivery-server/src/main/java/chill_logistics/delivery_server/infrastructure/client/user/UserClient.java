@@ -1,10 +1,10 @@
 package chill_logistics.delivery_server.infrastructure.client.user;
 
 import chill_logistics.delivery_server.infrastructure.client.user.dto.UserForDeliveryResponseV1;
-import java.util.UUID;
+import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
     name = "user-server",
@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 )
 public interface UserClient {
 
-    @GetMapping("/v1/internal/users/{userId}")
-    UserForDeliveryResponseV1 getUser(@PathVariable("userId") UUID userId);
+    @GetMapping("/v1/internal/users/by-role")
+    List<UserForDeliveryResponseV1> getUsersByRole(@RequestParam("role") String role);
 }

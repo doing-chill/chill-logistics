@@ -1,13 +1,12 @@
 package chill_logistics.delivery_server.application;
 
+import chill_logistics.delivery_server.application.dto.command.AssignedDeliveryPersonV1;
 import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
 import chill_logistics.delivery_server.domain.entity.DeliveryStatus;
 import chill_logistics.delivery_server.domain.entity.FirmDelivery;
 import chill_logistics.delivery_server.domain.entity.HubDelivery;
 import chill_logistics.delivery_server.domain.repository.FirmDeliveryRepository;
 import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;
-import chill_logistics.delivery_server.infrastructure.client.user.UserClient;
-import chill_logistics.delivery_server.infrastructure.client.user.dto.UserForDeliveryResponseV1;
 import chill_logistics.delivery_server.presentation.ErrorCode;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryCancelRequestV1;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryStatusChangeRequestV1;
@@ -26,7 +25,7 @@ public class DeliveryCommandService {
     private final HubDeliveryRepository hubDeliveryRepository;
     private final FirmDeliveryRepository firmDeliveryRepository;
     private final AsyncAiService asyncAiService;
-    private final UserClient userClient;
+    private final DeliveryPersonAssignmentService deliveryPersonAssignmentService;
 
     /* [허브 배송 생성 메서드]
      * Kafka 메시지로 order 정보 받아와서 허브 배송 생성
@@ -88,33 +87,28 @@ public class DeliveryCommandService {
      * 전체 배송 생성 + AI + Discord 비동기 호출
      */
     @Transactional
-    public void createDelivery(
-        HubRouteAfterCommandV1 message,
-        UUID hubDeliveryPersonId,
-        UUID firmDeliveryPersonId) {
+    public void createDelivery(HubRouteAfterCommandV1 message) {
 
         log.info("[배송 생성 시작] orderId={}", message.orderId());
 
-        // 허브 배송 담당자 조회
-        UserForDeliveryResponseV1 hubDeliveryPerson = userClient.getUser(hubDeliveryPersonId);
+        // 허브 배송 담당자 배정
+        AssignedDeliveryPersonV1 hubDeliveryPerson =
+            deliveryPersonAssignmentService.assignHubDeliveryPerson();
 
-        if (!hubDeliveryPerson.role().equals("HUB_DELIVERY_MANAGER")) {
-            throw new BusinessException(ErrorCode.INVALID_HUB_DELIVERY_PERSON);
-        }
+        // 업체 배송 담당자 배정
+        AssignedDeliveryPersonV1 firmDeliveryPerson =
+            deliveryPersonAssignmentService.assignFirmDeliveryPerson();
 
+        UUID hubDeliveryPersonId = hubDeliveryPerson.userId();
         String hubDeliveryPersonName = hubDeliveryPerson.userName();
-
-        // 업체 배송 담당자 조회
-        UserForDeliveryResponseV1 firmDeliveryPerson = userClient.getUser(firmDeliveryPersonId);
-
-        if (!firmDeliveryPerson.role().equals("FIRM_DELIVERY_MANAGER")) {
-            throw new BusinessException(ErrorCode.INVALID_FIRM_DELIVERY_PERSON);
-        }
+        UUID firmDeliveryPersonId = firmDeliveryPerson.userId();
 
         createHubDelivery(message, hubDeliveryPersonId);
         createFirmDelivery(message, firmDeliveryPersonId);
 
-        log.info("[배송 생성 완료] orderId={}", message.orderId());
+        log.info(
+            "[배송 생성 완료 & 배송 담당자 배정 완료] orderId={}, hubDeliveryPersonId={}, firmDeliveryPersonId={}",
+            message.orderId(), hubDeliveryPersonId, firmDeliveryPersonId);
 
         // AI + Discord 비동기 체인 호출
         asyncAiService.sendDeadlineRequest(message, hubDeliveryPersonName);
@@ -180,7 +174,6 @@ public class DeliveryCommandService {
 }
 
 /* TODO
- * deliveryPersonId 배정 로직 필요
  * 배송 추적에 따라 상태 변경 로직 추가 필요 (deliveryStatus ENUM 수정 필요)
  * deliverySequenceNum 알고리즘에 따라 수정 필요
  */
