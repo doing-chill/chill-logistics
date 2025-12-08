@@ -47,7 +47,7 @@ public class SecurityUtils {
     public static Role getCurrentRole() {
         return getCurrentUser()
                 .map(TokenBody::getRole)
-                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자(UserRole)가 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("인증된 사용자(userRole)가 없습니다."));
     }
 
     public static Optional<Role> getCurrentRoleOptional() {
@@ -65,6 +65,6 @@ public class SecurityUtils {
     public static boolean hasAnyRole(Role... roles){
         return getCurrentRoleOptional()
                 .map(r -> Arrays.asList(roles).contains(r))
-                .orElse(false)
+                .orElse(false);
     }
 }
