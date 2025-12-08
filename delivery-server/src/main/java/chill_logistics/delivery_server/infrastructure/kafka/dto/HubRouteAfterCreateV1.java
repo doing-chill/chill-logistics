@@ -1,7 +1,9 @@
 package chill_logistics.delivery_server.infrastructure.kafka.dto;
 
 import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record HubRouteAfterCreateV1(
@@ -19,7 +21,9 @@ public record HubRouteAfterCreateV1(
     String productName,
     int productQuantity,
     LocalDateTime orderCreatedAt,
-    Integer expectedDeliveryDuration) {
+    int expectedDeliveryDuration,
+    List<UUID> pathHubIds,
+    BigDecimal totalDistanceKm) {
 
     // application 계층의 command 변환 메서드
     public HubRouteAfterCommandV1 toCommand() {
@@ -38,7 +42,8 @@ public record HubRouteAfterCreateV1(
             productName(),
             productQuantity(),
             orderCreatedAt(),
-            expectedDeliveryDuration()
+            expectedDeliveryDuration(),
+            pathHubIds()
         );
     }
 }

@@ -1,6 +1,7 @@
 package chill_logistics.delivery_server.application.dto.command;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record HubRouteAfterCommandV1(
@@ -18,7 +19,6 @@ public record HubRouteAfterCommandV1(
     String productName,
     int productQuantity,
     LocalDateTime orderCreatedAt,
-    Integer expectedDeliveryDuration
+    int expectedDeliveryDuration,
+    List<UUID> pathHubIds
 ) {}
-
-// TODO: expectedDeliveryDuration 타입 수정 필요한지 확인

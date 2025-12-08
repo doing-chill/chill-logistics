@@ -105,7 +105,10 @@ public class HubDelivery extends BaseEntity {
         this.deliveryStatus = deliveryStatus;
     }
 
-    // Kafka 메시지 + Hub 정보(이름/주소)를 기반으로 허브 배송 엔티티 생성
+    /* [허브 구간(startHub → endHub) 단위 row 생성용 팩토리 메서드]
+     * Kafka 메시지 + Hub 정보(이름/주소)를 기반으로 허브 배송 엔티티 생성
+     * pathHubIds[i] → pathHubIds[i+1] 에 해당하는 한 구간을 한 row로 만든다고 보면 된다
+     */
     public static HubDelivery createFrom(
         HubRouteAfterCommandV1 message,
         UUID deliveryPersonId,
