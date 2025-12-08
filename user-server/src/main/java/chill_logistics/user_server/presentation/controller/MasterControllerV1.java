@@ -1,9 +1,11 @@
 package chill_logistics.user_server.presentation.controller;
 
+import chill_logistics.user_server.application.dto.command.MasterUpdateSignupStatusCommandV1;
 import chill_logistics.user_server.application.dto.command.MasterUpdateUserInfoCommandV1;
 import chill_logistics.user_server.application.dto.query.MasterSignupUserQueryV1;
 import chill_logistics.user_server.application.service.MasterQueryServiceV1;
 import chill_logistics.user_server.application.service.MasterServiceV1;
+import chill_logistics.user_server.presentation.dto.request.MasterUpdateSignupStatusRequestDtoV1;
 import chill_logistics.user_server.presentation.dto.request.MasterUpdateUserInfoRequestDtoV1;
 import chill_logistics.user_server.presentation.dto.response.MasterSignupUserResponseDtoV1;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,5 +58,18 @@ public class MasterControllerV1 {
         List<MasterSignupUserResponseDtoV1> responseList = MasterSignupUserResponseDtoV1.from(resultList);
 
         return BaseResponse.ok(responseList, BaseStatus.OK);
+    }
+
+    @PutMapping("/{userId}/signup")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "회원가입 승인/거절 처리", description = "MASTER 계정이 특정 유저의 회원가입 상태를 승인 또는 거절 처리하는 API입니다.")
+    public BaseResponse<Void> updateSignupStatus(
+            @PathVariable UUID userId,
+            @RequestBody MasterUpdateSignupStatusRequestDtoV1 request) {
+
+        MasterUpdateSignupStatusCommandV1 command = request.toCommand(userId);
+        masterService.updateSignupStatus(command);
+
+        return BaseResponse.ok(BaseStatus.OK);
     }
 }
