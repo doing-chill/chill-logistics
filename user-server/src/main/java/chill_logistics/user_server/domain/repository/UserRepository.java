@@ -2,6 +2,7 @@ package chill_logistics.user_server.domain.repository;
 
 import chill_logistics.user_server.domain.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +15,6 @@ public interface UserRepository {
     boolean existsByEmail(String email);
 
     User save(User user);
+
+    List<User> findSignupUsers();
 }

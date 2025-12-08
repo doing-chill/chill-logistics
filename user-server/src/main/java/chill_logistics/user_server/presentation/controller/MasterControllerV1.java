@@ -1,8 +1,11 @@
 package chill_logistics.user_server.presentation.controller;
 
 import chill_logistics.user_server.application.command.MasterUpdateUserInfoCommandV1;
+import chill_logistics.user_server.application.dto.query.MasterSignupUserQueryV1;
+import chill_logistics.user_server.application.service.MasterQueryServiceV1;
 import chill_logistics.user_server.application.service.MasterServiceV1;
 import chill_logistics.user_server.presentation.dto.MasterUpdateUserInfoRequestDtoV1;
+import chill_logistics.user_server.presentation.dto.response.MasterSignupUserResponseDtoV1;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -15,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,6 +30,7 @@ import java.util.UUID;
 public class MasterControllerV1 {
 
     private final MasterServiceV1 masterService;
+    private final MasterQueryServiceV1 masterQueryService;
 
     @PutMapping("/{userId}/info")
     @PreAuthorize("hasRole('MASTER')")
@@ -39,5 +44,17 @@ public class MasterControllerV1 {
         masterService.updateUserInfo(command);
 
         return BaseResponse.ok(BaseStatus.OK);
+    }
+
+    @GetMapping("/signup")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "회원가입 유저 목록 조회", description = "MASTER 계정이 회원가입한 유저들의 목록을 조회할 때 사용하는 API입니다.")
+    public BaseResponse<List<MasterSignupUserResponseDtoV1>> getSignupUserList() {
+
+        List<MasterSignupUserQueryV1> resultList = masterQueryService.readSignupUserList();
+
+        List<MasterSignupUserResponseDtoV1> responseList = MasterSignupUserResponseDtoV1.from(resultList);
+
+        return BaseResponse.ok(responseList, BaseStatus.OK);
     }
 }
