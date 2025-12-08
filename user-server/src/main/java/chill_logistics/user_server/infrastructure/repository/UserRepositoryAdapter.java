@@ -1,9 +1,11 @@
 package chill_logistics.user_server.infrastructure.repository;
 
+import chill_logistics.user_server.domain.entity.SignupStatus;
 import chill_logistics.user_server.domain.entity.User;
 import chill_logistics.user_server.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,5 +33,10 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public User save(User user) {
         return jpaUserRepository.save(user);
+    }
+
+    @Override
+    public List<User> findSignupUsers() {
+        return jpaUserRepository.findBySignupStatus(SignupStatus.PENDING);
     }
 }

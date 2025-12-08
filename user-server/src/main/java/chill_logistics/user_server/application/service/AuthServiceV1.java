@@ -1,6 +1,6 @@
 package chill_logistics.user_server.application.service;
 
-import chill_logistics.user_server.application.command.*;
+import chill_logistics.user_server.application.dto.command.*;
 import chill_logistics.user_server.domain.entity.RoleMapper;
 import chill_logistics.user_server.domain.entity.User;
 import chill_logistics.user_server.domain.entity.UserRole;

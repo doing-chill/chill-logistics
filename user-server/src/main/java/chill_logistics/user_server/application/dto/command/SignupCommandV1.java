@@ -1,6 +1,6 @@
-package chill_logistics.user_server.presentation.dto;
+package chill_logistics.user_server.application.dto.command;
 
-public record SignupRequestDtoV1(
+public record SignupCommandV1(
         String email,
         String username,
         String nickname,
