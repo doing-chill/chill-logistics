@@ -1,4 +1,4 @@
-package chill_logistics.product_server.application.dto.query;
+package chill_logistics.product_server.application.dto.command;
 
 import lombok.Builder;
 

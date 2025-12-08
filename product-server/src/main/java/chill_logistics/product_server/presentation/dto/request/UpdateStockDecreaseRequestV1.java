@@ -1,6 +1,6 @@
 package chill_logistics.product_server.presentation.dto.request;
 
-import chill_logistics.product_server.application.dto.query.UpdateStockDecreaseCommandV1;
+import chill_logistics.product_server.application.dto.command.UpdateStockDecreaseCommandV1;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
