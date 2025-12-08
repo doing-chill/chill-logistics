@@ -1,8 +1,8 @@
 package chill_logistics.delivery_server.application;
 
 import chill_logistics.delivery_server.application.dto.command.AssignedDeliveryPersonV1;
-import chill_logistics.delivery_server.infrastructure.client.user.UserClient;
-import chill_logistics.delivery_server.infrastructure.client.user.dto.UserForDeliveryResponseV1;
+import chill_logistics.delivery_server.infrastructure.user.UserClient;
+import chill_logistics.delivery_server.infrastructure.user.dto.UserForDeliveryResponseV1;
 import chill_logistics.delivery_server.presentation.ErrorCode;
 import java.util.List;
 import java.util.Map;

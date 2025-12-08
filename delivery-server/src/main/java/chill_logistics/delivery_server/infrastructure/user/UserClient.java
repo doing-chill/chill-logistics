@@ -1,6 +1,6 @@
-package chill_logistics.delivery_server.infrastructure.client.user;
+package chill_logistics.delivery_server.infrastructure.user;
 
-import chill_logistics.delivery_server.infrastructure.client.user.dto.UserForDeliveryResponseV1;
+import chill_logistics.delivery_server.infrastructure.user.dto.UserForDeliveryResponseV1;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

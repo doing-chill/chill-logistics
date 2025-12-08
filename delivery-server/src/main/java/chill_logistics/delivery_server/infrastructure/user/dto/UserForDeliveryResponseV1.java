@@ -1,4 +1,4 @@
-package chill_logistics.delivery_server.infrastructure.client.user.dto;
+package chill_logistics.delivery_server.infrastructure.user.dto;
 
 import java.util.UUID;
 
