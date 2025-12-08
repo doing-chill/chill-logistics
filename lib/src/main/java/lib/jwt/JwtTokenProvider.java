@@ -14,11 +14,8 @@ import javax.crypto.SecretKey;
 import lib.entity.Role;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 
 @Slf4j
-@Component
 public class JwtTokenProvider  {
 
     @Value("${custom.jwt.exp-time.access}")
