@@ -1,7 +1,8 @@
-package chill_logistics.product_server.application.server;
+package chill_logistics.product_server.application.service;
 
 import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
 import chill_logistics.product_server.application.dto.query.ReadProductDetailResultV1;
+import chill_logistics.product_server.application.dto.query.ReadProductInternalResultV1;
 import chill_logistics.product_server.application.dto.query.ReadProductSummaryResultV1;
 import chill_logistics.product_server.domain.entity.Product;
 import chill_logistics.product_server.domain.repository.ProductRepository;
@@ -49,5 +50,14 @@ public class ProductQueryService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
         return ReadProductDetailResultV1.from(product);
+    }
+
+    @Transactional(readOnly = true)
+    public ReadProductInternalResultV1 readProductInternal(UUID id) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        return ReadProductInternalResultV1.from(product);
     }
 }

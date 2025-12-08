@@ -1,14 +1,9 @@
 package chill_logistics.product_server.application;
 
-import chill_logistics.product_server.application.dto.command.CreateProductCommandV1;
-import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
-import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
-import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
-import chill_logistics.product_server.application.dto.command.CreateProductResultV1;
-import chill_logistics.product_server.application.dto.query.ReadProductDetailResultV1;
-import chill_logistics.product_server.application.dto.query.ReadProductSummaryResultV1;
-import chill_logistics.product_server.application.server.ProductCommandService;
-import chill_logistics.product_server.application.server.ProductQueryService;
+import chill_logistics.product_server.application.dto.command.*;
+import chill_logistics.product_server.application.dto.query.*;
+import chill_logistics.product_server.application.service.ProductCommandService;
+import chill_logistics.product_server.application.service.ProductQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,5 +37,17 @@ public class ProductFacade {
 
     public ReadProductDetailResultV1 readProduct(UUID id) {
         return productQueryService.readProduct(id);
+    }
+
+    public ReadProductInternalResultV1 readProductInternal(UUID id) {
+        return productQueryService.readProductInternal(id);
+    }
+
+    public void decreaseStockInternal(UpdateStockDecreaseCommandV1 command) {
+        productCommandService.decreaseStockInternal(command);
+    }
+
+    public void recoverStockInternal(UpdateStockRecoverCommandV1 command) {
+        productCommandService.recoverStockInternal(command);
     }
 }

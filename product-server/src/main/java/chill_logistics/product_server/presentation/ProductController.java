@@ -5,11 +5,10 @@ import chill_logistics.product_server.application.dto.command.CreateProductComma
 import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
 import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
 import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
-import chill_logistics.product_server.presentation.dto.request.CreateProductRequestV1;
-import chill_logistics.product_server.presentation.dto.request.ReadProductRequestV1;
-import chill_logistics.product_server.presentation.dto.request.UpdateProductRequestV1;
+import chill_logistics.product_server.presentation.dto.request.*;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
 import chill_logistics.product_server.presentation.dto.response.ReadProductDetailResponseV1;
+import chill_logistics.product_server.presentation.dto.response.ReadProductInternalResponseV1;
 import chill_logistics.product_server.presentation.dto.response.ReadProductSummaryResponseV1;
 import jakarta.validation.Valid;
 import lib.entity.BaseStatus;
@@ -113,5 +112,39 @@ public class ProductController {
         ReadProductDetailResponseV1 response = ReadProductDetailResponseV1.from(productFacade.readProduct(id));
 
         return BaseResponse.ok(response, BaseStatus.OK);
+    }
+
+    /* 상품 단건 조회 (내부 API) */
+    @GetMapping("/internal/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<ReadProductInternalResponseV1> readProductInternal(@PathVariable UUID id) {
+
+        ReadProductInternalResponseV1 response = ReadProductInternalResponseV1.from(productFacade.readProductInternal(id));
+
+        return BaseResponse.ok(response, BaseStatus.OK);
+    }
+
+    /* 재고 차감 (내부 API) */
+    @PutMapping("/internal/{id}/decrease")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<Void> decreaseStockInternal(
+            @PathVariable UUID id,
+            @RequestBody @Valid UpdateStockDecreaseRequestV1 request) {
+
+        productFacade.decreaseStockInternal(request.toCommand(id));
+
+        return BaseResponse.ok(BaseStatus.OK);
+    }
+
+    /* 재고 복원 (내부 API) */
+    @PutMapping("/internal/{id}/recover")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse<Void> recoveryStockInternal(
+            @PathVariable UUID id,
+            @RequestBody @Valid UpdateStockRecoverRequestV1 request) {
+
+        productFacade.recoverStockInternal(request.toCommand(id));
+
+        return BaseResponse.ok(BaseStatus.OK);
     }
 }

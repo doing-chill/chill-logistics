@@ -7,9 +7,9 @@ import chill_logistics.order_server.domain.entity.OrderProduct;
 import chill_logistics.order_server.domain.entity.OrderQuery;
 import chill_logistics.order_server.domain.entity.OrderStatus;
 import chill_logistics.order_server.domain.event.EventPublisher;
+import chill_logistics.order_server.domain.port.ProductPort;
 import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
-import chill_logistics.order_server.application.dto.command.OrderAfterCreateV1;
 import chill_logistics.order_server.lib.error.ErrorCode;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,7 @@ public class OrderCommandService {
 
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
+    private final ProductPort productPort;
     private final EventPublisher eventPublisher;
 
     private Order readProductOrThrow(UUID orderId) {
@@ -43,27 +44,35 @@ public class OrderCommandService {
         FirmResultV1 supplierResult = new FirmResultV1(command.supplierFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
         FirmResultV1 receiverResult = new FirmResultV1(command.receiverFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
 
-        // TODO: 상품 조회 후 상품 정보(이름, 가격) 가져오기
-        // TODO: 공급 업체 소속 삼품들인지 체크
+        // 주문 상품 체크 및 재고 감소
         List<OrderProductInfoV1> orderProductInfoList =
                 command.productList()
                         .stream()
                         .map(p -> {
-                            // TODO: 상품 조회
-                            ProductResultV1 product = null;
+                            // 상품 조회
+                            ProductResultV1 product = productPort.readProductById(p.productId());
+
+//                            // 공급 업체 소속 상품인지 체크
+//                            if (!product.firmId().equals(command.receiverFirmId())) {
+//                                throw new BusinessException(ErrorCode.PRODUCT_NOT_FROM_FIRM);
+//                            }
+
+                            // 상품 재고 체크
+                            if (product.stockQuantity() < p.quantity()) {
+                                throw new BusinessException(ErrorCode.OUT_OF_STOCK);
+                            }
+
+                            // 상품 재고 감소
+                            productPort.decreaseStock(p.productId(), p.quantity());
 
                             return new OrderProductInfoV1(
                                     p.productId(),
-//                                    product.name(),
-//                                    product.price(),
-                                    "임시 상품",
-                                    1234,
+                                    product.name(),
+                                    product.price(),
                                     p.quantity()
                             );
                         })
                         .toList();
-
-        // TODO: 상품 재고 체크
 
         // 주문 생성
         Order order = Order.create(
@@ -86,7 +95,6 @@ public class OrderCommandService {
 
         orderQueryRepository.save(orderQuery);
 
-        // TODO: 주문 생성 시 order_after_create_message 발행
         // Kafka 메시지 생성
         OrderAfterCreateV1 message = new OrderAfterCreateV1(
                 createOrder.getId(),
@@ -138,8 +146,10 @@ public class OrderCommandService {
         UUID userId = null;
         order.delete(userId);  // TODO: 로그인 유저id로 변경해야 함
 
-        // TODO: 재고 복원 (상품 서버 api 호출 )
-        List<OrderProduct> orderProductList= order.getOrderProductList();
+        // 재고 복원
+        for (OrderProduct p : order.getOrderProductList()) {
+            productPort.recoverStock(p.getProductId(), p.getQuantity());
+        }
 
         // TODO: 주문 읽기 업데이트 (OrderStatus, delete)
     }
