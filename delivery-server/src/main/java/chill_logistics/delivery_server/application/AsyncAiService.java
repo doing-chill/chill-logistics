@@ -18,12 +18,12 @@ public class AsyncAiService {
     private final AsyncDiscordService asyncDiscordService;
 
     /* [배송 최종 발송 시한 계산 요청]
-     * HubRouteAfterCommandV1 메시지를 기반으로 AI에 비동기 호출
+     * HubRouteAfterCommandV1 메시지를 기반으로 AI 비동기 호출
      * HubRouteAfterCommandV1 → AiDeadlineRequestV1 로 변환 (AI에게 줄 데이터 정제)
-     * AI 응답으로 받은 AiDeadlineResponseV1 에서 finalDeadline 을 로그에 남김
+     * AI 응답으로 받은 AiDeadlineResponseV1 → Discord 비동기 호출
      */
     @Async
-    public void sendDeadlineRequest(HubRouteAfterCommandV1 message) {
+    public void sendDeadlineRequest(HubRouteAfterCommandV1 message, String hubDeliveryPersonName) {
 
         log.info("[AI 비동기 호출 시작] orderId={}", message.orderId());
 
@@ -42,8 +42,8 @@ public class AsyncAiService {
             message.productName(),
             message.productQuantity(),
             message.orderCreatedAt(),
-            message.expectedDeliveryDuration()
-            // TODO: deliveryPersonName 추가 필요
+            message.expectedDeliveryDuration(),
+            hubDeliveryPersonName
         );
 
         AiDeadlineResponseV1 response = aiClient.generateDeadlineMessage(request);

@@ -132,7 +132,6 @@ public class OpenAiConstants {
         - 경유지: %s
         - 도착지: %s
         - 예상 총 소요시간(분): %d
+        - 배송담당자: %s
         """;
 }
-
-// TODO: 배송담당자: %s 추가 필요

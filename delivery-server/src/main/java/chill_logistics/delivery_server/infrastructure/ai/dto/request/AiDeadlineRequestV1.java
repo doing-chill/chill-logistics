@@ -18,6 +18,6 @@ public record AiDeadlineRequestV1(
     String productName,
     int productQuantity,
     LocalDateTime orderCreatedAt,
-    Integer expectedDeliveryDuration
-    // TODO: String deliveryPersonName 추가 필요
+    Integer expectedDeliveryDuration,
+    String deliveryPersonName
 ) {}
