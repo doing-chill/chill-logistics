@@ -14,7 +14,7 @@ public class UserClientImpl implements UserClient {
 
 
     @Override
-    public UserResponseV1 getUser(UUID userId) {
-        return userFeign.getUser(userId);
+    public UserResponseV1 getUser(String accessToken, UUID userId) {
+        return userFeign.getUser(accessToken, userId);
     }
 }
