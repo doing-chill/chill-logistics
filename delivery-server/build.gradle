@@ -25,6 +25,9 @@ dependencies {
 
 	// OpenAi
 	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+
+	// OpenFeign
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 }
 
 dependencyManagement {
