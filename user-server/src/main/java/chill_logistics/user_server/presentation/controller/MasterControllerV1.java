@@ -1,10 +1,10 @@
 package chill_logistics.user_server.presentation.controller;
 
-import chill_logistics.user_server.application.command.MasterUpdateUserInfoCommandV1;
+import chill_logistics.user_server.application.dto.command.MasterUpdateUserInfoCommandV1;
 import chill_logistics.user_server.application.dto.query.MasterSignupUserQueryV1;
 import chill_logistics.user_server.application.service.MasterQueryServiceV1;
 import chill_logistics.user_server.application.service.MasterServiceV1;
-import chill_logistics.user_server.presentation.dto.MasterUpdateUserInfoRequestDtoV1;
+import chill_logistics.user_server.presentation.dto.request.MasterUpdateUserInfoRequestDtoV1;
 import chill_logistics.user_server.presentation.dto.response.MasterSignupUserResponseDtoV1;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
