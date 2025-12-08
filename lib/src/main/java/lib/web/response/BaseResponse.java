@@ -12,6 +12,8 @@ public class BaseResponse<T> {
     private BaseStatus status;
     private T data;
 
+    public BaseResponse() {}
+
     public BaseResponse(BaseStatus status){this.status = status;}
 
     public BaseResponse(BaseStatus status, T data) {
