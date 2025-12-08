@@ -45,11 +45,7 @@ public class DeliveryController {
     @ResponseStatus(HttpStatus.CREATED)
     public BaseResponse<Void> createDelivery(@RequestBody DeliveryCreateRequestV1 request) {
 
-        deliveryCommandService.createDelivery(
-            request.orderInfo(),
-            request.hubDeliveryPersonId(),
-            request.firmDeliveryPersonId()
-        );
+        deliveryCommandService.createDelivery(request.orderInfo());
 
         return BaseResponse.ok(BaseStatus.CREATED);
     }
