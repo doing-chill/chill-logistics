@@ -1,4 +1,4 @@
-package chill_logistics.order_server.application;
+package chill_logistics.order_server.application.service;
 
 import chill_logistics.order_server.application.dto.query.FirmQueryResultV1;
 import chill_logistics.order_server.application.dto.query.ReadOrderCommandV1;

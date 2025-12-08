@@ -1,4 +1,4 @@
-package chill_logistics.order_server.application;
+package chill_logistics.order_server.application.service;
 
 import chill_logistics.order_server.application.dto.ProductResultV1;
 import chill_logistics.order_server.application.dto.command.*;
