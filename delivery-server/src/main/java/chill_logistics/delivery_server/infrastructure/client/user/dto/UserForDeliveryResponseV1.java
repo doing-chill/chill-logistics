@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public record UserForDeliveryResponseV1(
     UUID userId,
-    String name,
+    String userName,
     String role
 ) {}

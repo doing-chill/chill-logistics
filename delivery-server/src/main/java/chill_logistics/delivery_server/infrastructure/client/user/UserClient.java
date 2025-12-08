@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 )
 public interface UserClient {
 
-    @GetMapping("/v1/users/{userId}")
+    @GetMapping("/v1/internal/users/{userId}")
     UserForDeliveryResponseV1 getUser(@PathVariable("userId") UUID userId);
 }

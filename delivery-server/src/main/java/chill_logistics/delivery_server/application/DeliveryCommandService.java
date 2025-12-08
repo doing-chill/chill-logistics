@@ -102,7 +102,7 @@ public class DeliveryCommandService {
             throw new BusinessException(ErrorCode.INVALID_HUB_DELIVERY_PERSON);
         }
 
-        String hubDeliveryPersonName = hubDeliveryPerson.name();
+        String hubDeliveryPersonName = hubDeliveryPerson.userName();
 
         // 업체 배송 담당자 조회
         UserForDeliveryResponseV1 firmDeliveryPerson = userClient.getUser(firmDeliveryPersonId);
