@@ -7,6 +7,8 @@ import chill_logistics.order_server.application.dto.query.ReadOrderSummaryResult
 import chill_logistics.order_server.domain.entity.Order;
 import chill_logistics.order_server.domain.repository.OrderRepository;
 import chill_logistics.order_server.lib.error.ErrorCode;
+import lib.entity.Role;
+import lib.util.SecurityUtils;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,15 @@ public class OrderQueryService {
                 command.orderStatus()
         );
 
+        // 본인 주문인지 체크
+        if (SecurityUtils.hasRole(Role.FIRM_MANAGER)) {
+            UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+            orderList = orderList.stream()
+                    .filter(o -> currentUserId.equals(o.getCreatedBy()))
+                    .toList();
+        }
+
         return orderList
                 .stream()
                 .map(ReadOrderSummaryResultV1::from)
@@ -43,6 +54,15 @@ public class OrderQueryService {
 
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+        // 본인 주문인지 체크
+        if (SecurityUtils.hasRole(Role.FIRM_MANAGER)) {
+            UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+            if (!currentUserId.equals(order.getCreatedBy())) {
+                throw new BusinessException(ErrorCode.ORDER_NOT_CREATED_BY_USER);
+            }
+        }
 
         // TODO: 업체 정보 조회 (supplier, receiver)
         FirmQueryResultV1 supplierResult = null;

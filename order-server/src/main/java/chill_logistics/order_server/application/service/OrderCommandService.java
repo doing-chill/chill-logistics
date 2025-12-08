@@ -1,16 +1,19 @@
 package chill_logistics.order_server.application.service;
 
-import chill_logistics.order_server.application.dto.command.ProductResultV1;
 import chill_logistics.order_server.application.dto.command.*;
 import chill_logistics.order_server.domain.entity.Order;
 import chill_logistics.order_server.domain.entity.OrderProduct;
 import chill_logistics.order_server.domain.entity.OrderQuery;
 import chill_logistics.order_server.domain.entity.OrderStatus;
 import chill_logistics.order_server.domain.event.EventPublisher;
+import chill_logistics.order_server.domain.port.HubPort;
 import chill_logistics.order_server.domain.port.ProductPort;
 import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
+import chill_logistics.order_server.domain.port.FirmPort;
 import chill_logistics.order_server.lib.error.ErrorCode;
+import lib.entity.Role;
+import lib.util.SecurityUtils;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,17 +31,17 @@ public class OrderCommandService {
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
     private final ProductPort productPort;
+    private final HubPort hubPort;
+    private final FirmPort firmPort;
     private final EventPublisher eventPublisher;
 
-    private Order readProductOrThrow(UUID orderId) {
+    private Order readOrderOrThrow(UUID orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }
 
     @Transactional
     public CreateOrderResultV1 createOrder(CreateOrderCommandV1 command) {
-
-        // TODO: 권한 체크
 
         // TODO: 업체 조회 후 업체 이름, hub id, (수령)업체 주소, (수령)업체 주인 이름 가져오기
         FirmResultV1 supplierResult = new FirmResultV1(command.supplierFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
@@ -123,10 +126,18 @@ public class OrderCommandService {
     @Transactional
     public void updateOrderStatus(UUID id, UpdateOrderStatusCommandV1 command) {
 
-        // TODO: 권한 체크
-
         // 주문 조회
-        Order order = readProductOrThrow(id);
+        Order order = readOrderOrThrow(id);
+
+        // 담당 허브 소속 주문인지 체크
+        if (SecurityUtils.hasRole(Role.HUB_MANAGER)) {
+            UUID managingHubId = hubPort.readHubId(SecurityUtils.getCurrentUserId());
+            UUID receiverHubId = firmPort.readHubId(order.getReceiverFirmId());
+
+            if (!managingHubId.equals(receiverHubId)) {
+                throw new BusinessException(ErrorCode.ORDER_NOT_IN_MANAGING_HUB);
+            }
+        }
 
         // 상태 변경
         order.updateStatus(command.status());
@@ -137,14 +148,30 @@ public class OrderCommandService {
     @Transactional
     public void deleteOrder(UUID id) {
 
-        // TODO: 권한 체크
-
         // 주문 조회
-        Order order = readProductOrThrow(id);
+        Order order = readOrderOrThrow(id);
+
+        // 담당 허브 소속 주문인지 체크
+        if (SecurityUtils.hasRole(Role.HUB_MANAGER)) {
+            UUID managingHubId = hubPort.readHubId(SecurityUtils.getCurrentUserId());
+            UUID receiverHubId = firmPort.readHubId(order.getReceiverFirmId());
+
+            if (!managingHubId.equals(receiverHubId)) {
+                throw new BusinessException(ErrorCode.ORDER_NOT_IN_MANAGING_HUB);
+            }
+        }
+
+        // 본인 주문인지 체크
+        if (SecurityUtils.hasRole(Role.FIRM_MANAGER)) {
+            UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+            if (!currentUserId.equals(order.getCreatedBy())) {
+                throw new BusinessException(ErrorCode.ORDER_NOT_CREATED_BY_USER);
+            }
+        }
 
         order.updateStatus(OrderStatus.CANCELED);
-        UUID userId = null;
-        order.delete(userId);  // TODO: 로그인 유저id로 변경해야 함
+        order.delete(SecurityUtils.getCurrentUserId());
 
         // 재고 복원
         for (OrderProduct p : order.getOrderProductList()) {
