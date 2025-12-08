@@ -107,7 +107,7 @@ public class HubControllerV1 {
 
 
     // 존재하는 허브인지 확인 단순 boolean
-    @GetMapping("/check/{hubId}")
+    @GetMapping("/internal/{hubId}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public boolean validateHub(@PathVariable UUID hubId) {
