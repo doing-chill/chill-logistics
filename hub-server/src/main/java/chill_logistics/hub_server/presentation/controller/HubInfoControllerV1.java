@@ -11,10 +11,12 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lib.entity.BaseStatus;
+import lib.util.SecurityUtils;
 import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,42 +39,38 @@ public class HubInfoControllerV1 {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('MASTER')")
     public BaseResponse<Void> createHubInfo(
-        //@RequestHeader("User-Id") String userId
+
         @RequestBody @Valid CreateHubInfoRequestV1 createHubInfoRequest) {
 
-        String userId = String.valueOf(UUID.randomUUID());
-        hubInfoService.createHubInfo(UUID.fromString(userId), createHubInfoRequest.toCreateHubInfoCommand());
+        hubInfoService.createHubInfo(createHubInfoRequest.toCreateHubInfoCommand());
 
         return BaseResponse.ok(BaseStatus.CREATED);
     }
 
 
-
     @GetMapping("/{hubInfoId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<HubRoadInfoResponseV1> readHubInfo(
-        //@RequestHeader("User-Id") String userId
         @PathVariable UUID hubInfoId) {
 
-        String userId = String.valueOf(UUID.randomUUID());
-        HubRoadInfoQueryV1 hubRoadInfoQuery = hubInfoService.readHubInfo(UUID.fromString(userId), hubInfoId);
+        HubRoadInfoQueryV1 hubRoadInfoQuery = hubInfoService.readHubInfo(hubInfoId);
 
         return BaseResponse.ok(HubRoadInfoResponseV1.from(hubRoadInfoQuery), BaseStatus.OK);
     }
 
 
 
-
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<List<HubRoadInfoListResponseV1>> readAllHubInfo(
-        //@RequestHeader("User-Id") String userId
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
-        String userId = String.valueOf(UUID.randomUUID());
-        List<HubRoadInfoListQuery> hubRoadInfoListQueries = hubInfoService.readAllHubInfo(UUID.fromString(userId), page, size);
+        List<HubRoadInfoListQuery> hubRoadInfoListQueries = hubInfoService.readAllHubInfo(page, size);
 
         return BaseResponse.ok(HubRoadInfoListResponseV1.from(hubRoadInfoListQueries), BaseStatus.OK);
     }
@@ -81,13 +79,12 @@ public class HubInfoControllerV1 {
 
     @PatchMapping("/{hubInfoId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('MASTER')")
     public BaseResponse<Void> updateHubInfo(
-        //@RequestHeader("User-Id") String userId
         @PathVariable UUID hubInfoId,
         @RequestBody @Valid UpdateHubInfoRequestV1 updateHubInfoRequest){
 
-        String userId = String.valueOf(UUID.randomUUID());
-        hubInfoService.updateHubInfo(UUID.fromString(userId), hubInfoId, updateHubInfoRequest.to());
+        hubInfoService.updateHubInfo(hubInfoId, updateHubInfoRequest.to());
 
         return BaseResponse.ok(BaseStatus.OK);
     }
@@ -96,14 +93,12 @@ public class HubInfoControllerV1 {
 
     @DeleteMapping("/{hubInfoId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('MASTER')")
     public BaseResponse<Void> deleteHubInfo(
-
-        //@RequestHeader("User-Id") String userId
 
         @PathVariable UUID hubInfoId){
 
-        String userId = String.valueOf(UUID.randomUUID());
-        hubInfoService.deleteHubInfo(UUID.fromString(userId), hubInfoId);
+        hubInfoService.deleteHubInfo(SecurityUtils.getCurrentUserId(), hubInfoId);
 
         return BaseResponse.ok(BaseStatus.OK);
     }

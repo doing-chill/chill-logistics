@@ -10,6 +10,7 @@ import chill_logistics.hub_server.infrastructure.config.kafka.KafkaProducerConfi
 import chill_logistics.hub_server.infrastructure.external.dto.response.HubRouteAfterCreateV1;
 import chill_logistics.hub_server.infrastructure.service.HubRouteAfterCreateProducer;
 import chill_logistics.hub_server.lib.error.ErrorCode;
+import java.math.BigDecimal;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,8 @@ public class OrderAfterRouteOrchestrator {
             startHub.getFullAddress(), hubRouteResult.endHubId(), endHub.getName(),
             endHub.getFullAddress(), command.receiverFirmId(), command.receiverFirmFullAddress(),
             command.receiverFirmOwnerName(), command.requestNote(), command.productName(),
-            command.productQuantity(), command.orderCreatedAt(), hubRouteResult.totalDurationSec());
+            command.productQuantity(), command.orderCreatedAt(), hubRouteResult.totalDurationSec(), hubRouteResult.pathHubIds(),
+            hubRouteResult.totalDistanceKm());
 
         // 카프카 메시지 전송
         hubRouteAfterCreateProducer.sendHubRouteAfterCreate(HubRouteAfterCreateV1.from(hubRouteResultResponse));
