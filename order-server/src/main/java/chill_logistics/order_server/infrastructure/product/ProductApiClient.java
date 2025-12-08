@@ -16,7 +16,7 @@ public class ProductApiClient implements ProductPort {
 
     @Override
     public ProductResultV1 readProductById(UUID productId) {
-        return ProductResultV1.from(productFeignClient.readProductInternal(productId));
+        return ProductResultV1.from(productFeignClient.readProductInternal(productId).getData());
     }
 
     @Override
