@@ -29,15 +29,6 @@ public class HubService {
     @Transactional
     public void createHub(UUID userId, CreateHubCommandV1 createHubCommand) {
 
-
-        // 유저 검증 부분
-//        UserResponseV1 user = userFeign.getUser(userId);
-
-//        // 권한 검증: MASTER만 허브 생성 가능
-//        if (!"MASTER".equals(userInfo.role())) {
-//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
-//        }
-
         // 이미 존재하는 허브 이름인 경우 에러
         if (hubRepository.existsByName(createHubCommand.name())){
             throw new BusinessException(ErrorCode.HUB_NOT_FOUND);
@@ -86,16 +77,7 @@ public class HubService {
 
     // 허브 단건 조회
     @Transactional(readOnly = true)
-    public HubInfoQueryV1 readOneHub(UUID uuid, UUID hubId) {
-
-        // user 검증 부분       -- 다 공통 메서드로 뺄 예정
-//        UserResponseV1 user = userFeign.getUser(userId);
-
-//        // 권한 검증
-//        if (!"MASTER".equals(user.role() || !"HUB_MANAGER".equals(user.role()
-//        !"DELIVERY_MANAGER".equals(user.role() || !"FIRM_MANAGER".equals(user.role())) {
-//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
-//        }
+    public HubInfoQueryV1 readOneHub(UUID hubId) {
 
         Hub hub = hubRepository.findById(hubId)
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
@@ -109,15 +91,7 @@ public class HubService {
 
 
     @Transactional
-    public void updateHub(UUID userId, UUID hubId, UpdateHubCommandV1 updateHubCommand) {
-
-        // 유저 검증 부분
-//        UserResponseV1 user = userFeign.getUser(userId);
-
-//        // 권한 검증: MASTER만 허브 수정 가능    -- 다 공통 메서드로 뺄 예정
-//        if (!"MASTER".equals(userInfo.role())) {
-//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
-//        }
+    public void updateHub(UUID hubId, UpdateHubCommandV1 updateHubCommand) {
 
         Hub hub = hubRepository.findById(hubId)
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));
@@ -131,14 +105,7 @@ public class HubService {
 
 
     @Transactional
-    public void deleteHub(UUID userId, UUID hubId) {
-        // 유저 검증 부분
-//        UserResponseV1 user = userFeign.getUser(userId);
-
-//        // 권한 검증: MASTER만 허브 삭제 가능
-//        if (!"MASTER".equals(userInfo.role())) {
-//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
-//        }
+    public void deleteHub(UUID hubId) {
 
         Hub hub = hubRepository.findById(hubId)
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_NOT_FOUND));

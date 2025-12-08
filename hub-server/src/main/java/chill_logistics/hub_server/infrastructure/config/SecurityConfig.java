@@ -34,9 +34,6 @@ public class SecurityConfig {
                 .securityMatcher("/v1/**")
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/v1/*"
-                        ).permitAll() // TODO 없애야 함
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
