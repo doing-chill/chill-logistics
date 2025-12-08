@@ -13,6 +13,7 @@ import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class OrderController {
     /* 주문 생성 */
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('MASTER', 'FIRM_MANAGER')")
     public BaseResponse<CreateOrderResponseV1> createOrder(
             @RequestBody @Valid CreateOrderRequestV1 request) {
 
@@ -43,8 +45,9 @@ public class OrderController {
     }
 
     /* 주문 상태 수정 */
-    @PatchMapping("/{id}/status")
+    @PutMapping("/{id}/status")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER')")
     public BaseResponse<Void> updateOrderStatus(
             @PathVariable UUID id,
             @RequestBody @Valid UpdateOrderStatusRequestV1 request) {
@@ -57,6 +60,7 @@ public class OrderController {
     /* 주문 취소 */
     @DeleteMapping("/{id}/cancel")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<Void> deleteOrder(@PathVariable UUID id) {
 
         orderFacade.deleteOrder(id);
@@ -67,6 +71,7 @@ public class OrderController {
     /* 주문 목록 조회 */
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<List<ReadOrderSummaryResponseV1>> readOrderList(
             @ModelAttribute ReadOrderRequestV1 request) {
 
@@ -82,9 +87,11 @@ public class OrderController {
     /* 주문 단건 조회 */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<ReadOrderDetailResponseV1> readOrder(@PathVariable UUID id) {
 
-        ReadOrderDetailResponseV1 response = ReadOrderDetailResponseV1.from(orderFacade.readOrder(id));
+        ReadOrderDetailResponseV1 response =
+                ReadOrderDetailResponseV1.from(orderFacade.readOrder(id));
 
         return BaseResponse.ok(response, BaseStatus.OK);
     }
