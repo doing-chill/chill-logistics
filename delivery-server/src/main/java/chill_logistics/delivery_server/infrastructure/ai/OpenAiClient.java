@@ -2,6 +2,7 @@ package chill_logistics.delivery_server.infrastructure.ai;
 
 import chill_logistics.delivery_server.infrastructure.ai.dto.request.AiDeadlineRequestV1;
 import chill_logistics.delivery_server.infrastructure.ai.dto.response.AiDeadlineResponseV1;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,8 @@ public class OpenAiClient implements AiClient {
 
     private String buildPrompt(AiDeadlineRequestV1 request) {
 
+        String orderCreatedAt = request.orderCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
         String requestNote = (request.requestNote() == null || request.requestNote().isBlank())
             ? "없음" : request.requestNote();
 
@@ -47,15 +50,15 @@ public class OpenAiClient implements AiClient {
         return OpenAiConstants.DISCORD_FORMATTED_DEADLINE_PROMPT.formatted(
             request.orderId(),
             request.receiverFirmOwnerName(),    // %s
-            request.orderCreatedAt(),           // %s
+            orderCreatedAt,                     // %s
             request.productName(),              // %s
             request.productQuantity(),          // %d
             requestNote,                        // %s
             request.supplierHubName(),          // %s (발송지)
             route,                              // %s (경유지)
             request.receiverHubFullAddress(),   // %s (도착지 전체 주소)
-            request.expectedDeliveryDuration()  // %d (예상 소요 시간)
-            // TODO: deliveryPersonName 추가 필요
+            request.expectedDeliveryDuration(), // %d (예상 소요 시간)
+            request.deliveryPersonName()        // %s (배송 담당자 이름)
         );
     }
 

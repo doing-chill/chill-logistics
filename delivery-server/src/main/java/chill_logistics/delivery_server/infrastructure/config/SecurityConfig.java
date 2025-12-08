@@ -34,7 +34,8 @@ public class SecurityConfig {
                 .securityMatcher("/v1/**")
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
+                    // TODO: 수정 필요
+                    .requestMatchers(
                                 "/v1/*"
                         ).permitAll()
                         .anyRequest().authenticated()

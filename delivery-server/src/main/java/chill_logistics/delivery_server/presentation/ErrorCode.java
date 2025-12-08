@@ -10,6 +10,7 @@ public enum ErrorCode implements BaseErrorCode {
     // 404
     HUB_DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "허브 배송 정보를 찾을 수 없습니다."),
     FIRM_DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "업체 배송 정보를 찾을 수 없습니다."),
+    DELIVERT_PERSON_NOT_FOUND(HttpStatus.NOT_FOUND, "배송 담당자를 찾을 수 없습니다."),
 
     // 400
     INVALID_CHANGE_DELIVERY_STATUS(HttpStatus.BAD_REQUEST, "허용되지 않는 배송 상태 변경입니다."),
