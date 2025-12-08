@@ -128,7 +128,7 @@ public class ProductController {
     }
 
     /* 재고 차감 (내부 API) */
-    @PatchMapping("/internal/{id}/decrease")
+    @PutMapping("/internal/{id}/decrease")
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<Void> decreaseStockInternal(
             @PathVariable UUID id,

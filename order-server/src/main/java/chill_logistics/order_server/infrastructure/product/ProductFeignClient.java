@@ -15,7 +15,7 @@ public interface ProductFeignClient {
     @GetMapping("/v1/products/internal/{id}")
     BaseResponse<ProductResponseV1> readProductInternal(@PathVariable UUID id);
 
-    @PatchMapping("/v1/products/internal/{id}/decrease")
+    @PutMapping("/v1/products/internal/{id}/decrease")
     BaseResponse<Void> decreaseStockInternal(
             @PathVariable UUID id,
             @RequestBody ProductDecreaseRequestV1 request);

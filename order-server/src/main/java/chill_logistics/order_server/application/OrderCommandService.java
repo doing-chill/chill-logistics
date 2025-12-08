@@ -10,7 +10,6 @@ import chill_logistics.order_server.domain.event.EventPublisher;
 import chill_logistics.order_server.domain.port.ProductPort;
 import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
-import chill_logistics.order_server.application.dto.command.OrderAfterCreateV1;
 import chill_logistics.order_server.lib.error.ErrorCode;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -53,10 +52,10 @@ public class OrderCommandService {
                             // 상품 조회
                             ProductResultV1 product = productPort.readProductById(p.productId());
 
-                            // 공급 업체 소속 상품인지 체크
-                            if (!product.firmId().equals(command.receiverFirmId())) {
-                                throw new BusinessException(ErrorCode.PRODUCT_NOT_FROM_FIRM);
-                            }
+//                            // 공급 업체 소속 상품인지 체크
+//                            if (!product.firmId().equals(command.receiverFirmId())) {
+//                                throw new BusinessException(ErrorCode.PRODUCT_NOT_FROM_FIRM);
+//                            }
 
                             // 상품 재고 체크
                             if (product.stockQuantity() < p.quantity()) {
@@ -96,7 +95,6 @@ public class OrderCommandService {
 
         orderQueryRepository.save(orderQuery);
 
-        // TODO: 주문 생성 시 order_after_create_message 발행
         // Kafka 메시지 생성
         OrderAfterCreateV1 message = new OrderAfterCreateV1(
                 createOrder.getId(),
