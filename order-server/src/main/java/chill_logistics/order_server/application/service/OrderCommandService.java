@@ -1,6 +1,6 @@
 package chill_logistics.order_server.application.service;
 
-import chill_logistics.order_server.application.dto.ProductResultV1;
+import chill_logistics.order_server.application.dto.command.ProductResultV1;
 import chill_logistics.order_server.application.dto.command.*;
 import chill_logistics.order_server.domain.entity.Order;
 import chill_logistics.order_server.domain.entity.OrderProduct;
