@@ -1,4 +1,4 @@
-package chill_logistics.hub_server.infrastructure.config;
+package chill_logistics.hub_server.infrastructure.config.kafka;
 
 import chill_logistics.hub_server.infrastructure.external.dto.request.OrderAfterCreateV1;
 import java.util.HashMap;

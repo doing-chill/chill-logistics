@@ -20,16 +20,16 @@ public record OrderAfterCreateV1(
     // application 계층의 command 변환 메서드
     public OrderAfterCommandV1 toCommand() {
         return new OrderAfterCommandV1(
-            orderId(),
-            supplierHubId(),
-            receiverHubId(),
-            receiverFirmId(),
-            receiverFirmFullAddress(),
-            receiverFirmOwnerName(),
-            requestNote(),
-            productName(),
-            productQuantity(),
-            orderCreatedAt(),
+            this.orderId,
+            this.supplierHubId,
+            this.receiverHubId,
+            this.receiverFirmId,
+            this.receiverFirmFullAddress,
+            this.receiverFirmOwnerName,
+            this.requestNote,
+            this.productName,
+            this.productQuantity,
+            this.orderCreatedAt
             );
     }
 }

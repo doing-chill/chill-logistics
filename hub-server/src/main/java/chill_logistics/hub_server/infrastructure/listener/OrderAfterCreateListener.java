@@ -1,6 +1,6 @@
 package chill_logistics.hub_server.infrastructure.listener;
 
-import chill_logistics.hub_server.application.dto.command.OrderAfterCommandV1;
+import chill_logistics.hub_server.application.OrderAfterRouteOrchestrator;
 import chill_logistics.hub_server.infrastructure.external.dto.request.OrderAfterCreateV1;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrderAfterCreateListener {
 
-    private final HubCommandService hubCommandService;
+    private final OrderAfterRouteOrchestrator orderAfterRouteOrchestrator;
 
     @KafkaListener(
         topics = "order-after-create",
@@ -22,9 +22,6 @@ public class OrderAfterCreateListener {
 
         log.info("Kafka 메시지 수신: {}", message);
 
-        // DTO → Command 변환
-        OrderAfterCommandV1 command = message.toCommand();
-
-        hubCommandService.calculateExpectedDuration(command);
+        orderAfterRouteOrchestrator.findHubRoute(message.toCommand());
     }
 }
