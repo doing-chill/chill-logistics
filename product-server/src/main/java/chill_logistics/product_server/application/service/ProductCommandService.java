@@ -1,10 +1,6 @@
 package chill_logistics.product_server.application.service;
 
-import chill_logistics.product_server.application.dto.command.CreateProductCommandV1;
-import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
-import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
-import chill_logistics.product_server.application.dto.command.CreateProductResultV1;
-import chill_logistics.product_server.application.dto.query.UpdateStockDecreaseCommandV1;
+import chill_logistics.product_server.application.dto.command.*;
 import chill_logistics.product_server.domain.entity.Product;
 import chill_logistics.product_server.domain.repository.ProductRepository;
 import chill_logistics.product_server.lib.error.ErrorCode;
@@ -92,5 +88,13 @@ public class ProductCommandService {
         Product product = readProductOrThrow(command.id());
 
         product.decreaseStock(command.quantity());
+    }
+
+    @Transactional
+    public void recoverStockInternal(UpdateStockRecoverCommandV1 command) {
+
+        Product product = readProductOrThrow(command.id());
+
+        product.recoverStock(command.quantity());
     }
 }

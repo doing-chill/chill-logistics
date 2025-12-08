@@ -1,9 +1,6 @@
 package chill_logistics.product_server.application;
 
-import chill_logistics.product_server.application.dto.command.CreateProductCommandV1;
-import chill_logistics.product_server.application.dto.command.CreateProductResultV1;
-import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
-import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
+import chill_logistics.product_server.application.dto.command.*;
 import chill_logistics.product_server.application.dto.query.*;
 import chill_logistics.product_server.application.service.ProductCommandService;
 import chill_logistics.product_server.application.service.ProductQueryService;
@@ -48,5 +45,9 @@ public class ProductFacade {
 
     public void decreaseStockInternal(UpdateStockDecreaseCommandV1 command) {
         productCommandService.decreaseStockInternal(command);
+    }
+
+    public void recoverStockInternal(UpdateStockRecoverCommandV1 command) {
+        productCommandService.recoverStockInternal(command);
     }
 }
