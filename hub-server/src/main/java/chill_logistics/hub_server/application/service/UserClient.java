@@ -5,6 +5,6 @@ import java.util.UUID;
 
 public interface UserClient {
 
-    UserResponseV1 getUser(UUID userId);
+    UserResponseV1 getUser(String accessToken, UUID userId);
 
 }

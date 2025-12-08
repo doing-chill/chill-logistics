@@ -120,7 +120,6 @@ public class HubControllerV1 {
     // 존재하는 허브인지 확인
     @GetMapping("/check/{hubId}")
     public boolean validateHub(@PathVariable UUID hubId) {
-
         return hubService.validateHub(hubId);
     }
 
