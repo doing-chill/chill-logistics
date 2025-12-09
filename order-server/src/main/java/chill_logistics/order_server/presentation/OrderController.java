@@ -71,7 +71,7 @@ public class OrderController {
     /* 주문 목록 조회 */
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<List<ReadOrderSummaryResponseV1>> readOrderList(
             @ModelAttribute ReadOrderRequestV1 request) {
 
@@ -87,7 +87,7 @@ public class OrderController {
     /* 주문 단건 조회 */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<ReadOrderDetailResponseV1> readOrder(@PathVariable UUID id) {
 
         ReadOrderDetailResponseV1 response =
