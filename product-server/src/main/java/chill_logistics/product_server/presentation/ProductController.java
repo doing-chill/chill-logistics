@@ -1,10 +1,9 @@
 package chill_logistics.product_server.presentation;
 
 import chill_logistics.product_server.application.ProductFacade;
-import chill_logistics.product_server.application.dto.command.CreateProductCommandV1;
 import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
-import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
 import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
+import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
 import chill_logistics.product_server.presentation.dto.request.*;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
 import chill_logistics.product_server.presentation.dto.response.ReadProductDetailResponseV1;
@@ -35,16 +34,12 @@ public class ProductController {
     public BaseResponse<CreateProductResponseV1> createProduct(
             @RequestBody @Valid CreateProductRequestV1 request) {
 
-        CreateProductCommandV1 command = new CreateProductCommandV1(
-                request.name(),
-                request.firmId(),
-                request.hubId(),
-                request.stockQuantity(),
-                request.price(),
-                request.sellable() != null ? request.sellable() : true
-        );
-
-        CreateProductResponseV1 response = CreateProductResponseV1.from(productFacade.createProduct(command));
+        CreateProductResponseV1 response =
+                CreateProductResponseV1.from(
+                        productFacade.createProduct(
+                                request.toCommand()
+                        )
+                );
 
         return BaseResponse.ok(response, BaseStatus.CREATED);
     }

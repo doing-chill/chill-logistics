@@ -1,5 +1,6 @@
 package chill_logistics.product_server.presentation.dto.request;
 
+import chill_logistics.product_server.application.dto.command.CreateProductCommandV1;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -24,4 +25,15 @@ public record CreateProductRequestV1(
         Integer price,
 
         Boolean sellable
-) {}
+) {
+    public CreateProductCommandV1 toCommand() {
+        return CreateProductCommandV1.builder()
+                .name(this.name)
+                .firmId(this.firmId)
+                .hubId(this.hubId)
+                .stockQuantity(this.stockQuantity)
+                .price(this.price)
+                .sellable(this.sellable != null ? this.sellable : true)
+                .build();
+    }
+}
