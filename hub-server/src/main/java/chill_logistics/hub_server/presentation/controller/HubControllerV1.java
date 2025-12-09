@@ -3,10 +3,12 @@ package chill_logistics.hub_server.presentation.controller;
 import chill_logistics.hub_server.application.HubService;
 import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
 import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
+import chill_logistics.hub_server.application.dto.query.UserHubsQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.request.UpdateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.response.HubInfoResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.HubListResponseV1;
+import chill_logistics.hub_server.presentation.dto.response.UserHubsResponseV1;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -112,6 +114,18 @@ public class HubControllerV1 {
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public boolean validateHub(@PathVariable UUID hubId) {
         return hubService.validateHub(hubId);
+    }
+
+
+    // 유저 id가 들어오면 해당 유저가 소유한 hubId 반환
+    @GetMapping("/userHubs/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    public BaseResponse<List<UserHubsResponseV1>> readUserHubs(@PathVariable UUID userId){
+        List<UserHubsResponseV1> userHubsResponse = UserHubsResponseV1.from(hubService.readUserHubs(userId));
+
+        return BaseResponse.ok(userHubsResponse, BaseStatus.OK);
+
     }
 
 
