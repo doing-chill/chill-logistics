@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class FirmClient implements FirmPort {
+public class FirmApiClient implements FirmPort {
 
     private final FirmFeignClient firmFeignClient;
 
