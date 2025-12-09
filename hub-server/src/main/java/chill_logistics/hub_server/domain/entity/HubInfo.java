@@ -1,14 +1,17 @@
 package chill_logistics.hub_server.domain.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
-
-import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -69,10 +72,8 @@ public class HubInfo extends BaseEntity {
         return diffMinutes >= 5;
     }
 
-
     public void updateHubInfo(UUID startHubId, UUID endHubId) {
         if(startHubId != null) this.startHubId = startHubId;
         if(endHubId != null) this.endHubId = endHubId;
     }
-
 }

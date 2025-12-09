@@ -44,8 +44,8 @@ public class OrderCommandService {
     public CreateOrderResultV1 createOrder(CreateOrderCommandV1 command) {
 
         // TODO: 업체 조회 후 업체 이름, hub id, (수령)업체 주소, (수령)업체 주인 이름 가져오기
-        FirmResultV1 supplierResult = new FirmResultV1(command.supplierFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
-        FirmResultV1 receiverResult = new FirmResultV1(command.receiverFirmId(), null, UUID.fromString("00000000-0000-0000-0000-000000000000"), null, null);
+        FirmResultV1 supplierResult = new FirmResultV1(command.supplierFirmId(), null, UUID.fromString("018f3d6c-9a10-7c11-b2a1-e3b893f00101"), null, null);
+        FirmResultV1 receiverResult = new FirmResultV1(command.receiverFirmId(), null, UUID.fromString("018f3d6c-9a13-7c14-b2a1-e3b893f00104"), null, null);
 
 //        FirmResultV1 supplierResult = firmPort.readFirmById(command.supplierFirmId(), "SUPPLIER");
 //        FirmResultV1 receiverResult = firmPort.readFirmById(command.receiverFirmId(), "RECEIVER");

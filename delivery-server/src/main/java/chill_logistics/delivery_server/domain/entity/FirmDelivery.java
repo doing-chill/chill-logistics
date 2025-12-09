@@ -80,13 +80,14 @@ public class FirmDelivery extends BaseEntity {
     // Kafka 메시지를 기반으로 업체 배송 엔티티 생성
     public static FirmDelivery createFrom(
         HubRouteAfterCommandV1 message,
+        UUID endHubId,
         UUID deliveryPersonId,
         Integer deliverySequenceNum,
         DeliveryStatus deliveryStatus
     ) {
         return new FirmDelivery(
             message.orderId(),
-            message.endHubId(), // 목적지 허브에서 시작
+            endHubId, // 목적지 허브에서 시작
             message.receiverFirmId(),
             message.receiverFirmFullAddress(),
             message.receiverFirmOwnerName(),

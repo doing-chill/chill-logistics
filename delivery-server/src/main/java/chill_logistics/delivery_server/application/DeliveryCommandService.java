@@ -2,6 +2,7 @@ package chill_logistics.delivery_server.application;
 
 import chill_logistics.delivery_server.application.dto.command.AssignedDeliveryPersonV1;
 import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
+import chill_logistics.delivery_server.application.dto.command.HubRouteHubInfoV1;
 import chill_logistics.delivery_server.domain.entity.DeliveryStatus;
 import chill_logistics.delivery_server.domain.entity.FirmDelivery;
 import chill_logistics.delivery_server.domain.entity.HubDelivery;
@@ -10,6 +11,7 @@ import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;
 import chill_logistics.delivery_server.presentation.ErrorCode;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryCancelRequestV1;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryStatusChangeRequestV1;
+import java.util.List;
 import java.util.UUID;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -28,48 +30,79 @@ public class DeliveryCommandService {
     private final DeliveryPersonAssignmentService deliveryPersonAssignmentService;
 
     /* [허브 배송 생성 메서드]
-     * Kafka 메시지로 order 정보 받아와서 허브 배송 생성
+     * Kafka 메시지로 order 정보 받아와서 허브 배송 1 row 생성
+     * pathHubIds를 기반으로 구간 계산 후 여러 번 호출 → N row 생성
      */
     @Transactional
-    public void createHubDelivery(HubRouteAfterCommandV1 message, UUID hubDeliveryPersonId) {
+    public void createHubDelivery(
+        HubRouteAfterCommandV1 message,
+        UUID segmentStartHubId,
+        String segmentStartHubName,
+        String segmentStartHubFullAddress,
+        UUID segmentEndHubId,
+        String segmentEndHubName,
+        String segmentEndHubFullAddress,
+        Integer expectedDeliveryDuration,  // 첫 구간만 값, 나머지는 null
+        UUID hubDeliveryPersonId,
+        int deliverySequenceNum) {
 
-        log.info("[허브 배송 생성 시작] orderId={}", message.orderId());
+        log.info("[허브 배송 생성 시작] orderId={}, deliverySequenceNum={}",
+            message.orderId(), deliverySequenceNum);
 
-        // 초기 배송 상태 & 배송 순서 셋팅
+        // 초기 배송 상태 셋팅
         DeliveryStatus deliveryStatus = DeliveryStatus.WAITING_FOR_HUB;
-        // TODO: 배송순서 로직 수정 필요
-        int deliverySequenceNum = 1;
 
         // HubDelivery 엔티티 생성
-        HubDelivery hubDelivery = HubDelivery.createFrom(
+        HubDelivery hubDelivery = HubDelivery.createFromSegment(
             message,
+            segmentStartHubId,
+            segmentStartHubName,
+            segmentStartHubFullAddress,
+            segmentEndHubId,
+            segmentEndHubName,
+            segmentEndHubFullAddress,
+            expectedDeliveryDuration,
             hubDeliveryPersonId,
             deliverySequenceNum,
             deliveryStatus
         );
 
-        // 허브 배송 저장
         HubDelivery savedHubDelivery = hubDeliveryRepository.save(hubDelivery);
 
-        log.info("[허브 배송 생성 완료] hubDeliveryId={}, orderId={}",
-            savedHubDelivery.getId(), savedHubDelivery.getOrderId());
+        log.info("[허브 배송 생성 완료] hubDeliveryId={}, orderId={}, deliverySequenceNum={}",
+            savedHubDelivery.getId(),
+            savedHubDelivery.getOrderId(),
+            savedHubDelivery.getDeliverySequenceNum());
     }
 
     /* [업체 배송 생성 메서드]
      * Kafka 메시지로 order 정보 받아와서 업체 배송 생성
      */
     @Transactional
-    public void createFirmDelivery(HubRouteAfterCommandV1 message, UUID firmDeliveryPersonId) {
+    public void createFirmDelivery(
+        HubRouteAfterCommandV1 message,
+        UUID firmDeliveryPersonId,
+        int deliverySequenceNum) {
 
-        log.info("[업체 배송 생성 시작] orderId={}", message.orderId());
+        log.info("[업체 배송 생성 시작] orderId={}, deliverySequenceNum={}",
+            message.orderId(), deliverySequenceNum);
 
-        // 초기 배송 상태 & 배송 순서 셋팅
+        // 초기 배송 상태 셋팅
         DeliveryStatus deliveryStatus = DeliveryStatus.MOVING_TO_FIRM;
-        int deliverySequenceNum = 2;
+
+        List<HubRouteHubInfoV1> pathHubs = message.pathHubs();
+
+        if (pathHubs == null || pathHubs.isEmpty()) {
+            throw new BusinessException(ErrorCode.INVALID_HUB_ROUTE_PATH);
+        }
+
+        HubRouteHubInfoV1 lastHub = pathHubs.get(pathHubs.size() - 1);
+        UUID endHubId = lastHub.hubId();
 
         // FirmDelivery 엔티티 생성
         FirmDelivery firmDelivery = FirmDelivery.createFrom(
             message,
+            endHubId,
             firmDeliveryPersonId,
             deliverySequenceNum,
             deliveryStatus
@@ -78,12 +111,14 @@ public class DeliveryCommandService {
         // 업체 배송 저장
         FirmDelivery savedFirmDelivery = firmDeliveryRepository.save(firmDelivery);
 
-        log.info("[업체 배송 생성 완료] firmDeliveryId={}, orderId={}",
-            savedFirmDelivery.getId(), savedFirmDelivery.getOrderId());
+        log.info("[업체 배송 생성 완료] firmDeliveryId={}, orderId={}, deliverySequenceNum={}",
+            savedFirmDelivery.getId(),
+            savedFirmDelivery.getOrderId(),
+            savedFirmDelivery.getDeliverySequenceNum());
     }
 
     /* [전체 배송 생성]
-     * 허브 배송 + 업체 배송 = 전체 배송 생성
+     * pathHubs 기반 허브 구간 (row) 여러 개 생성 + 업체 배송 생성 = 전체 배송 생성
      * 전체 배송 생성 + AI + Discord 비동기 호출
      */
     @Transactional
@@ -92,19 +127,59 @@ public class DeliveryCommandService {
         log.info("[배송 생성 시작] orderId={}", message.orderId());
 
         // 허브 배송 담당자 배정
-        AssignedDeliveryPersonV1 hubDeliveryPerson =
-            deliveryPersonAssignmentService.assignHubDeliveryPerson();
+        AssignedDeliveryPersonV1 hubDeliveryPerson = new AssignedDeliveryPersonV1(null, null);
+//            deliveryPersonAssignmentService.assignHubDeliveryPerson();
 
         // 업체 배송 담당자 배정
-        AssignedDeliveryPersonV1 firmDeliveryPerson =
-            deliveryPersonAssignmentService.assignFirmDeliveryPerson();
+        AssignedDeliveryPersonV1 firmDeliveryPerson = new AssignedDeliveryPersonV1(null, null);
+//            deliveryPersonAssignmentService.assignHubDeliveryPerson();
 
         UUID hubDeliveryPersonId = hubDeliveryPerson.userId();
         String hubDeliveryPersonName = hubDeliveryPerson.userName();
         UUID firmDeliveryPersonId = firmDeliveryPerson.userId();
 
-        createHubDelivery(message, hubDeliveryPersonId);
-        createFirmDelivery(message, firmDeliveryPersonId);
+        List<HubRouteHubInfoV1> pathHubs = message.pathHubs();
+
+        if (pathHubs == null || pathHubs.size() < 2) {
+            throw new BusinessException(ErrorCode.INVALID_HUB_ROUTE_PATH);
+        }
+
+        // pthHubs 기반 허브 구간 수 계산
+        int hubSegmentCount = pathHubs.size() - 1;
+
+        log.info("[허브 구간 수 계산] orderId={}, hubSegmentCount={}", message.orderId(), hubSegmentCount);
+
+        // 허브 구간 수 만큼 HubDelivery row 생성
+        for (int i = 0; i < hubSegmentCount; i++) {
+
+            // 1부터 시작
+            int hubDeliverySequenceNum = i + 1;
+
+            // 첫 허브 구간에만 총 예상 소요시간 기록, 나머지는 null
+            Integer segmentExpectedDeliveryDuration =
+                (i == 0) ? message.expectedDeliveryDuration() : null;
+
+            HubRouteHubInfoV1 startHub = pathHubs.get(i);
+            HubRouteHubInfoV1 endHub = pathHubs.get(i + 1);
+
+            createHubDelivery(
+                message,
+                startHub.hubId(),
+                startHub.hubName(),
+                startHub.hubFullAddress(),
+                endHub.hubId(),
+                endHub.hubName(),
+                endHub.hubFullAddress(),
+                segmentExpectedDeliveryDuration,
+                hubDeliveryPersonId,
+                hubDeliverySequenceNum
+            );
+        }
+
+        // 업체 배송 sequenceNum = 마지막 허브 구간 + 1
+        int firmDeliverySequenceNum = hubSegmentCount + 1;
+
+        createFirmDelivery(message, firmDeliveryPersonId, firmDeliverySequenceNum);
 
         log.info(
             "[배송 생성 완료 & 배송 담당자 배정 완료] orderId={}, hubDeliveryPersonId={}, firmDeliveryPersonId={}",
@@ -175,5 +250,4 @@ public class DeliveryCommandService {
 
 /* TODO
  * 배송 추적에 따라 상태 변경 로직 추가 필요 (deliveryStatus ENUM 수정 필요)
- * deliverySequenceNum 알고리즘에 따라 수정 필요
  */
