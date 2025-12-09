@@ -9,6 +9,7 @@ public record HubRouteResult(
     UUID startHubId,
     UUID endHubId,
     List<UUID> pathHubIds,   // [허브1, 허브2, ..., 허브N]
+    List<HubRouteStep> steps,
     int totalDurationSec,
     BigDecimal totalDistanceKm
 ) {}

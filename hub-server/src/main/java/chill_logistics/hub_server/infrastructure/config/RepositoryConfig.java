@@ -4,7 +4,14 @@ import chill_logistics.hub_server.domain.repository.HubInfoRepository;
 import chill_logistics.hub_server.domain.repository.HubRepository;
 import chill_logistics.hub_server.domain.repository.HubRouteLogRepository;
 import chill_logistics.hub_server.domain.repository.HubRouteLogStopRepository;
-import chill_logistics.hub_server.infrastructure.repository.*;
+import chill_logistics.hub_server.infrastructure.repository.HubInfoRepositoryAdapter;
+import chill_logistics.hub_server.infrastructure.repository.HubRepositoryAdapter;
+import chill_logistics.hub_server.infrastructure.repository.HubRouteLogRepositoryAdapter;
+import chill_logistics.hub_server.infrastructure.repository.HubRouteLogStopRepositoryAdapter;
+import chill_logistics.hub_server.infrastructure.repository.JpaHubInfoRepository;
+import chill_logistics.hub_server.infrastructure.repository.JpaHubRepository;
+import chill_logistics.hub_server.infrastructure.repository.JpaHubRouteLogRepository;
+import chill_logistics.hub_server.infrastructure.repository.JpaHubRouteLogStopRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
