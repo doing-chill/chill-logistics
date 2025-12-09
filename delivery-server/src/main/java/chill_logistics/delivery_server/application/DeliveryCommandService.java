@@ -29,11 +29,19 @@ public class DeliveryCommandService {
     private final DeliveryPersonAssignmentService deliveryPersonAssignmentService;
 
     /* [허브 배송 생성 메서드]
-     * Kafka 메시지로 order 정보 받아와서 허브 배송 생성
+     * Kafka 메시지로 order 정보 받아와서 허브 배송 1 row 생성
+     * pathHubIds를 기반으로 구간 계산 후 여러 번 호출 → N row 생성
      */
     @Transactional
     public void createHubDelivery(
         HubRouteAfterCommandV1 message,
+        UUID segmentStartHubId,
+        String segmentStartHubName,
+        String segmentStartHubFullAddress,
+        UUID segmentEndHubId,
+        String segmentEndHubName,
+        String segmentEndHubFullAddress,
+        Integer expectedDeliveryDuration,  // 첫 구간만 값, 나머지는 null
         UUID hubDeliveryPersonId,
         int deliverySequenceNum) {
 
@@ -44,14 +52,20 @@ public class DeliveryCommandService {
         DeliveryStatus deliveryStatus = DeliveryStatus.WAITING_FOR_HUB;
 
         // HubDelivery 엔티티 생성
-        HubDelivery hubDelivery = HubDelivery.createFrom(
+        HubDelivery hubDelivery = HubDelivery.createFromSegment(
             message,
+            segmentStartHubId,
+            segmentStartHubName,
+            segmentStartHubFullAddress,
+            segmentEndHubId,
+            segmentEndHubName,
+            segmentEndHubFullAddress,
+            expectedDeliveryDuration,
             hubDeliveryPersonId,
             deliverySequenceNum,
             deliveryStatus
         );
 
-        // 허브 배송 저장
         HubDelivery savedHubDelivery = hubDeliveryRepository.save(hubDelivery);
 
         log.info("[허브 배송 생성 완료] hubDeliveryId={}, orderId={}, deliverySequenceNum={}",
@@ -113,11 +127,54 @@ public class DeliveryCommandService {
         String hubDeliveryPersonName = hubDeliveryPerson.userName();
         UUID firmDeliveryPersonId = firmDeliveryPerson.userId();
 
-        // pathHubIds 기반 deliverySequenceNum 계산
-        int hubDeliverySequenceNum = calculateHubSequenceNum(message.pathHubIds());
-        int firmDeliverySequenceNum = hubDeliverySequenceNum + 1;
+//        // pathHubIds 기반 deliverySequenceNum 계산
+//        int hubDeliverySequenceNum = calculateHubSequenceNum(message.pathHubIds());
+//        int firmDeliverySequenceNum = hubDeliverySequenceNum + 1;
+//
+//        createHubDelivery(message, hubDeliveryPersonId, hubDeliverySequenceNum);
+//        createFirmDelivery(message, firmDeliveryPersonId, firmDeliverySequenceNum);
 
-        createHubDelivery(message, hubDeliveryPersonId, hubDeliverySequenceNum);
+        // pathHubIds 기반 허브 구간 수 계산
+        List<UUID> pathHubIds = message.pathHubIds();
+        int hubSegmentCount = calculateHubSegmentCount(pathHubIds);
+
+        log.info("[허브 구간 수 계산] orderId={}, hubsegmentcount={}", message.orderId(), hubSegmentCount);
+
+        // 허브 구간 수 만큼 HubDelivery row 생성
+        for (int i = 0; i < hubSegmentCount; i++) {
+
+            // 1부터 시작
+            int hubDeliverySequenceNum = i + 1;
+
+            // 첫 허브 구간에만 총 예상 소요시간 기록, 나머지는 null
+            Integer segmentExpectedDeliveryDuration = (i == 0) ? message.expectedDeliveryDuration() : null;
+
+            // TODO: 실제 노드 구간 message로 받은 후 수정 예정
+            UUID segmentStartHubId = message.startHubId();
+            String segmentStartHubName = message.startHubName();
+            String segmentStartHubFullAddress = message.startHubFullAddress();
+
+            UUID segmentEndHubId = message.endHubId();
+            String segmentEndHubName = message.endHubName();
+            String segmentEndHubFullAddress = message.endHubFullAddress();
+
+            createHubDelivery(
+                message,
+                segmentStartHubId,
+                segmentStartHubName,
+                segmentStartHubFullAddress,
+                segmentEndHubId,
+                segmentEndHubName,
+                segmentEndHubFullAddress,
+                segmentExpectedDeliveryDuration,
+                hubDeliveryPersonId,
+                hubDeliverySequenceNum
+            );
+        }
+
+        // 업체 배송 sequenceNum = 마지막 허브 구간 + 1
+        int firmDeliverySequenceNum = hubSegmentCount + 1;
+
         createFirmDelivery(message, firmDeliveryPersonId, firmDeliverySequenceNum);
 
         log.info(
@@ -186,14 +243,11 @@ public class DeliveryCommandService {
             .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_DELIVERY_NOT_FOUND));
     }
 
-    /* [pathHubIds 기반 허브 배송 sequenceNum 계산 메서드]
+    /* [pathHubIds 기반 허브 구간 수 계산 메서드]
      * 허브 경로가 순서대로 들어있는 pathHybIds [hub1, hub2, hub3] 가 있는 경우
      * 허브 구간 수 = 2 (hub1→hub2, hub2→hub3)
-     * 허브 간 이동 구간 수 = pathHubIds.size() - 1
-     * 허브 간 이동 구간 수 없거나 1개 이하면 1로 처리
-     * 업체 배송 시퀀스 번호 = hubSequence + 1 (항상 허브 배송 뒤의 마지막 단계이므로)
      */
-    private int calculateHubSequenceNum(List<UUID> pathHubIds) {
+    private int calculateHubSegmentCount(List<UUID> pathHubIds) {
 
         // 허브 정보 없거나, 경유 허브 없는 경우 최소 1
         if (pathHubIds == null || pathHubIds.size() < 2) {
