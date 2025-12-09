@@ -64,20 +64,8 @@ public class HubDelivery extends BaseEntity {
     @Column(name = "delivery_status", length = 15, nullable = false)
     private DeliveryStatus deliveryStatus;
 
-    // TODO: 삭제 예정
-    @Column(name = "expected_distance", precision = 10, scale = 3)
-    private BigDecimal expectedDistance;
-
     @Column(name = "expected_delivery_duration")
     private Integer expectedDeliveryDuration;
-
-    // TODO: 삭제 예정
-    @Column(name = "distance", precision = 10, scale = 3)
-    private BigDecimal distance;
-
-    // TODO: 삭제 예정
-    @Column(name = "delivery_duration")
-    private Integer deliveryDuration;
 
     protected HubDelivery(
         UUID orderId,
