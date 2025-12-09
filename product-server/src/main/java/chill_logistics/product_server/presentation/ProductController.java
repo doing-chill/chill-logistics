@@ -84,7 +84,10 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<ReadProductDetailResponseV1> readProduct(@PathVariable UUID id) {
 
-        ReadProductDetailResponseV1 response = ReadProductDetailResponseV1.from(productFacade.readProduct(id));
+        ReadProductDetailResponseV1 response =
+                ReadProductDetailResponseV1.from(
+                        productFacade.readProduct(id)
+                );
 
         return BaseResponse.ok(response, BaseStatus.OK);
     }
@@ -94,7 +97,10 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<ReadProductInternalResponseV1> readProductInternal(@PathVariable UUID id) {
 
-        ReadProductInternalResponseV1 response = ReadProductInternalResponseV1.from(productFacade.readProductInternal(id));
+        ReadProductInternalResponseV1 response =
+                ReadProductInternalResponseV1.from(
+                        productFacade.readProductInternal(id)
+                );
 
         return BaseResponse.ok(response, BaseStatus.OK);
     }
