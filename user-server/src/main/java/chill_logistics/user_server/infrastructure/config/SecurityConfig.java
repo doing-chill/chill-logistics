@@ -53,6 +53,7 @@ public class SecurityConfig {
                                 "/v1/users/signup",
                                 "/v1/users/reissue-token"
                         ).permitAll()
+                        .requestMatchers("/v1/internal/**").hasAnyRole("MASTER", "HUB_MANAGER", "HUB_DELIVERY_MANAGER", "FIRM_DELIVERY_MANAGER", "FIRM_MANAGER")
                         .requestMatchers("/v1/master/**").hasRole("MASTER")
                         .anyRequest().authenticated()
                 )

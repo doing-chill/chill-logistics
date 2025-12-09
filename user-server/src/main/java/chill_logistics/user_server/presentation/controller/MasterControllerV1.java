@@ -4,7 +4,7 @@ import chill_logistics.user_server.application.dto.command.MasterUpdateSignupSta
 import chill_logistics.user_server.application.dto.command.MasterUpdateUserInfoCommandV1;
 import chill_logistics.user_server.application.dto.query.MasterSignupUserQueryV1;
 import chill_logistics.user_server.application.service.MasterQueryServiceV1;
-import chill_logistics.user_server.application.service.MasterServiceV1;
+import chill_logistics.user_server.application.service.MasterCommandServiceV1;
 import chill_logistics.user_server.presentation.dto.request.MasterUpdateSignupStatusRequestDtoV1;
 import chill_logistics.user_server.presentation.dto.request.MasterUpdateUserInfoRequestDtoV1;
 import chill_logistics.user_server.presentation.dto.response.MasterSignupUserResponseDtoV1;
@@ -31,7 +31,7 @@ import java.util.UUID;
 @Slf4j
 public class MasterControllerV1 {
 
-    private final MasterServiceV1 masterService;
+    private final MasterCommandServiceV1 masterService;
     private final MasterQueryServiceV1 masterQueryService;
 
     @PutMapping("/{userId}/info")
