@@ -1,6 +1,6 @@
 package chill_logistics.hub_server.infrastructure.config.kafka;
 
-import chill_logistics.hub_server.infrastructure.external.dto.response.HubRouteAfterCreateV1;
+import chill_logistics.hub_server.infrastructure.external.dto.request.HubRouteAfterCreateV1;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerConfig;

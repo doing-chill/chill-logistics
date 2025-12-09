@@ -2,14 +2,11 @@ package chill_logistics.hub_server.presentation.controller;
 
 
 import chill_logistics.hub_server.application.HubRouteService;
-import chill_logistics.hub_server.application.service.KakaoMapClient;
 import chill_logistics.hub_server.application.vo.HubRouteResult;
-import chill_logistics.hub_server.infrastructure.external.dto.response.DirectionInfoResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.HubRouteResponseV1;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +19,7 @@ public class HubRouteController {
     private final HubRouteService hubRouteService;
 
 
+    // 지울 예정
     @GetMapping("/route")
     public HubRouteResponseV1 getRoute(@RequestParam UUID startHubId, @RequestParam UUID endHubId) {
 
@@ -43,9 +41,6 @@ public class HubRouteController {
             result.totalDistanceKm()
         );
     }
-
-
-
 
 
 }

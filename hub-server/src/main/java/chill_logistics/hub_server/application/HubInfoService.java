@@ -8,7 +8,6 @@ import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.entity.HubInfo;
 import chill_logistics.hub_server.domain.repository.HubInfoRepository;
 import chill_logistics.hub_server.domain.repository.HubRepository;
-import chill_logistics.hub_server.infrastructure.external.UserFeign;
 import chill_logistics.hub_server.lib.error.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,20 +29,11 @@ public class HubInfoService {
 
     // CQS로 바꿔야 함
     private final HubRepository hubRepository;
-    private final UserFeign userFeign;
 
 
     // 경로 생성
     @Transactional
-    public void createHubInfo(UUID userId, CreateHubInfoCommandV1 command) {
-
-        // 유저 검증 부분
-//        UserResponseV1 user = userFeign.getUser(userId);
-
-//        // 권한 검증: MASTER만 생성 가능
-//        if (!"MASTER".equals(userInfo.role())) {
-//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
-//        }
+    public void createHubInfo(CreateHubInfoCommandV1 command) {
 
         // 허브 존재 여부 확인
         Hub startHub = hubRepository.findById(command.startHubId())
@@ -64,16 +54,7 @@ public class HubInfoService {
 
 
     @Transactional(readOnly = true)
-    public List<HubRoadInfoListQuery> readAllHubInfo(UUID userId, int page, int size) {
-
-        // user 검증 부분       -- 다 공통 메서드로 뺄 예정
-//        UserResponseV1 user = userFeign.getUser(userId);
-
-//        // 권한 검증
-//        if (!"MASTER".equals(user.role() || !"HUB_MANAGER".equals(user.role()
-//        !"DELIVERY_MANAGER".equals(user.role() || !"FIRM_MANAGER".equals(user.role())) {
-//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
-//        }
+    public List<HubRoadInfoListQuery> readAllHubInfo(int page, int size) {
 
         // offset으로 원하는 만큼 hubinfo를 가져온 후
         List<HubInfo> hubInfos = hubInfoRepository.findAll(page, size);
@@ -112,16 +93,7 @@ public class HubInfoService {
 
 
     @Transactional(readOnly = true)
-    public HubRoadInfoQueryV1 readHubInfo(UUID userId, UUID hubInfoId) {
-
-        // user 검증 부분       -- 다 공통 메서드로 뺄 예정
-//        UserResponseV1 user = userFeign.getUser(userId);
-
-//        // 권한 검증
-//        if (!"MASTER".equals(user.role() || !"HUB_MANAGER".equals(user.role()
-//        !"DELIVERY_MANAGER".equals(user.role() || !"FIRM_MANAGER".equals(user.role())) {
-//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
-//        }
+    public HubRoadInfoQueryV1 readHubInfo(UUID hubInfoId) {
 
         HubInfo hubInfo = hubInfoRepository.findById(hubInfoId)
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_INFO_NOT_FOUND));
@@ -137,14 +109,8 @@ public class HubInfoService {
 
 
     @Transactional
-    public void updateHubInfo(UUID uuid, UUID hubInfoId, UpdateHubInfoCommandV1 command) {
-        // 유저 검증 부분
-//        UserResponseV1 user = userFeign.getUser(userId);
+    public void updateHubInfo(UUID hubInfoId, UpdateHubInfoCommandV1 command) {
 
-//        // 권한 검증: MASTER만 수정 가능
-//        if (!"MASTER".equals(userInfo.role())) {
-//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
-//        }
 
         HubInfo hubInfo = hubInfoRepository.findById(hubInfoId)
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_INFO_NOT_FOUND));
@@ -159,13 +125,6 @@ public class HubInfoService {
 
     @Transactional
     public void deleteHubInfo(UUID userId, UUID hubInfoId) {
-        // 유저 검증 부분
-//        UserResponseV1 user = userFeign.getUser(userId);
-
-//        // 권한 검증: MASTER만 삭제 가능
-//        if (!"MASTER".equals(userInfo.role())) {
-//            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
-//        }
 
         HubInfo hubInfo = hubInfoRepository.findById(hubInfoId)
             .orElseThrow(() -> new BusinessException(ErrorCode.HUB_INFO_NOT_FOUND));

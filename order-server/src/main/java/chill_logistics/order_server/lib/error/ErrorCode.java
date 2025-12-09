@@ -18,7 +18,9 @@ public enum ErrorCode implements BaseErrorCode {
 
     // 409
     INVALID_ORDER_STATUS_TRANSITION(HttpStatus.CONFLICT, "해당 주문 상태로 변경할 수 없습니다."),
-    OUT_OF_STOCK(HttpStatus.CONFLICT, "상품의 재고가 부족합니다.");
+    OUT_OF_STOCK(HttpStatus.CONFLICT, "상품의 재고가 부족합니다."),
+    ORDER_NOT_IN_MANAGING_HUB(HttpStatus.CONFLICT, "담당하는 허브 소속의 주문이 아닙니다."),
+    ORDER_NOT_CREATED_BY_USER(HttpStatus.CONFLICT, "해당 주문은 본인 주문이 아닙니다.");
 
     private final HttpStatus status;
     private final String message;

@@ -1,6 +1,6 @@
 package chill_logistics.hub_server.infrastructure.service;
 
-import chill_logistics.hub_server.infrastructure.external.dto.response.HubRouteAfterCreateV1;
+import chill_logistics.hub_server.infrastructure.external.dto.request.HubRouteAfterCreateV1;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

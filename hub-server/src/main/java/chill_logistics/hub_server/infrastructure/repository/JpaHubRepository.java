@@ -1,15 +1,12 @@
 package chill_logistics.hub_server.infrastructure.repository;
 
 import chill_logistics.hub_server.domain.entity.Hub;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.PageRequest;
+import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.UUID;
 
 public interface JpaHubRepository extends JpaRepository<Hub, UUID> {
 
@@ -24,4 +21,8 @@ public interface JpaHubRepository extends JpaRepository<Hub, UUID> {
     List<Hub> findAllByDeletedAtIsNull(Pageable pageable);
 
     List<Hub> findAllByIdInAndDeletedAtIsNull(Collection<UUID> ids);
+
+    List<Hub> findByHubManagerIdAndDeletedAtIsNull(UUID hubManagerId);
+
+    List<Hub> findAllByIdInAndDeletedAtIsNull(List<UUID> hubIds);
 }

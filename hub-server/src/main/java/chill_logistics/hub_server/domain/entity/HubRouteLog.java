@@ -1,12 +1,15 @@
 package chill_logistics.hub_server.domain.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.util.UUID;
 import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
-
-import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -49,5 +52,4 @@ public class HubRouteLog extends BaseEntity {
         log.totalDistance = totalDistance;
         return log;
     }
-
 }

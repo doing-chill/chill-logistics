@@ -22,4 +22,8 @@ public interface HubRepository {
 
     List<Hub> findByIds(Set<UUID> hubIds);
 
+    List<Hub> findByHubManagerId(UUID hubManagerId);
+
+    List<Hub> findAllById(List<UUID> hubIds);
+
 }

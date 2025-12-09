@@ -1,4 +1,4 @@
-package chill_logistics.order_server.application.dto;
+package chill_logistics.order_server.application.dto.command;
 
 import chill_logistics.order_server.infrastructure.product.dto.ProductResponseV1;
 

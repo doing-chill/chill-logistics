@@ -12,7 +12,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 	}
 )
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "chill_logistics.order_server")
+@EnableFeignClients(basePackages = "chill_logistics.order_server.infrastructure")
 public class OrderServerApplication {
 
 	public static void main(String[] args) {

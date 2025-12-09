@@ -6,6 +6,8 @@ import chill_logistics.order_server.application.dto.command.UpdateOrderStatusCom
 import chill_logistics.order_server.application.dto.query.ReadOrderCommandV1;
 import chill_logistics.order_server.application.dto.query.ReadOrderDetailResultV1;
 import chill_logistics.order_server.application.dto.query.ReadOrderSummaryResultV1;
+import chill_logistics.order_server.application.service.OrderCommandService;
+import chill_logistics.order_server.application.service.OrderQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

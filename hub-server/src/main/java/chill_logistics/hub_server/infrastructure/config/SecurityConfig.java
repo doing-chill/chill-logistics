@@ -1,5 +1,6 @@
 package chill_logistics.hub_server.infrastructure.config;
 
+import java.util.Set;
 import lib.jwt.JwtTokenProvider;
 import lib.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +10,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.util.Set;
 
 @Configuration
 @RequiredArgsConstructor
@@ -34,9 +33,6 @@ public class SecurityConfig {
                 .securityMatcher("/v1/**")
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/v1/*"
-                        ).permitAll() // TODO 없애야 함
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

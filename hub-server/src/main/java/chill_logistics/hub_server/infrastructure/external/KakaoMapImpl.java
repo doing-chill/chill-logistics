@@ -18,6 +18,5 @@ public class KakaoMapImpl implements KakaoMapClient {
         String responseBody = kakaoMapFeign.getDirections(origin, destination, carType, car_fuel, carHipass);
 
         return kakaoMapResponseParser.parse(responseBody);
-
     }
 }

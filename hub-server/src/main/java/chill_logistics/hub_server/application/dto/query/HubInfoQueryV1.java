@@ -2,7 +2,6 @@ package chill_logistics.hub_server.application.dto.query;
 
 import chill_logistics.hub_server.domain.entity.Hub;
 import java.math.BigDecimal;
-import java.util.UUID;
 
 public record HubInfoQueryV1(
     String name,
