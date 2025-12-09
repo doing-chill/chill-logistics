@@ -64,20 +64,8 @@ public class HubDelivery extends BaseEntity {
     @Column(name = "delivery_status", length = 15, nullable = false)
     private DeliveryStatus deliveryStatus;
 
-    // TODO: 삭제 예정
-    @Column(name = "expected_distance", precision = 10, scale = 3)
-    private BigDecimal expectedDistance;
-
     @Column(name = "expected_delivery_duration")
     private Integer expectedDeliveryDuration;
-
-    // TODO: 삭제 예정
-    @Column(name = "distance", precision = 10, scale = 3)
-    private BigDecimal distance;
-
-    // TODO: 삭제 예정
-    @Column(name = "delivery_duration")
-    private Integer deliveryDuration;
 
     protected HubDelivery(
         UUID orderId,
@@ -105,22 +93,32 @@ public class HubDelivery extends BaseEntity {
         this.deliveryStatus = deliveryStatus;
     }
 
-    // Kafka 메시지 + Hub 정보(이름/주소)를 기반으로 허브 배송 엔티티 생성
-    public static HubDelivery createFrom(
+    /* [허브 구간 N row 생성용 팩토리 메서드]
+     * Kafka 메시지를 기반으로 허브 배송 엔티티 생성
+     * expectedDeliveryDuration은 parameter로 받아서 segment 마다 넣을지 말지 결정 가능
+     */
+    public static HubDelivery createFromSegment(
         HubRouteAfterCommandV1 message,
+        UUID segmentStartHubId,
+        String segmentStartHubName,
+        String segmentStartHubFullAddress,
+        UUID segmentEndHubId,
+        String segmentEndHubName,
+        String segmentEndHubFullAddress,
+        Integer expectedDeliveryDuration,
         UUID deliveryPersonId,
         Integer deliverySequenceNum,
         DeliveryStatus deliveryStatus) {
 
         return new HubDelivery(
             message.orderId(),
-            message.startHubId(),
-            message.startHubName(),
-            message.startHubFullAddress(),
-            message.endHubId(),
-            message.endHubName(),
-            message.endHubFullAddress(),
-            message.expectedDeliveryDuration(),
+            segmentStartHubId,
+            segmentStartHubName,
+            segmentStartHubFullAddress,
+            segmentEndHubId,
+            segmentEndHubName,
+            segmentEndHubFullAddress,
+            expectedDeliveryDuration,
             deliveryPersonId,
             deliverySequenceNum,
             deliveryStatus

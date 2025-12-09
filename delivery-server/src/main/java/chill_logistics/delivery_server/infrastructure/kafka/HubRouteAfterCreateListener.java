@@ -28,8 +28,3 @@ public class HubRouteAfterCreateListener {
         deliveryCommandService.createDelivery(command);
     }
 }
-
-/* TODO
- * startHubId 기반 담당자 조회 로직 필요
- * receiverFirmId 기반 담당자 조회 로직 필요
- */
