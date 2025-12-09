@@ -28,6 +28,10 @@ public class DeliveryAdmin extends BaseEntity {
     private UUID hubId;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_admin_type", nullable = false, length = 15)
+    private DeliveryAdminType deliveryAdminType;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "delivery_possibility", nullable = false, length = 15)
     private DeliveryPossibility deliveryPossibility;
 
