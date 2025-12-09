@@ -1,11 +1,14 @@
 package chill_logistics.hub_server.domain.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.util.UUID;
 import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
-
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -26,6 +29,9 @@ public class HubRouteLogStop extends BaseEntity {
     private UUID hubId;
     // 경로 허브 id
 
+    @Column(name = "route_hub_full_address", length = 100, nullable = false)
+    private String routeHubFullAddress;
+
     @Column(name = "hub_route_log_id", nullable = false, columnDefinition = "BINARY(16)")
     private UUID hubRouteLogId;
     // 출발허브 || 도착허브 정보
@@ -33,14 +39,14 @@ public class HubRouteLogStop extends BaseEntity {
     @Column(name = "sequence_num", nullable = false)
     private Integer sequenceNum;
 
-    public static HubRouteLogStop create(UUID hubRouteLogId, UUID hubId, int sequenceNum) {
+    public static HubRouteLogStop create(UUID hubRouteLogId, UUID hubId, int sequenceNum, String routeHubFullAddress) {
         HubRouteLogStop stop = new HubRouteLogStop();
         stop.hubRouteLogId = hubRouteLogId;
         stop.hubId = hubId;
         stop.sequenceNum = sequenceNum;
+        stop.routeHubFullAddress = routeHubFullAddress;
         return stop;
     }
-
 }
 
 

@@ -6,10 +6,13 @@ import chill_logistics.hub_server.application.route.HubRouteNode;
 import chill_logistics.hub_server.application.service.HubEdgeWeightProvider;
 import chill_logistics.hub_server.application.vo.EdgeWeight;
 import chill_logistics.hub_server.application.vo.HubRouteResult;
+import chill_logistics.hub_server.application.vo.HubRouteStep;
+import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.entity.HubInfo;
 import chill_logistics.hub_server.domain.entity.HubRouteLog;
 import chill_logistics.hub_server.domain.entity.HubRouteLogStop;
 import chill_logistics.hub_server.domain.repository.HubInfoRepository;
+import chill_logistics.hub_server.domain.repository.HubRepository;
 import chill_logistics.hub_server.domain.repository.HubRouteLogRepository;
 import chill_logistics.hub_server.domain.repository.HubRouteLogStopRepository;
 import chill_logistics.hub_server.lib.error.ErrorCode;
@@ -22,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,12 +41,12 @@ public class HubRouteService {
     private final HubInfoRepository hubInfoRepository;
     private final HubRouteLogRepository hubRouteLogRepository;
     private final HubRouteLogStopRepository hubRouteLogStopRepository;
+    private final HubRepository hubRepository;
 
 
     /**
      * 최단 시간 기준 경로 탐색 + 로그 저장
      */
-    @Transactional
     public HubRouteResult findFastestRouteAndLog(UUID startHubId, UUID endHubId) {
 
         HubRouteResult result = findFastestRoute(startHubId, endHubId);
@@ -55,7 +59,6 @@ public class HubRouteService {
     /**
      * 최단 시간 기준 경로 탐색 (Dijkstra)
      */
-    @Transactional(readOnly = true)
     public HubRouteResult findFastestRoute(UUID startHubId, UUID endHubId) {
 
         List<HubInfo> connections = hubInfoRepository.findAll();
@@ -168,6 +171,27 @@ public class HubRouteService {
         }
         Collections.reverse(path);
 
+        // 3.1 경로에 포함 된 허브들 한번에 조회
+        List<Hub> hubs = hubRepository.findAllById(path);
+        Map<UUID, Hub> hubMap = hubs.stream()
+            .collect(Collectors.toMap(Hub::getId, h -> h));
+
+        // 3.2 경로 순서대로 HubRouteStop 생성
+        List<HubRouteStep> steps = new ArrayList<>();
+        for (UUID hubId : path) {
+            Hub hub = hubMap.get(hubId);
+            if (hub == null) {
+                throw new BusinessException(ErrorCode.HUB_NOT_FOUND);
+            }
+
+            steps.add(new HubRouteStep(
+                hub.getId(),
+                hub.getName(),
+                hub.getFullAddress()
+            ));
+        }
+
+
         // 4. 총 거리 합산
         // path 리스트를 인접한 두 개씩 (from, to) 쌍으로 묶어서 순회
         BigDecimal totalDistance = BigDecimal.ZERO;
@@ -197,6 +221,7 @@ public class HubRouteService {
             startHubId,
             endHubId,
             path,
+            steps,
             totalDuration,
             totalDistance
         );
@@ -205,7 +230,7 @@ public class HubRouteService {
     /**
      * 경로 로그 테이블에 저장
      */
-    @Transactional
+
     public void logRoute(HubRouteResult result) {
 
         HubRouteLog logEntity = HubRouteLog.create(
@@ -216,12 +241,21 @@ public class HubRouteService {
         );
         hubRouteLogRepository.save(logEntity);
 
+        Map<UUID, String> addressMap = result.steps().stream()
+            .collect(Collectors.toMap(
+                HubRouteStep::hubId,
+                HubRouteStep::hubFullAddress));
+
         int seq = 0;
         for (UUID hubId : result.pathHubIds()) {
+
+            String fullAddress = addressMap.get(hubId);
+
             HubRouteLogStop stop = HubRouteLogStop.create(
                 logEntity.getId(),
                 hubId,
-                seq++
+                seq++,
+                fullAddress
             );
             hubRouteLogStopRepository.save(stop);
         }

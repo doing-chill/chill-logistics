@@ -1,4 +1,4 @@
-package chill_logistics.hub_server.infrastructure.external.dto.request;
+package chill_logistics.hub_server.infrastructure.external.dto.response;
 
 
 import chill_logistics.hub_server.application.dto.command.OrderAfterCommandV1;

@@ -50,9 +50,5 @@ public class KakaoMapResponseParser {
             log.error(e.getMessage());
             throw new BusinessException(ErrorCode.KAKAO_SERVER_ERROR);
         }
-
-
     }
-
-
 }
