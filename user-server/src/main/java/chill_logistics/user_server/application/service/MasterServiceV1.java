@@ -1,5 +1,6 @@
 package chill_logistics.user_server.application.service;
 
+import chill_logistics.user_server.application.dto.command.MasterUpdateSignupStatusCommandV1;
 import chill_logistics.user_server.application.dto.command.MasterUpdateUserInfoCommandV1;
 import chill_logistics.user_server.domain.entity.User;
 import chill_logistics.user_server.domain.repository.DeliveryAdminRepository;
@@ -100,6 +101,15 @@ public class MasterServiceV1 {
                     e);
             throw e; // 예외 다시 던져서 상위 레벨에서 처리하게
         }
+    }
+
+    @Transactional
+    public void updateSignupStatus(MasterUpdateSignupStatusCommandV1 command) {
+
+        User user = userRepository.findById(command.userId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다. id=" + command.userId()));
+
+        user.updateSignupStatus(command.signupStatus());
     }
 
 }
