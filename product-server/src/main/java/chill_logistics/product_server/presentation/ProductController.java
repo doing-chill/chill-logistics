@@ -2,7 +2,6 @@ package chill_logistics.product_server.presentation;
 
 import chill_logistics.product_server.application.ProductFacade;
 import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
-import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
 import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
 import chill_logistics.product_server.presentation.dto.request.*;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
@@ -51,15 +50,7 @@ public class ProductController {
             @PathVariable UUID id,
             @RequestBody @Valid UpdateProductRequestV1 request) {
 
-        UpdateProductCommandV1 command = new UpdateProductCommandV1(
-                id,
-                request.name(),
-                request.stockQuantity(),
-                request.price(),
-                request.sellable()
-        );
-
-        productFacade.updateProduct(command);
+        productFacade.updateProduct(id, request.toCommand());
 
         return BaseResponse.ok(BaseStatus.OK);
     }

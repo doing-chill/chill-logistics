@@ -23,8 +23,8 @@ public class ProductFacade {
         return productCommandService.createProduct(command);
     }
 
-    public void updateProduct(UpdateProductCommandV1 command) {
-        productCommandService.updateProduct(command);
+    public void updateProduct(UUID id, UpdateProductCommandV1 command) {
+        productCommandService.updateProduct(id, command);
     }
 
     public void deleteProduct(DeleteProductCommandV1 command) {

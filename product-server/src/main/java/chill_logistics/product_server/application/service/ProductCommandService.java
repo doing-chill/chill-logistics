@@ -49,9 +49,9 @@ public class ProductCommandService {
     }
 
     @Transactional
-    public void updateProduct(UpdateProductCommandV1 command) {
+    public void updateProduct(UUID id, UpdateProductCommandV1 command) {
 
-        Product product = readProductOrThrow(command.id());
+        Product product = readProductOrThrow(id);
 
         // 권한 체크
 

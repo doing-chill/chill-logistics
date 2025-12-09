@@ -1,9 +1,9 @@
 package chill_logistics.product_server.application.dto.command;
 
-import java.util.UUID;
+import lombok.Builder;
 
+@Builder
 public record UpdateProductCommandV1(
-        UUID id,
         String name,
         Integer stockQuantity,
         Integer price,
