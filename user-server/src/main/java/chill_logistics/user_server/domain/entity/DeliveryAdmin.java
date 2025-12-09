@@ -41,4 +41,8 @@ public class DeliveryAdmin extends BaseEntity {
     public void updateHubId(UUID hubId) {
         this.hubId = hubId;
     }
+
+    public void updateDeliveryPossibility(DeliveryPossibility deliveryPossibility) {
+        this.deliveryPossibility = deliveryPossibility;
+    }
 }
