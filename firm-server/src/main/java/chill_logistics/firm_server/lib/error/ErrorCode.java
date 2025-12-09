@@ -1,0 +1,31 @@
+package chill_logistics.firm_server.lib.error;
+
+import lib.web.error.BaseErrorCode;
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+@Getter
+public enum ErrorCode implements BaseErrorCode {
+
+    // 403
+    FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+
+    HUB_NOT_FOUND(HttpStatus.NOT_FOUND, "허브를 찾을 수 없습니다."),
+    FIRM_NOT_FOUND(HttpStatus.NOT_FOUND, "업체를 찾을 수 없습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
+
+    HUB_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 허브입니다."),
+
+
+    ;
+
+    private final HttpStatus status;
+    private final String message;
+
+    ErrorCode(HttpStatus status, String message) {
+        this.status = status;
+        this.message = message;
+    }
+
+
+}

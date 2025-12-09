@@ -1,4 +1,4 @@
-package chill_logistics.hub_server.application.service;
+package chill_logistics.hub_server.application.port;
 
 import chill_logistics.hub_server.application.vo.EdgeWeight;
 import java.util.UUID;

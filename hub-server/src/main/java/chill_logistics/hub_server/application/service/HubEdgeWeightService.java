@@ -1,8 +1,8 @@
-package chill_logistics.hub_server.application;
+package chill_logistics.hub_server.application.service;
 
 
-import chill_logistics.hub_server.application.service.HubEdgeWeightProvider;
-import chill_logistics.hub_server.application.service.KakaoMapClient;
+import chill_logistics.hub_server.application.port.HubEdgeWeightProvider;
+import chill_logistics.hub_server.application.port.KakaoMapClient;
 import chill_logistics.hub_server.application.vo.EdgeWeight;
 import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.entity.HubInfo;

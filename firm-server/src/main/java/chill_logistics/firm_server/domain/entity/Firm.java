@@ -70,4 +70,42 @@ public class Firm extends BaseEntity {
 
     @Column(name = "longitude", nullable = false, precision = 10, scale = 7)
     private BigDecimal longitude;
+
+    public static Firm create(
+        String name,
+        UUID hubId,
+        UUID ownerId,
+        String ownerName,
+        FirmType firmType,
+        String postalCode,
+        String country,
+        String region,
+        String city,
+        String district,
+        String roadName,
+        String buildingName,
+        String detailAddress,
+        String fullAddress,
+        BigDecimal latitude,
+        BigDecimal longitude
+    ) {
+        Firm firm = new Firm();
+        firm.name = name;
+        firm.hubId = hubId;
+        firm.ownerId = ownerId;
+        firm.ownerName = ownerName;
+        firm.firmType = firmType;
+        firm.postalCode = postalCode;
+        firm.country = country;
+        firm.region = region;
+        firm.city = city;
+        firm.district = district;
+        firm.roadName = roadName;
+        firm.buildingName = buildingName;
+        firm.detailAddress = detailAddress;
+        firm.fullAddress = fullAddress;
+        firm.latitude = latitude;
+        firm.longitude = longitude;
+        return firm;
+    }
 }
