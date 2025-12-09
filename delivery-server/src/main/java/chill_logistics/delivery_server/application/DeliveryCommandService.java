@@ -127,12 +127,12 @@ public class DeliveryCommandService {
         log.info("[배송 생성 시작] orderId={}", message.orderId());
 
         // 허브 배송 담당자 배정
-        AssignedDeliveryPersonV1 hubDeliveryPerson =
-            deliveryPersonAssignmentService.assignHubDeliveryPerson();
+        AssignedDeliveryPersonV1 hubDeliveryPerson = new AssignedDeliveryPersonV1(null, null);
+//            deliveryPersonAssignmentService.assignHubDeliveryPerson();
 
         // 업체 배송 담당자 배정
-        AssignedDeliveryPersonV1 firmDeliveryPerson =
-            deliveryPersonAssignmentService.assignFirmDeliveryPerson();
+        AssignedDeliveryPersonV1 firmDeliveryPerson = new AssignedDeliveryPersonV1(null, null);
+//            deliveryPersonAssignmentService.assignHubDeliveryPerson();
 
         UUID hubDeliveryPersonId = hubDeliveryPerson.userId();
         String hubDeliveryPersonName = hubDeliveryPerson.userName();

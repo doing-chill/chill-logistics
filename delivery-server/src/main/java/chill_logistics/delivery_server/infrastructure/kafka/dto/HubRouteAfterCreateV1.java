@@ -16,8 +16,8 @@ public record HubRouteAfterCreateV1(
     String productName,
     int productQuantity,
     LocalDateTime orderCreatedAt,
-    int expectedDeliveryDuration,
-    List<HubRouteHubInfoV1> pathHubs,
+    Integer expectedDeliveryDuration,
+    List<HubRouteHubInfoV1> hubsRouteInfoResponse,
     BigDecimal totalDistanceKm) {
 
     // application 계층의 command 변환 메서드
@@ -32,7 +32,7 @@ public record HubRouteAfterCreateV1(
             productQuantity(),
             orderCreatedAt(),
             expectedDeliveryDuration(),
-            pathHubs()
+            hubsRouteInfoResponse()
         );
     }
 }
