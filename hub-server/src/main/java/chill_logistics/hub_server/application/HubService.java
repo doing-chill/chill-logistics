@@ -4,6 +4,7 @@ import chill_logistics.hub_server.application.dto.command.CreateHubCommandV1;
 import chill_logistics.hub_server.application.dto.command.UpdateHubCommandV1;
 import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
 import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
+import chill_logistics.hub_server.application.dto.query.UserHubsQueryV1;
 import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.repository.HubRepository;
 import chill_logistics.hub_server.lib.error.ErrorCode;
@@ -96,5 +97,12 @@ public class HubService {
     @Transactional(readOnly = true)
     public boolean validateHub(UUID hubId) {
         return hubRepository.existsById(hubId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserHubsQueryV1> readUserHubs(UUID userId) {
+        List<Hub> hubs = hubRepository.findByHubManagerId(userId);
+
+        return UserHubsQueryV1.from(hubs);
     }
 }

@@ -55,5 +55,10 @@ public class HubRepositoryAdapter implements HubRepository {
         return jpaHubRepository.findAllByIdInAndDeletedAtIsNull(hubIds);
     }
 
+    @Override
+    public List<Hub> findByHubManagerId(UUID hubManagerId) {
+        return jpaHubRepository.findByHubManagerIdAndDeletedAtIsNull(hubManagerId);
+    }
+
 
 }
