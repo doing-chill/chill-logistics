@@ -1,7 +1,6 @@
 package chill_logistics.product_server.presentation;
 
 import chill_logistics.product_server.application.ProductFacade;
-import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
 import chill_logistics.product_server.presentation.dto.request.*;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
 import chill_logistics.product_server.presentation.dto.response.ReadProductDetailResponseV1;
@@ -70,16 +69,9 @@ public class ProductController {
     public BaseResponse<List<ReadProductSummaryResponseV1>> readProductList(
             @ModelAttribute ReadProductRequestV1 request) {
 
-        ReadProductCommandV1 command = new ReadProductCommandV1(
-                request.name(),
-                request.firmId(),
-                request.hubId(),
-                request.sellable()
-        );
-
         List<ReadProductSummaryResponseV1> response =
                 productFacade
-                        .readProductList(command)
+                        .readProductList(request.toCommand())
                         .stream()
                         .map(ReadProductSummaryResponseV1::from)
                         .toList();
