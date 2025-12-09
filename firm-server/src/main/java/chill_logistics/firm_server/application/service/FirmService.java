@@ -1,6 +1,7 @@
 package chill_logistics.firm_server.application.service;
 
 import chill_logistics.firm_server.application.dto.command.FirmCreateCommandV1;
+import chill_logistics.firm_server.application.dto.query.HubSearchQueryV1;
 import chill_logistics.firm_server.application.dto.response.HubResponseV1;
 import chill_logistics.firm_server.application.dto.response.UserResponseV1;
 import chill_logistics.firm_server.application.port.HubClient;
@@ -10,6 +11,7 @@ import chill_logistics.firm_server.domain.repository.FirmRepository;
 import chill_logistics.firm_server.infrastructure.external.dto.response.FeignUserResponseV1;
 import chill_logistics.firm_server.lib.error.ErrorCode;
 import feign.FeignException.FeignClientException;
+import java.util.UUID;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -79,10 +81,15 @@ public class FirmService {
     }
 
 
-
-
     @Transactional(readOnly = true)
+    public HubSearchQueryV1 searchFirm(UUID firmId) {
 
+        Firm firm = firmRepository.findById(firmId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
+
+        return new HubSearchQueryV1(firm.getHubId());
+
+    }
 
 
 

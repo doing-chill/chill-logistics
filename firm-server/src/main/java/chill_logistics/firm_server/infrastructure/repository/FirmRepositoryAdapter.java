@@ -3,6 +3,8 @@ package chill_logistics.firm_server.infrastructure.repository;
 import chill_logistics.firm_server.domain.entity.Firm;
 import chill_logistics.firm_server.domain.repository.FirmRepository;
 import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -28,6 +30,11 @@ public class FirmRepositoryAdapter implements FirmRepository {
     @Override
     public boolean existsByLatitudeAndLongitudeAndDeletedAtIsNull(BigDecimal latitude, BigDecimal longitude) {
         return jpaFirmRepository.existsByLatitudeAndLongitudeAndDeletedAtIsNull(latitude, longitude);
+    }
+
+    @Override
+    public Optional<Firm> findById(UUID firmId) {
+        return jpaFirmRepository.findByIdAndDeletedAtIsNull(firmId);
     }
 
 }
