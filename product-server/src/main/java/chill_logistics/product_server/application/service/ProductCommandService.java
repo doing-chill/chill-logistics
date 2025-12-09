@@ -68,9 +68,9 @@ public class ProductCommandService {
     }
 
     @Transactional
-    public void deleteProduct(DeleteProductCommandV1 command) {
+    public void deleteProduct(UUID id) {
 
-        Product product = readProductOrThrow(command.id());
+        Product product = readProductOrThrow(id);
 
         // 임시 유저 id
         UUID userId = null;

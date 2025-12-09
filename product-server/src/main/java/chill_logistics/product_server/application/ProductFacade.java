@@ -27,8 +27,8 @@ public class ProductFacade {
         productCommandService.updateProduct(id, command);
     }
 
-    public void deleteProduct(DeleteProductCommandV1 command) {
-        productCommandService.deleteProduct(command);
+    public void deleteProduct(UUID id) {
+        productCommandService.deleteProduct(id);
     }
 
     public List<ReadProductSummaryResultV1> readProductList(ReadProductCommandV1 command) {

@@ -1,7 +1,6 @@
 package chill_logistics.product_server.presentation;
 
 import chill_logistics.product_server.application.ProductFacade;
-import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
 import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
 import chill_logistics.product_server.presentation.dto.request.*;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
@@ -60,9 +59,7 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public BaseResponse<Void> deleteProduct(@PathVariable UUID id) {
 
-        DeleteProductCommandV1 command = new DeleteProductCommandV1(id);
-
-        productFacade.deleteProduct(command);
+        productFacade.deleteProduct(id);
 
         return BaseResponse.ok(BaseStatus.OK);
     }
