@@ -1,7 +1,7 @@
 package chill_logistics.order_server.infrastructure.hub;
 
 import chill_logistics.order_server.domain.port.HubPort;
-import chill_logistics.order_server.infrastructure.hub.dto.UserHubsReponseV1;
+import chill_logistics.order_server.infrastructure.hub.dto.UserHubsResponseV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ public class HubApiClient implements HubPort {
         return hubFeignClient.readUserHubs(currentUserId)
                 .getData()
                 .stream()
-                .map(UserHubsReponseV1::managingHubId)
+                .map(UserHubsResponseV1::managingHubId)
                 .toList();
     }
 }

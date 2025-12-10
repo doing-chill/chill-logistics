@@ -1,7 +1,7 @@
 package chill_logistics.order_server.infrastructure.hub;
 
 import chill_logistics.order_server.infrastructure.config.FeignConfig;
-import chill_logistics.order_server.infrastructure.hub.dto.UserHubsReponseV1;
+import chill_logistics.order_server.infrastructure.hub.dto.UserHubsResponseV1;
 import lib.web.response.BaseResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,5 +14,5 @@ import java.util.UUID;
 public interface HubFeignClient {
 
     @GetMapping("/v1/hubs/userHubs/{userId}")
-    BaseResponse<List<UserHubsReponseV1>> readUserHubs(@PathVariable UUID userId);
+    BaseResponse<List<UserHubsResponseV1>> readUserHubs(@PathVariable UUID userId);
 }
