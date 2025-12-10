@@ -131,10 +131,10 @@ public class OrderCommandService {
 
         // 담당 허브 소속 주문인지 체크
         if (SecurityUtils.hasRole(Role.HUB_MANAGER)) {
-            UUID managingHubId = hubPort.readHubId(SecurityUtils.getCurrentUserId());
+            List<UUID> managingHubId = hubPort.readHubId(SecurityUtils.getCurrentUserId());
             UUID receiverHubId = firmPort.readHubId(order.getReceiverFirmId());
 
-            if (!managingHubId.equals(receiverHubId)) {
+            if (!managingHubId.contains(receiverHubId)) {
                 throw new BusinessException(ErrorCode.ORDER_NOT_IN_MANAGING_HUB);
             }
         }
@@ -153,10 +153,10 @@ public class OrderCommandService {
 
         // 담당 허브 소속 주문인지 체크
         if (SecurityUtils.hasRole(Role.HUB_MANAGER)) {
-            UUID managingHubId = hubPort.readHubId(SecurityUtils.getCurrentUserId());
+            List<UUID> managingHubId = hubPort.readHubId(SecurityUtils.getCurrentUserId());
             UUID receiverHubId = firmPort.readHubId(order.getReceiverFirmId());
 
-            if (!managingHubId.equals(receiverHubId)) {
+            if (!managingHubId.contains(receiverHubId)) {
                 throw new BusinessException(ErrorCode.ORDER_NOT_IN_MANAGING_HUB);
             }
         }

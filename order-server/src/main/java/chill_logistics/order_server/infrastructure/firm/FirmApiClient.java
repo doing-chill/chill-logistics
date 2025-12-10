@@ -20,6 +20,6 @@ public class FirmApiClient implements FirmPort {
 
     @Override
     public UUID readHubId(UUID receiverFirmId) {
-        return null;
+        return firmFeignClient.searchFirm(receiverFirmId).getData().hubId();
     }
 }

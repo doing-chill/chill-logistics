@@ -1,6 +1,7 @@
 package chill_logistics.order_server.infrastructure.firm;
 
 import chill_logistics.order_server.infrastructure.config.FeignConfig;
+import chill_logistics.order_server.infrastructure.firm.dto.FirmHubIdResponseV1;
 import chill_logistics.order_server.infrastructure.firm.dto.FirmResponseV1;
 import lib.web.response.BaseResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -16,4 +17,7 @@ public interface FirmFeignClient {
     BaseResponse<FirmResponseV1> searchFirmInfo(
             @PathVariable UUID firmId,
             @PathVariable String firmType);
+
+    @GetMapping("/v1/firms/hubIdSearch/{firmId}")
+    BaseResponse<FirmHubIdResponseV1> searchFirm(@PathVariable UUID firmId);
 }
