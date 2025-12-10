@@ -1,7 +1,9 @@
 package chill_logistics.firm_server.presentation;
 
 import chill_logistics.firm_server.application.service.FirmService;
+import chill_logistics.firm_server.domain.entity.FirmType;
 import chill_logistics.firm_server.presentation.dto.request.FirmCreateRequestV1;
+import chill_logistics.firm_server.presentation.dto.response.FirmSearchInfoResponseV1;
 import chill_logistics.firm_server.presentation.dto.response.HubSearchIdResponseV1;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -30,6 +32,7 @@ public class FirmController {
     @PreAuthorize("hasRole('MASTER')")
     public BaseResponse<Void> createFirm(@RequestBody @Valid FirmCreateRequestV1 createRequest) {
         firmService.createFirm(createRequest.to());
+
         return BaseResponse.ok(BaseStatus.CREATED);
     }
 
@@ -39,12 +42,20 @@ public class FirmController {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<HubSearchIdResponseV1> searchFirm(@PathVariable("firmId") UUID firmId) {
+
         return BaseResponse.ok(HubSearchIdResponseV1.from(firmService.searchFirm(firmId)), BaseStatus.OK);
     }
 
 
 
     // 업체 정보 조회
+    @GetMapping("/{firmId}/firmType/{firmType}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    public BaseResponse<FirmSearchInfoResponseV1> searchFirmInfo(@PathVariable UUID firmId, @PathVariable FirmType firmType) {
+
+        return BaseResponse.ok(FirmSearchInfoResponseV1.from(firmService.searchFirmInfo(firmId, firmType)), BaseStatus.OK);
+    }
 
 
 

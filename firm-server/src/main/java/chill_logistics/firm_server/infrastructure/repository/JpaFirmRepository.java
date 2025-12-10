@@ -1,6 +1,7 @@
 package chill_logistics.firm_server.infrastructure.repository;
 
 import chill_logistics.firm_server.domain.entity.Firm;
+import chill_logistics.firm_server.domain.entity.FirmType;
 import java.math.BigDecimal;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,5 @@ public interface JpaFirmRepository extends JpaRepository<Firm, UUID> {
 
     Optional<Firm> findByIdAndDeletedAtIsNull(UUID firmId);
 
+    Optional<Firm> findByIdAndFirmTypeAndDeletedAtIsNull(UUID firmId, FirmType firmType);
 }

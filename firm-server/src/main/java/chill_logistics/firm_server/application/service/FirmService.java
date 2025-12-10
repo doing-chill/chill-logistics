@@ -1,16 +1,14 @@
 package chill_logistics.firm_server.application.service;
 
 import chill_logistics.firm_server.application.dto.command.FirmCreateCommandV1;
+import chill_logistics.firm_server.application.dto.query.FirmSearchInfoQueryV1;
 import chill_logistics.firm_server.application.dto.query.HubSearchQueryV1;
-import chill_logistics.firm_server.application.dto.response.HubResponseV1;
-import chill_logistics.firm_server.application.dto.response.UserResponseV1;
 import chill_logistics.firm_server.application.port.HubClient;
 import chill_logistics.firm_server.application.port.UserClient;
 import chill_logistics.firm_server.domain.entity.Firm;
+import chill_logistics.firm_server.domain.entity.FirmType;
 import chill_logistics.firm_server.domain.repository.FirmRepository;
-import chill_logistics.firm_server.infrastructure.external.dto.response.FeignUserResponseV1;
 import chill_logistics.firm_server.lib.error.ErrorCode;
-import feign.FeignException.FeignClientException;
 import java.util.UUID;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -88,9 +86,15 @@ public class FirmService {
             .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
 
         return new HubSearchQueryV1(firm.getHubId());
-
     }
 
 
+    @Transactional(readOnly = true)
+    public FirmSearchInfoQueryV1 searchFirmInfo(UUID firmId, FirmType firmType) {
 
+        Firm firm = firmRepository.findByIdAndFirmTypeAndDeletedAtIsNull(firmId, firmType)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
+
+        return FirmSearchInfoQueryV1.from(firm.getId(), firm.getName(), firm.getHubId(), firm.getFullAddress(), firm.getOwnerName());
+    }
 }
