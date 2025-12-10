@@ -1,6 +1,7 @@
 package chill_logistics.firm_server.domain.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
@@ -70,4 +71,87 @@ public class Firm extends BaseEntity {
 
     @Column(name = "longitude", nullable = false, precision = 10, scale = 7)
     private BigDecimal longitude;
+
+    public static Firm create(
+        String name,
+        UUID hubId,
+        UUID ownerId,
+        String ownerName,
+        FirmType firmType,
+        String postalCode,
+        String country,
+        String region,
+        String city,
+        String district,
+        String roadName,
+        String buildingName,
+        String detailAddress,
+        String fullAddress,
+        BigDecimal latitude,
+        BigDecimal longitude
+    ) {
+        Firm firm = new Firm();
+        firm.name = name;
+        firm.hubId = hubId;
+        firm.ownerId = ownerId;
+        firm.ownerName = ownerName;
+        firm.firmType = firmType;
+        firm.postalCode = postalCode;
+        firm.country = country;
+        firm.region = region;
+        firm.city = city;
+        firm.district = district;
+        firm.roadName = roadName;
+        firm.buildingName = buildingName;
+        firm.detailAddress = detailAddress;
+        firm.fullAddress = fullAddress;
+        firm.latitude = latitude;
+        firm.longitude = longitude;
+        return firm;
+    }
+
+    public void update(
+        String name,
+        UUID hubId,
+        UUID ownerId,
+        FirmType firmType,
+        String postalCode,
+        String country,
+        String region,
+        String city,
+        String district,
+        String roadName,
+        String buildingName,
+        String detailAddress,
+        String fullAddress,
+        BigDecimal latitude,
+        BigDecimal longitude)
+    {
+        if (name != null) this.name = name;
+        if (hubId != null) this.hubId = hubId;
+        if (ownerId != null) this.ownerId = ownerId;
+        if (firmType != null) this.firmType = firmType;
+        if (postalCode != null) this.postalCode = postalCode;
+        if (country != null) this.country = country;
+        if (region != null) this.region = region;
+        if (city != null) this.city = city;
+        if (district != null) this.district = district;
+        if (roadName != null) this.roadName = roadName;
+        if (buildingName != null) this.buildingName = buildingName;
+        if (detailAddress != null) this.detailAddress = detailAddress;
+        if (fullAddress != null) this.fullAddress = fullAddress;
+        if (latitude != null) this.latitude = latitude;
+        if (longitude != null) this.longitude = longitude;
+    }
+
+    public void delete(UUID userId) {
+        this.deletedBy = userId;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void recover() {
+        this.deletedBy = null;
+        this.deletedAt = null;
+    }
+
 }

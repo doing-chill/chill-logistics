@@ -1,7 +1,7 @@
 package chill_logistics.hub_server.presentation.controller;
 
 
-import chill_logistics.hub_server.application.HubRouteService;
+import chill_logistics.hub_server.application.service.HubRouteService;
 import chill_logistics.hub_server.application.vo.HubRouteResult;
 import chill_logistics.hub_server.presentation.dto.response.HubRouteResponseV1;
 import java.util.UUID;

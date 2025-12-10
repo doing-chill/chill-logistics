@@ -1,4 +1,4 @@
-package chill_logistics.hub_server.application;
+package chill_logistics.hub_server.application.service;
 
 
 import chill_logistics.hub_server.application.dto.command.OrderAfterCommandV1;
