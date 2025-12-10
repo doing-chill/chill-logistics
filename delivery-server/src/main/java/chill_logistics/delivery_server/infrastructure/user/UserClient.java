@@ -1,10 +1,11 @@
 package chill_logistics.delivery_server.infrastructure.user;
 
-import chill_logistics.delivery_server.infrastructure.user.dto.UserForDeliveryResponseV1;
-import java.util.List;
+import chill_logistics.delivery_server.infrastructure.user.dto.request.AssignDeliveryAdminRequestDtoV1;
+import chill_logistics.delivery_server.infrastructure.user.dto.response.AssignDeliveryAdminResponseDtoV1;
+import lib.web.response.BaseResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
     name = "user-server",
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 )
 public interface UserClient {
 
-    @GetMapping("/v1/internal/users/by-role")
-    List<UserForDeliveryResponseV1> getUsersByRole(@RequestParam("role") String role);
+    @PutMapping("/v1/internal/delivery-admin/assign")
+    BaseResponse<AssignDeliveryAdminResponseDtoV1> assignDeliveryAdmin(
+        @RequestBody AssignDeliveryAdminRequestDtoV1 dto);
 }

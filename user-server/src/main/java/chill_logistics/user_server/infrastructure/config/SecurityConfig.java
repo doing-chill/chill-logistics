@@ -35,7 +35,8 @@ public class SecurityConfig {
                 Set.of(
                         "/v1/users/login",
                         "/v1/users/signup",
-                        "/v1/users/reissue-token"
+                        "/v1/users/reissue-token",
+                        "/v1/internal/delivery-admin/assign"
                 )
         );
     }
@@ -51,7 +52,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/v1/users/login",
                                 "/v1/users/signup",
-                                "/v1/users/reissue-token"
+                                "/v1/users/reissue-token",
+                                "/v1/internal/delivery-admin/assign"
                         ).permitAll()
                         .requestMatchers("/v1/internal/**").hasAnyRole("MASTER", "HUB_MANAGER", "HUB_DELIVERY_MANAGER", "FIRM_DELIVERY_MANAGER", "FIRM_MANAGER")
                         .requestMatchers("/v1/master/**").hasRole("MASTER")

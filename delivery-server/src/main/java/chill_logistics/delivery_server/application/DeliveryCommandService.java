@@ -126,18 +126,6 @@ public class DeliveryCommandService {
 
         log.info("[배송 생성 시작] orderId={}", message.orderId());
 
-        // 허브 배송 담당자 배정
-        AssignedDeliveryPersonV1 hubDeliveryPerson = new AssignedDeliveryPersonV1(null, null);
-//            deliveryPersonAssignmentService.assignHubDeliveryPerson();
-
-        // 업체 배송 담당자 배정
-        AssignedDeliveryPersonV1 firmDeliveryPerson = new AssignedDeliveryPersonV1(null, null);
-//            deliveryPersonAssignmentService.assignHubDeliveryPerson();
-
-        UUID hubDeliveryPersonId = hubDeliveryPerson.userId();
-        String hubDeliveryPersonName = hubDeliveryPerson.userName();
-        UUID firmDeliveryPersonId = firmDeliveryPerson.userId();
-
         List<HubRouteHubInfoV1> pathHubs = message.pathHubs();
 
         if (pathHubs == null || pathHubs.size() < 2) {
@@ -148,6 +136,16 @@ public class DeliveryCommandService {
         int hubSegmentCount = pathHubs.size() - 1;
 
         log.info("[허브 구간 수 계산] orderId={}, hubSegmentCount={}", message.orderId(), hubSegmentCount);
+
+        // 업체 배송 담당자
+        UUID lastHubId = pathHubs.get(pathHubs.size() - 1).hubId();
+        AssignedDeliveryPersonV1 firmDeliveryPerson =
+            deliveryPersonAssignmentService.assignFirmDeliveryPerson(lastHubId);
+
+        UUID firmDeliveryPersonId = firmDeliveryPerson.userId();
+
+        // AI 메시지에 넣어줄 첫 구간 허브배송 담당자 이름
+        String firstHubDeliveryPersonName = null;
 
         // 허브 구간 수 만큼 HubDelivery row 생성
         for (int i = 0; i < hubSegmentCount; i++) {
@@ -161,6 +159,18 @@ public class DeliveryCommandService {
 
             HubRouteHubInfoV1 startHub = pathHubs.get(i);
             HubRouteHubInfoV1 endHub = pathHubs.get(i + 1);
+
+            // 각 구간 시작 허브 기준으로 허브배송 담당자 배정
+            AssignedDeliveryPersonV1 hubDeliveryPerson =
+                deliveryPersonAssignmentService.assignHubDeliveryPerson(startHub.hubId());
+
+            UUID hubDeliveryPersonId = hubDeliveryPerson.userId();
+            String hubDeliveryPersonName = hubDeliveryPerson.userName();
+
+            // 첫 구간 담당자 이름은 따로 저장 (AI용)
+            if (i == 0) {
+                firstHubDeliveryPersonName = hubDeliveryPersonName;
+            }
 
             createHubDelivery(
                 message,
@@ -182,11 +192,10 @@ public class DeliveryCommandService {
         createFirmDelivery(message, firmDeliveryPersonId, firmDeliverySequenceNum);
 
         log.info(
-            "[배송 생성 완료 & 배송 담당자 배정 완료] orderId={}, hubDeliveryPersonId={}, firmDeliveryPersonId={}",
-            message.orderId(), hubDeliveryPersonId, firmDeliveryPersonId);
+            "[배송 생성 완료 & 배송 담당자 배정 완료] orderId={}", message.orderId());
 
         // AI + Discord 비동기 체인 호출
-        asyncAiService.sendDeadlineRequest(message, hubDeliveryPersonName);
+        asyncAiService.sendDeadlineRequest(message, firstHubDeliveryPersonName);
     }
 
     /* [배송 상태 변경]
