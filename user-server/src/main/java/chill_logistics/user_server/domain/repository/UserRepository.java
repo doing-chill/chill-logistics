@@ -17,4 +17,6 @@ public interface UserRepository {
     User save(User user);
 
     List<User> findSignupUsers();
+
+    List<User> findAll();
 }

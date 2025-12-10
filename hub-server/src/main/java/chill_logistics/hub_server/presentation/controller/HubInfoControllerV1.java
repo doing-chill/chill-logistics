@@ -1,6 +1,6 @@
 package chill_logistics.hub_server.presentation.controller;
 
-import chill_logistics.hub_server.application.HubInfoService;
+import chill_logistics.hub_server.application.service.HubInfoService;
 import chill_logistics.hub_server.application.dto.query.HubRoadInfoListQuery;
 import chill_logistics.hub_server.application.dto.query.HubRoadInfoQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubInfoRequestV1;

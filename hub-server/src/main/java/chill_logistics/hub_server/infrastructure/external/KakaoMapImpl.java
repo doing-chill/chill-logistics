@@ -1,6 +1,6 @@
 package chill_logistics.hub_server.infrastructure.external;
 
-import chill_logistics.hub_server.application.service.KakaoMapClient;
+import chill_logistics.hub_server.application.port.KakaoMapClient;
 import chill_logistics.hub_server.infrastructure.external.dto.response.DirectionInfoResponseV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

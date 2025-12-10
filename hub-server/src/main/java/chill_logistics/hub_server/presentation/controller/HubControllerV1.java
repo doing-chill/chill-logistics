@@ -1,6 +1,6 @@
 package chill_logistics.hub_server.presentation.controller;
 
-import chill_logistics.hub_server.application.HubService;
+import chill_logistics.hub_server.application.service.HubService;
 import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
 import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubRequestV1;
@@ -35,6 +35,7 @@ public class HubControllerV1 {
     @PreAuthorize("hasRole('MASTER')")
     public BaseResponse<Void> createHub(@RequestBody @Valid CreateHubRequestV1 createHubRequest) {
 
+        // 본인 userId가 아니라 이미 존재하는 유저인지 확인 후 넣게 작업 필요
         hubService.createHub(SecurityUtils.getCurrentUserId(), createHubRequest.toCreateHubCommand(createHubRequest));
 
         return BaseResponse.ok(BaseStatus.CREATED);
