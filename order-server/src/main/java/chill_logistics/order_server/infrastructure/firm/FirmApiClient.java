@@ -15,11 +15,11 @@ public class FirmApiClient implements FirmPort {
 
     @Override
     public FirmResultV1 readFirmById(UUID firmId, String firmType) {
-        return null;
+        return FirmResultV1.from(firmFeignClient.searchFirmInfo(firmId, firmType).getData());
     }
 
     @Override
     public UUID readHubId(UUID receiverFirmId) {
-        return null;
+        return firmFeignClient.searchFirm(receiverFirmId).getData().hubId();
     }
 }

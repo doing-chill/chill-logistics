@@ -1,7 +1,8 @@
 package chill_logistics.order_server.domain.port;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface HubPort {
-    UUID readHubId(UUID currentUserId);
+    List<UUID> readHubId(UUID currentUserId);
 }

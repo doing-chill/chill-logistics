@@ -1,5 +1,6 @@
 package chill_logistics.order_server.application.service;
 
+import chill_logistics.order_server.application.dto.command.SupplierInfoV1;
 import chill_logistics.order_server.application.dto.command.*;
 import chill_logistics.order_server.domain.entity.Order;
 import chill_logistics.order_server.domain.entity.OrderProduct;
@@ -43,12 +44,9 @@ public class OrderCommandService {
     @Transactional
     public CreateOrderResultV1 createOrder(CreateOrderCommandV1 command) {
 
-        // TODO: 업체 조회 후 업체 이름, hub id, (수령)업체 주소, (수령)업체 주인 이름 가져오기
-        FirmResultV1 supplierResult = new FirmResultV1(command.supplierFirmId(), null, UUID.fromString("018f3d6c-9a10-7c11-b2a1-e3b893f00101"), null, null);
-        FirmResultV1 receiverResult = new FirmResultV1(command.receiverFirmId(), null, UUID.fromString("018f3d6c-9a13-7c14-b2a1-e3b893f00104"), null, null);
-
-//        FirmResultV1 supplierResult = firmPort.readFirmById(command.supplierFirmId(), "SUPPLIER");
-//        FirmResultV1 receiverResult = firmPort.readFirmById(command.receiverFirmId(), "RECEIVER");
+        // 업체 조회
+        FirmResultV1 supplierResult = firmPort.readFirmById(command.supplierFirmId(), "SUPPLIER");
+        FirmResultV1 receiverResult = firmPort.readFirmById(command.receiverFirmId(), "RECEIVER");
 
         // 주문 상품 체크 및 재고 감소
         List<OrderProductInfoV1> orderProductInfoList =
@@ -58,10 +56,10 @@ public class OrderCommandService {
                             // 상품 조회
                             ProductResultV1 product = productPort.readProductById(p.productId());
 
-//                            // 공급 업체 소속 상품인지 체크
-//                            if (!product.firmId().equals(command.receiverFirmId())) {
-//                                throw new BusinessException(ErrorCode.PRODUCT_NOT_FROM_FIRM);
-//                            }
+                            // 공급 업체 소속 상품인지 체크
+                            if (!product.firmId().equals(command.supplierFirmId())) {
+                                throw new BusinessException(ErrorCode.PRODUCT_NOT_FROM_FIRM);
+                            }
 
                             // 상품 재고 체크
                             if (product.stockQuantity() < p.quantity()) {
@@ -91,12 +89,11 @@ public class OrderCommandService {
         Order createOrder = orderRepository.save(order);
 
         // 주문 생성 시 주문 읽기 생성
-        // TODO: supplier, receiver 정보 수정 예정, info dto로 수정 예정
         // TODO: 추후 주문 읽기 전략 수정예정 (임시: 대표 상품)
-        OrderQuery orderQuery = OrderQuery.from(
+        OrderQuery orderQuery = OrderQuery.create(
                 createOrder,
-                supplierResult,
-                receiverResult
+                SupplierInfoV1.from(supplierResult),
+                ReceiverInfoV1.from(receiverResult)
         );
 
         orderQueryRepository.save(orderQuery);
@@ -134,10 +131,10 @@ public class OrderCommandService {
 
         // 담당 허브 소속 주문인지 체크
         if (SecurityUtils.hasRole(Role.HUB_MANAGER)) {
-            UUID managingHubId = hubPort.readHubId(SecurityUtils.getCurrentUserId());
+            List<UUID> managingHubId = hubPort.readHubId(SecurityUtils.getCurrentUserId());
             UUID receiverHubId = firmPort.readHubId(order.getReceiverFirmId());
 
-            if (!managingHubId.equals(receiverHubId)) {
+            if (!managingHubId.contains(receiverHubId)) {
                 throw new BusinessException(ErrorCode.ORDER_NOT_IN_MANAGING_HUB);
             }
         }
@@ -156,10 +153,10 @@ public class OrderCommandService {
 
         // 담당 허브 소속 주문인지 체크
         if (SecurityUtils.hasRole(Role.HUB_MANAGER)) {
-            UUID managingHubId = hubPort.readHubId(SecurityUtils.getCurrentUserId());
+            List<UUID> managingHubId = hubPort.readHubId(SecurityUtils.getCurrentUserId());
             UUID receiverHubId = firmPort.readHubId(order.getReceiverFirmId());
 
-            if (!managingHubId.equals(receiverHubId)) {
+            if (!managingHubId.contains(receiverHubId)) {
                 throw new BusinessException(ErrorCode.ORDER_NOT_IN_MANAGING_HUB);
             }
         }

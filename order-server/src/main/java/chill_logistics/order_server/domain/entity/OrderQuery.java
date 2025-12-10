@@ -1,6 +1,7 @@
 package chill_logistics.order_server.domain.entity;
 
-import chill_logistics.order_server.application.dto.command.FirmResultV1;
+import chill_logistics.order_server.application.dto.command.ReceiverInfoV1;
+import chill_logistics.order_server.application.dto.command.SupplierInfoV1;
 import jakarta.persistence.*;
 import lib.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -52,10 +53,10 @@ public class OrderQuery extends BaseEntity {
     @Column(name = "product_quantity", nullable = false)
     private int productQuantity;
 
-    public static OrderQuery from(
+    public static OrderQuery create(
             Order order,
-            FirmResultV1 supplier,
-            FirmResultV1 receiver) {
+            SupplierInfoV1 supplier,
+            ReceiverInfoV1 receiver) {
 
         OrderProduct mainProduct = order.getOrderProductList().get(0);
 
@@ -63,8 +64,8 @@ public class OrderQuery extends BaseEntity {
         query.id = order.getId();
         query.supplierFirmId = order.getSupplierFirmId();
         query.receiverFirmId = order.getReceiverFirmId();
-        query.receiverFirmFullAddress = "임시 주소";
-        query.receiverFirmOwnerName = "임시 이름";
+        query.receiverFirmFullAddress = receiver.firmFullAddress();
+        query.receiverFirmOwnerName = receiver.firmOwnerName();
         query.supplierHubId = supplier.hubId();
         query.receiverHubId = receiver.hubId();
         query.requestNote = order.getRequestNote();
