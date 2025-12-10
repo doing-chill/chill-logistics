@@ -13,9 +13,11 @@ import chill_logistics.firm_server.domain.entity.FirmType;
 import chill_logistics.firm_server.domain.repository.FirmRepository;
 import chill_logistics.firm_server.lib.error.ErrorCode;
 import chill_logistics.firm_server.presentation.dto.request.FirmUpdateRequestV1;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import lib.web.error.BusinessException;
+import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,25 +42,7 @@ public class FirmService {
         // TODO 지워야 함
         String userName = "gd";
 
-        // 기존에 존재하는 허브인지 검증
-        if (! hubClient.readHubInfo(command.hubId())){
-            throw new BusinessException(ErrorCode.HUB_NOT_FOUND);
-        }
-
-        // 기존에 이름이 이미 있는 경우
-        if (firmRepository.existsByNameAndDeletedAtIsNull(command.name())){
-            throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
-        }
-
-        // fulladdress가 중복인지
-        if (firmRepository.existsByFullAddressAndDeletedAtIsNull(command.fullAddress())){
-            throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
-        }
-
-        // 위도 and 경도가 겹치는 업체가 있는지
-        if (firmRepository.existsByLatitudeAndLongitudeAndDeletedAtIsNull(command.latitude(), command.longitude())){
-            throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
-        }
+        duplicateFirm(command.hubId(), command.name(), command.fullAddress(), command.latitude(), command.longitude());
 
         Firm firm = Firm.create(
             command.name(),
@@ -125,12 +109,7 @@ public class FirmService {
         Firm firm = firmRepository.findById(firmId)
             .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
 
-        if (firm.getHubId() != command.hubId()){
-            // 기존에 존재하는 허브인지 검증
-            if (! hubClient.readHubInfo(command.hubId())){
-                throw new BusinessException(ErrorCode.HUB_NOT_FOUND);
-            }
-        }
+       duplicateFirm(command.hubId(), command.name(), command.fullAddress(), command.latitude(), command.longitude());
 
         firm.update(
             command.name(),
@@ -149,6 +128,38 @@ public class FirmService {
             command.latitude(),
             command.longitude()
         );
+    }
+
+    @Transactional
+    public void deleteFirm(UUID userId, UUID firmId) {
+        Firm firm = firmRepository.findById(firmId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
+
+        firm.delete(userId);
+    }
+
+
+
+    private void duplicateFirm(UUID hubId, String firmName, String fullAddress, BigDecimal latitude, BigDecimal longitude) {
+        // 기존에 존재하는 허브인지 검증
+        if (! hubClient.readHubInfo(hubId)){
+            throw new BusinessException(ErrorCode.HUB_NOT_FOUND);
+        }
+
+        // 기존에 이름이 이미 있는 경우
+        if (firmRepository.existsByNameAndDeletedAtIsNull(firmName)){
+            throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
+        }
+
+        // fulladdress가 중복인지
+        if (firmRepository.existsByFullAddressAndDeletedAtIsNull(fullAddress)){
+            throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
+        }
+
+        // 위도 and 경도가 겹치는 업체가 있는지
+        if (firmRepository.existsByLatitudeAndLongitudeAndDeletedAtIsNull(latitude, longitude)){
+            throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
+        }
     }
 
 

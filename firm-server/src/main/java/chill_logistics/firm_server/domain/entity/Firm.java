@@ -1,6 +1,7 @@
 package chill_logistics.firm_server.domain.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lib.entity.BaseEntity;
 import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
@@ -141,6 +142,16 @@ public class Firm extends BaseEntity {
         if (fullAddress != null) this.fullAddress = fullAddress;
         if (latitude != null) this.latitude = latitude;
         if (longitude != null) this.longitude = longitude;
+    }
+
+    public void delete(UUID userId) {
+        this.deletedBy = userId;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void recover() {
+        this.deletedBy = null;
+        this.deletedAt = null;
     }
 
 }

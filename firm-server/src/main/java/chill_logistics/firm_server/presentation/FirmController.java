@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lib.entity.BaseStatus;
+import lib.util.SecurityUtils;
 import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -73,8 +74,15 @@ public class FirmController {
          return BaseResponse.ok(BaseStatus.OK);
     }
 
+    // 업체 삭제
+    @DeleteMapping("/{firmId}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('MASTER')")
+    public BaseResponse<Void> deleteFirm(@PathVariable UUID firmId) {
+        firmService.deleteFirm(SecurityUtils.getCurrentUserId(), firmId);
 
-
+        return BaseResponse.ok(BaseStatus.OK);
+    }
 
 
 
