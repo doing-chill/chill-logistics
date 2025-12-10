@@ -77,4 +77,10 @@ public class User extends BaseEntity {
     public void updateSignupStatus(String signupStatus) {
         this.signupStatus = SignupStatus.valueOf(signupStatus);
     }
+
+    public void updateUserInfo(String email, String username, String nickname) {
+        this.email = email;
+        this.username = username;
+        this.nickname = nickname;
+    }
 }
