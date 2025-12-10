@@ -55,7 +55,7 @@ public class DeliveryController {
      *
      * @param deliveryId 배송 상태를 변경하려는 허브배송/업체배송의 UUID
      * @param request    deliveryType(허브/업체), nextDeliveryStatus
-     * @return status UPDATED 반환
+     * @return status OK 반환
      */
     @PatchMapping("/deliveries/{deliveryId}")
     @ResponseStatus(HttpStatus.OK)
@@ -73,7 +73,7 @@ public class DeliveryController {
      *
      * @param deliveryId 취소하려는 허브배송/업체배송의 UUID
      * @param request    deliveryType(허브/업체)
-     * @return status DELETED 반환
+     * @return status OK 반환
      */
     @DeleteMapping("/deliveries/{deliveryId}")
     @ResponseStatus(HttpStatus.OK)

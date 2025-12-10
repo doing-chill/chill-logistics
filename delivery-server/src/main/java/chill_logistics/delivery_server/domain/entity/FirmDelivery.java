@@ -89,7 +89,8 @@ public class FirmDelivery extends BaseEntity {
             message.orderId(),
             endHubId, // 목적지 허브에서 시작
             message.receiverFirmId(),
-            message.receiverFirmFullAddress(),
+//            message.receiverFirmFullAddress(),
+            "업체 임시 주소",
             message.receiverFirmOwnerName(),
             deliveryPersonId,
             deliverySequenceNum,
