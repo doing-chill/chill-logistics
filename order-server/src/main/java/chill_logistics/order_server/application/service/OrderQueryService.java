@@ -1,10 +1,12 @@
 package chill_logistics.order_server.application.service;
 
+import chill_logistics.order_server.application.dto.command.FirmResultV1;
 import chill_logistics.order_server.application.dto.query.FirmQueryResultV1;
 import chill_logistics.order_server.application.dto.query.ReadOrderCommandV1;
 import chill_logistics.order_server.application.dto.query.ReadOrderDetailResultV1;
 import chill_logistics.order_server.application.dto.query.ReadOrderSummaryResultV1;
 import chill_logistics.order_server.domain.entity.Order;
+import chill_logistics.order_server.domain.port.FirmPort;
 import chill_logistics.order_server.domain.repository.OrderRepository;
 import chill_logistics.order_server.lib.error.ErrorCode;
 import lib.entity.Role;
@@ -24,6 +26,7 @@ import java.util.UUID;
 public class OrderQueryService {
 
     private final OrderRepository orderRepository;
+    private final FirmPort firmPort;
 
     @Transactional(readOnly = true)
     public List<ReadOrderSummaryResultV1> readOrderList(ReadOrderCommandV1 command) {
@@ -64,10 +67,14 @@ public class OrderQueryService {
             }
         }
 
-        // TODO: 업체 정보 조회 (supplier, receiver)
-        FirmQueryResultV1 supplierResult = null;
-        FirmQueryResultV1 receiverResult = null;
+        // 업체 조회
+        FirmResultV1 supplierResult = firmPort.readFirmById(order.getSupplierFirmId(), "SUPPLIER");
+        FirmResultV1 receiverResult = firmPort.readFirmById(order.getReceiverFirmId(), "RECEIVER");
 
-        return ReadOrderDetailResultV1.from(order, supplierResult, receiverResult);
+        return ReadOrderDetailResultV1.from(
+                order,
+                FirmQueryResultV1.from(supplierResult),
+                FirmQueryResultV1.from(receiverResult)
+        );
     }
 }
