@@ -1,4 +1,3 @@
-
 dependencies {
 	implementation project(":lib")
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'

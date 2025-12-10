@@ -23,12 +23,12 @@ public class ProductFacade {
         return productCommandService.createProduct(command);
     }
 
-    public void updateProduct(UpdateProductCommandV1 command) {
-        productCommandService.updateProduct(command);
+    public void updateProduct(UUID id, UpdateProductCommandV1 command) {
+        productCommandService.updateProduct(id, command);
     }
 
-    public void deleteProduct(DeleteProductCommandV1 command) {
-        productCommandService.deleteProduct(command);
+    public void deleteProduct(UUID id) {
+        productCommandService.deleteProduct(id);
     }
 
     public List<ReadProductSummaryResultV1> readProductList(ReadProductCommandV1 command) {

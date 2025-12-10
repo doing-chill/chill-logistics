@@ -1,10 +1,6 @@
 package chill_logistics.product_server.presentation;
 
 import chill_logistics.product_server.application.ProductFacade;
-import chill_logistics.product_server.application.dto.command.CreateProductCommandV1;
-import chill_logistics.product_server.application.dto.command.DeleteProductCommandV1;
-import chill_logistics.product_server.application.dto.query.ReadProductCommandV1;
-import chill_logistics.product_server.application.dto.command.UpdateProductCommandV1;
 import chill_logistics.product_server.presentation.dto.request.*;
 import chill_logistics.product_server.presentation.dto.response.CreateProductResponseV1;
 import chill_logistics.product_server.presentation.dto.response.ReadProductDetailResponseV1;
@@ -16,6 +12,7 @@ import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,19 +29,16 @@ public class ProductController {
     /* 상품 추가 */
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<CreateProductResponseV1> createProduct(
             @RequestBody @Valid CreateProductRequestV1 request) {
 
-        CreateProductCommandV1 command = new CreateProductCommandV1(
-                request.name(),
-                request.firmId(),
-                request.hubId(),
-                request.stockQuantity(),
-                request.price(),
-                request.sellable() != null ? request.sellable() : true
-        );
-
-        CreateProductResponseV1 response = CreateProductResponseV1.from(productFacade.createProduct(command));
+        CreateProductResponseV1 response =
+                CreateProductResponseV1.from(
+                        productFacade.createProduct(
+                                request.toCommand()
+                        )
+                );
 
         return BaseResponse.ok(response, BaseStatus.CREATED);
     }
@@ -52,19 +46,12 @@ public class ProductController {
     /* 상품 정보 수정 */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<Void> updateProduct(
             @PathVariable UUID id,
             @RequestBody @Valid UpdateProductRequestV1 request) {
 
-        UpdateProductCommandV1 command = new UpdateProductCommandV1(
-                id,
-                request.name(),
-                request.stockQuantity(),
-                request.price(),
-                request.sellable()
-        );
-
-        productFacade.updateProduct(command);
+        productFacade.updateProduct(id, request.toCommand());
 
         return BaseResponse.ok(BaseStatus.OK);
     }
@@ -72,11 +59,10 @@ public class ProductController {
     /* 상품 삭제 */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER')")
     public BaseResponse<Void> deleteProduct(@PathVariable UUID id) {
 
-        DeleteProductCommandV1 command = new DeleteProductCommandV1(id);
-
-        productFacade.deleteProduct(command);
+        productFacade.deleteProduct(id);
 
         return BaseResponse.ok(BaseStatus.OK);
     }
@@ -84,19 +70,13 @@ public class ProductController {
     /* 상품 목록 조회 */
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<List<ReadProductSummaryResponseV1>> readProductList(
             @ModelAttribute ReadProductRequestV1 request) {
 
-        ReadProductCommandV1 command = new ReadProductCommandV1(
-                request.name(),
-                request.firmId(),
-                request.hubId(),
-                request.sellable()
-        );
-
         List<ReadProductSummaryResponseV1> response =
                 productFacade
-                        .readProductList(command)
+                        .readProductList(request.toCommand())
                         .stream()
                         .map(ReadProductSummaryResponseV1::from)
                         .toList();
@@ -107,9 +87,13 @@ public class ProductController {
     /* 상품 단건 조회 */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<ReadProductDetailResponseV1> readProduct(@PathVariable UUID id) {
 
-        ReadProductDetailResponseV1 response = ReadProductDetailResponseV1.from(productFacade.readProduct(id));
+        ReadProductDetailResponseV1 response =
+                ReadProductDetailResponseV1.from(
+                        productFacade.readProduct(id)
+                );
 
         return BaseResponse.ok(response, BaseStatus.OK);
     }
@@ -117,9 +101,13 @@ public class ProductController {
     /* 상품 단건 조회 (내부 API) */
     @GetMapping("/internal/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'FIRM_MANAGER')")
     public BaseResponse<ReadProductInternalResponseV1> readProductInternal(@PathVariable UUID id) {
 
-        ReadProductInternalResponseV1 response = ReadProductInternalResponseV1.from(productFacade.readProductInternal(id));
+        ReadProductInternalResponseV1 response =
+                ReadProductInternalResponseV1.from(
+                        productFacade.readProductInternal(id)
+                );
 
         return BaseResponse.ok(response, BaseStatus.OK);
     }
@@ -127,6 +115,7 @@ public class ProductController {
     /* 재고 차감 (내부 API) */
     @PutMapping("/internal/{id}/decrease")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'FIRM_MANAGER')")
     public BaseResponse<Void> decreaseStockInternal(
             @PathVariable UUID id,
             @RequestBody @Valid UpdateStockDecreaseRequestV1 request) {
@@ -139,6 +128,7 @@ public class ProductController {
     /* 재고 복원 (내부 API) */
     @PutMapping("/internal/{id}/recover")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<Void> recoveryStockInternal(
             @PathVariable UUID id,
             @RequestBody @Valid UpdateStockRecoverRequestV1 request) {

@@ -2,8 +2,10 @@ package chill_logistics.product_server.application.service;
 
 import chill_logistics.product_server.application.dto.command.*;
 import chill_logistics.product_server.domain.entity.Product;
+import chill_logistics.product_server.domain.port.FirmPort;
 import chill_logistics.product_server.domain.repository.ProductRepository;
 import chill_logistics.product_server.lib.error.ErrorCode;
+import lib.util.SecurityUtils;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,7 @@ import java.util.UUID;
 public class ProductCommandService {
 
     private final ProductRepository productRepository;
+    private final FirmPort firmPort;
 
     private Product readProductOrThrow(UUID productId) {
         return productRepository.findById(productId)
@@ -28,10 +31,9 @@ public class ProductCommandService {
     public CreateProductResultV1 createProduct(CreateProductCommandV1 command) {
 
         // 상품 업체가 존재하는지 확인
+        firmPort.validateExists(command.firmId());
 
         // 상품 관리 허브 ID를 확인하여 존재하는지 확인
-
-        // 권한 체크
 
         // 상품 생성
         Product product = Product.create(
@@ -49,11 +51,9 @@ public class ProductCommandService {
     }
 
     @Transactional
-    public void updateProduct(UpdateProductCommandV1 command) {
+    public void updateProduct(UUID id, UpdateProductCommandV1 command) {
 
-        Product product = readProductOrThrow(command.id());
-
-        // 권한 체크
+        Product product = readProductOrThrow(id);
 
         // 허브 관리자면 관리 허브 소속 상품인지 체크
 
@@ -68,18 +68,17 @@ public class ProductCommandService {
     }
 
     @Transactional
-    public void deleteProduct(DeleteProductCommandV1 command) {
+    public void deleteProduct(UUID id) {
 
-        Product product = readProductOrThrow(command.id());
+        Product product = readProductOrThrow(id);
 
-        // 임시 유저 id
-        UUID userId = null;
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
 
         // 권한 체크
 
         // 허브 관리자면 관리 허브 소속 상품인지 체크
 
-        product.delete(userId);
+        product.delete(currentUserId);
     }
 
     @Transactional
