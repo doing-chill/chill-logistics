@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface DeliveryAdminRepository {
 
-    Optional<DeliveryAdmin> findById(UUID userId);
+    Optional<DeliveryAdmin> findByUserId(UUID userId);
 
     Optional<DeliveryAdmin> deliveryManagerAssign(
             UUID hubId,

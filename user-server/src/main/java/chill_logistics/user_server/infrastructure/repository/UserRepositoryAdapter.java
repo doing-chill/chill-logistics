@@ -39,4 +39,9 @@ public class UserRepositoryAdapter implements UserRepository {
     public List<User> findSignupUsers() {
         return jpaUserRepository.findBySignupStatus(SignupStatus.PENDING);
     }
+
+    @Override
+    public List<User> findAll() {
+        return jpaUserRepository.findAll();
+    }
 }

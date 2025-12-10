@@ -15,8 +15,8 @@ public class DeliveryAdminRepositoryAdapter implements DeliveryAdminRepository {
     private final JpaDeliveryAdminRepository jpaDeliveryAdminRepository;
 
     @Override
-    public Optional<DeliveryAdmin> findById(UUID userId) {
-        return jpaDeliveryAdminRepository.findById(userId);
+    public Optional<DeliveryAdmin> findByUserId(UUID userId) {
+        return jpaDeliveryAdminRepository.findByUserId(userId);
     }
 
     @Override

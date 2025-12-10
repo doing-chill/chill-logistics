@@ -3,11 +3,15 @@ package chill_logistics.user_server.presentation.controller;
 import chill_logistics.user_server.application.dto.command.MasterUpdateSignupStatusCommandV1;
 import chill_logistics.user_server.application.dto.command.MasterUpdateUserInfoCommandV1;
 import chill_logistics.user_server.application.dto.query.MasterSignupUserQueryV1;
+import chill_logistics.user_server.application.dto.query.MasterUserInfoListQueryV1;
+import chill_logistics.user_server.application.dto.query.MasterUserInfoQueryV1;
 import chill_logistics.user_server.application.service.MasterQueryServiceV1;
 import chill_logistics.user_server.application.service.MasterCommandServiceV1;
 import chill_logistics.user_server.presentation.dto.request.MasterUpdateSignupStatusRequestDtoV1;
 import chill_logistics.user_server.presentation.dto.request.MasterUpdateUserInfoRequestDtoV1;
 import chill_logistics.user_server.presentation.dto.response.MasterSignupUserResponseDtoV1;
+import chill_logistics.user_server.presentation.dto.response.MasterUserInfoListResponseDtoV1;
+import chill_logistics.user_server.presentation.dto.response.MasterUserInfoResponseDtoV1;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -71,5 +75,27 @@ public class MasterControllerV1 {
         masterService.updateSignupStatus(command);
 
         return BaseResponse.ok(BaseStatus.OK);
+    }
+
+    @GetMapping("/info")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "유저 정보 전체 조회", description = "MASTER 계정이 유저 전체 정보를 조회하는 API")
+    public BaseResponse<List<MasterUserInfoListResponseDtoV1>> readUserInfoList() {
+
+        List<MasterUserInfoListQueryV1> resultList = masterQueryService.readUserInfoList();
+        List<MasterUserInfoListResponseDtoV1> responseList = MasterUserInfoListResponseDtoV1.from(resultList);
+
+        return BaseResponse.ok(responseList, BaseStatus.OK);
+    }
+
+    @GetMapping("/{userId}/info")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "유저 정보 단건 조회", description = "MASTER 계정이 특정 유저의 상세 정보를 조회하는 API입니다.")
+    public BaseResponse<MasterUserInfoResponseDtoV1> readUserInfo(@PathVariable UUID userId) {
+
+        MasterUserInfoQueryV1 result = masterQueryService.readUserInfo(userId);
+        MasterUserInfoResponseDtoV1 response = MasterUserInfoResponseDtoV1.from(result);
+
+        return BaseResponse.ok(response, BaseStatus.OK);
     }
 }

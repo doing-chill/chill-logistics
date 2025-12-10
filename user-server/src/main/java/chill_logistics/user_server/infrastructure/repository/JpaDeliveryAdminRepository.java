@@ -15,4 +15,6 @@ public interface JpaDeliveryAdminRepository extends JpaRepository<DeliveryAdmin,
             DeliveryAdminType deliveryAdminType,
             DeliveryPossibility deliveryPossibility
     );
+
+    Optional<DeliveryAdmin> findByUserId(UUID userId);
 }
