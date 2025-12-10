@@ -1,63 +1,72 @@
 package chill_logistics.delivery_server.application;
 
 import chill_logistics.delivery_server.application.dto.command.AssignedDeliveryPersonV1;
+import chill_logistics.delivery_server.infrastructure.user.DeliveryAdminType;
 import chill_logistics.delivery_server.infrastructure.user.UserClient;
-import chill_logistics.delivery_server.infrastructure.user.dto.UserForDeliveryResponseV1;
+import chill_logistics.delivery_server.infrastructure.user.dto.request.AssignDeliveryAdminRequestDtoV1;
+import chill_logistics.delivery_server.infrastructure.user.dto.response.AssignDeliveryAdminResponseDtoV1;
 import chill_logistics.delivery_server.presentation.ErrorCode;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
 import lib.web.error.BusinessException;
+import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeliveryPersonAssignmentService {
 
-    private static final String ROLE_HUB_DELIVERY_PERSON = "HUB_DELIVERY_PERSON";
-    private static final String ROLE_FIRM_DELIVERY_PERSON = "FIRM_DELIVERY_PERSON";
-
     private final UserClient userClient;
 
-    // 역할별 라운드 로빈 인덱스 저장 (멀티스레드 환경 대응)
-    private final Map<String, AtomicLong> roundRobinIndex = new ConcurrentHashMap<>();
+    /* [허브 기반 허브 배송 담당자 배정]
+     */
+    public AssignedDeliveryPersonV1 assignHubDeliveryPerson(UUID hubId) {
 
-    // 허브 배송 담당자 배정
-    public AssignedDeliveryPersonV1 assignHubDeliveryPerson() {
-        return assignByRole(ROLE_HUB_DELIVERY_PERSON);
-    }
+        log.info("[허브 배송 담당자 배정 요청] hubId={}", hubId);
 
-    // 업체 배송 담당자 배정
-    public AssignedDeliveryPersonV1 assignFirmDeliveryPerson() {
-        return assignByRole(ROLE_FIRM_DELIVERY_PERSON);
-    }
+        AssignDeliveryAdminRequestDtoV1 request =
+            new AssignDeliveryAdminRequestDtoV1(hubId, DeliveryAdminType.HUB);
 
-    private AssignedDeliveryPersonV1 assignByRole(String role) {
+        BaseResponse<AssignDeliveryAdminResponseDtoV1> response =
+            userClient.assignDeliveryAdmin(request);
 
-        // user-server에서 role 별 유저 목록 조회
-        List<UserForDeliveryResponseV1> deliveryCandidates = userClient.getUsersByRole(role);
-
-        if (deliveryCandidates == null || deliveryCandidates.isEmpty()) {
-            throw new BusinessException(ErrorCode.DELIVERT_PERSON_NOT_FOUND);
+        if (response == null || response.getData() == null) {
+            log.error("[허브 배송 담당자 배정 실패] hubId={}", hubId);
+            throw new BusinessException(ErrorCode.DELIVERY_PERSON_NOT_FOUND);
         }
 
-        // 해당 role에 대한 라운드 로빈 인덱스 가져오고, 없으면 생성
-        AtomicLong counter = roundRobinIndex.computeIfAbsent(role, key -> new AtomicLong(0L));
+        AssignDeliveryAdminResponseDtoV1 data = response.getData();
 
-        // 현재 인덱스를 가져오고 증가시키는 연산
-        long index = counter.incrementAndGet();
+        log.info("[허브 배송 담당자 배정 완료] hubId={}, userId={}, username={}",
+            hubId, data.userId(), data.username());
 
-        // 후보자 수로 나머지 연산하려 실제 선택 위치 계산
-        int selectedIndex = (int) (index % deliveryCandidates.size());
+        return new AssignedDeliveryPersonV1(data.userId(), data.username());
+    }
 
-        // 최종 선택된 담당자
-        UserForDeliveryResponseV1 chosen = deliveryCandidates.get(selectedIndex);
+    /* [허브 기반 업체 배송 담당자 배정]
+     */
+    public AssignedDeliveryPersonV1 assignFirmDeliveryPerson(UUID hubId) {
 
-        return new AssignedDeliveryPersonV1(
-            chosen.userId(),
-            chosen.userName()
-        );
+        log.info("[업체 배송 담당자 배정 요청] hubId={}", hubId);
+
+        AssignDeliveryAdminRequestDtoV1 request =
+            new AssignDeliveryAdminRequestDtoV1(hubId, DeliveryAdminType.FIRM);
+
+        BaseResponse<AssignDeliveryAdminResponseDtoV1> response =
+            userClient.assignDeliveryAdmin(request);
+
+        if (response == null || response.getData() == null) {
+            log.error("[업체 배송 담당자 배정 실패] hubId={}", hubId);
+            throw new BusinessException(ErrorCode.DELIVERY_PERSON_NOT_FOUND);
+        }
+
+        AssignDeliveryAdminResponseDtoV1 data = response.getData();
+
+        log.info("[업체 배송 담당자 배정 완료] hubId={}, userId={}, username={}",
+            hubId, data.userId(), data.username());
+
+        return new AssignedDeliveryPersonV1(data.userId(), data.username());
     }
 }

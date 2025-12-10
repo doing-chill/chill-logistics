@@ -126,18 +126,6 @@ public class DeliveryCommandService {
 
         log.info("[배송 생성 시작] orderId={}", message.orderId());
 
-        // 허브 배송 담당자 배정
-        AssignedDeliveryPersonV1 hubDeliveryPerson = new AssignedDeliveryPersonV1(null, null);
-//            deliveryPersonAssignmentService.assignHubDeliveryPerson();
-
-        // 업체 배송 담당자 배정
-        AssignedDeliveryPersonV1 firmDeliveryPerson = new AssignedDeliveryPersonV1(null, null);
-//            deliveryPersonAssignmentService.assignHubDeliveryPerson();
-
-        UUID hubDeliveryPersonId = hubDeliveryPerson.userId();
-        String hubDeliveryPersonName = hubDeliveryPerson.userName();
-        UUID firmDeliveryPersonId = firmDeliveryPerson.userId();
-
         List<HubRouteHubInfoV1> pathHubs = message.pathHubs();
 
         if (pathHubs == null || pathHubs.size() < 2) {
@@ -148,6 +136,21 @@ public class DeliveryCommandService {
         int hubSegmentCount = pathHubs.size() - 1;
 
         log.info("[허브 구간 수 계산] orderId={}, hubSegmentCount={}", message.orderId(), hubSegmentCount);
+
+        // 허브 배송 담당자
+        UUID firstHubId = pathHubs.get(0).hubId();
+        AssignedDeliveryPersonV1 hubDeliveryPerson =
+            deliveryPersonAssignmentService.assignHubDeliveryPerson(firstHubId);
+
+        UUID hubDeliveryPersonId = hubDeliveryPerson.userId();
+        String hubDeliveryPersonName = hubDeliveryPerson.userName();
+
+        // 업체 배송 담당자
+        UUID lastHubId = pathHubs.get(pathHubs.size() - 1).hubId();
+        AssignedDeliveryPersonV1 firmDeliveryPerson =
+            deliveryPersonAssignmentService.assignFirmDeliveryPerson(lastHubId);
+
+        UUID firmDeliveryPersonId = firmDeliveryPerson.userId();
 
         // 허브 구간 수 만큼 HubDelivery row 생성
         for (int i = 0; i < hubSegmentCount; i++) {
