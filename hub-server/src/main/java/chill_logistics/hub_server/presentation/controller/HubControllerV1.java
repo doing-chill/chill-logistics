@@ -36,7 +36,7 @@ public class HubControllerV1 {
     public BaseResponse<Void> createHub(@RequestBody @Valid CreateHubRequestV1 createHubRequest) {
 
         // 본인 userId가 아니라 이미 존재하는 유저인지 확인 후 넣게 작업 필요
-        hubService.createHub(SecurityUtils.getCurrentUserId(), createHubRequest.toCreateHubCommand(createHubRequest));
+        hubService.createHub(createHubRequest.toCreateHubCommand(createHubRequest));
 
         return BaseResponse.ok(BaseStatus.CREATED);
     }

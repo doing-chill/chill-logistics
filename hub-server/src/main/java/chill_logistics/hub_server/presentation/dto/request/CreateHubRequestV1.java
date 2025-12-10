@@ -6,6 +6,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public record CreateHubRequestV1 (
     @NotBlank(message = "허브명은 필수입니다.")
@@ -42,7 +43,10 @@ public record CreateHubRequestV1 (
     @NotNull(message = "경도는 필수입니다.")
     @DecimalMin(value = "-180.0", message = "경도는 -180 이상이어야 합니다.")
     @DecimalMax(value = "180.0", message = "경도는 180 이하이어야 합니다.")
-    BigDecimal longitude
+    BigDecimal longitude,
+
+    @NotNull(message = "유저 id는 필수입니다.")
+    UUID userId
 ){
 
     public CreateHubCommandV1 toCreateHubCommand(CreateHubRequestV1 createHubRequest){
@@ -58,6 +62,7 @@ public record CreateHubRequestV1 (
             .detailAddress(this.detailAddress)
             .fullAddress(this.fullAddress)
             .latitude(this.latitude)
-            .longitude(this.longitude).build();
+            .longitude(this.longitude)
+            .userId(this.userId).build();
     }
 }

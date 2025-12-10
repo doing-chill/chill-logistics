@@ -5,6 +5,8 @@ import chill_logistics.hub_server.application.dto.command.UpdateHubCommandV1;
 import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
 import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.application.dto.query.UserHubsQueryV1;
+import chill_logistics.hub_server.application.dto.response.UserResponseV1;
+import chill_logistics.hub_server.application.port.UserClient;
 import chill_logistics.hub_server.domain.entity.Hub;
 import chill_logistics.hub_server.domain.repository.HubRepository;
 import chill_logistics.hub_server.lib.error.ErrorCode;
@@ -23,16 +25,20 @@ public class HubService {
 
 
     private final HubRepository hubRepository;
+    private final UserClient userClient;
 
     @Transactional
-    public void createHub(UUID userId, CreateHubCommandV1 createHubCommand) {
+    public void createHub(CreateHubCommandV1 createHubCommand) {
 
         // 이미 존재하는 허브 이름인 경우 에러
         if (hubRepository.existsByName(createHubCommand.name())){
-            throw new BusinessException(ErrorCode.HUB_NOT_FOUND);
+            throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
         }
 
-        Hub hub = Hub.create(createHubCommand.name(), userId, createHubCommand.postalCode(),
+        // 실제 존재하는 유저인지 검증
+        userClient.readUserInfo(createHubCommand.userId()).getData().to();
+
+        Hub hub = Hub.create(createHubCommand.name(), createHubCommand.userId(), createHubCommand.postalCode(),
             createHubCommand.country(), createHubCommand.region(), createHubCommand.city(),
             createHubCommand.district(), createHubCommand.roadName(),
             createHubCommand.buildingName(), createHubCommand.detailAddress(),
