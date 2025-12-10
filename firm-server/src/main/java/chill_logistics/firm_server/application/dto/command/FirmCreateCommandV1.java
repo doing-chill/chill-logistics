@@ -8,7 +8,6 @@ public record FirmCreateCommandV1 (
     String name,
     UUID hubId,
     UUID ownerId,
-    //String ownerName,
     FirmType firmType,
     String postalCode,
     String country,
