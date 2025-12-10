@@ -1,12 +1,15 @@
 package chill_logistics.firm_server.application.dto.response;
 
+import java.util.UUID;
 import lib.entity.Role;
 
 public record UserResponseV1 (
 
-    Role role,
+    String email,
     String username,
     String nickname,
-    String email
+    Role role,
+    UUID hubId,
+    String hubName
 
 ){}

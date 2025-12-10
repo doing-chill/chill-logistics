@@ -3,6 +3,7 @@ package chill_logistics.firm_server.infrastructure.external;
 
 import chill_logistics.firm_server.infrastructure.external.dto.response.FeignUserResponseV1;
 import java.util.UUID;
+import lib.web.response.BaseResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface UserFeign {
 
     @GetMapping("/v1/master/users/{userId}/info")
-    FeignUserResponseV1 readUserInfo(@PathVariable UUID userId);
+    BaseResponse<FeignUserResponseV1> readUserInfo(@PathVariable UUID userId);
 
 }
