@@ -12,7 +12,7 @@ public record FirmSearchInfoResponseV1 (
 ){
     public static FirmSearchInfoResponseV1 from(FirmSearchInfoQueryV1 firmSearchInfoQuery) {
         return new FirmSearchInfoResponseV1(firmSearchInfoQuery.id(),
-            firmSearchInfoQuery.firmOwnerName(), firmSearchInfoQuery.hubId(),
+            firmSearchInfoQuery.name(), firmSearchInfoQuery.hubId(),
             firmSearchInfoQuery.firmFullAddress(), firmSearchInfoQuery.firmOwnerName());
     }
 }

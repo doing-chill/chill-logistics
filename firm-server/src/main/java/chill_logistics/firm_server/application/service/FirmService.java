@@ -1,6 +1,7 @@
 package chill_logistics.firm_server.application.service;
 
 import chill_logistics.firm_server.application.dto.command.FirmCreateCommandV1;
+import chill_logistics.firm_server.application.dto.query.FirmInfoListQueryV1;
 import chill_logistics.firm_server.application.dto.query.FirmSearchInfoQueryV1;
 import chill_logistics.firm_server.application.dto.query.HubSearchQueryV1;
 import chill_logistics.firm_server.application.port.HubClient;
@@ -9,6 +10,7 @@ import chill_logistics.firm_server.domain.entity.Firm;
 import chill_logistics.firm_server.domain.entity.FirmType;
 import chill_logistics.firm_server.domain.repository.FirmRepository;
 import chill_logistics.firm_server.lib.error.ErrorCode;
+import java.util.List;
 import java.util.UUID;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -97,4 +99,13 @@ public class FirmService {
 
         return FirmSearchInfoQueryV1.from(firm.getId(), firm.getName(), firm.getHubId(), firm.getFullAddress(), firm.getOwnerName());
     }
+
+    @Transactional(readOnly = true)
+    public List<FirmInfoListQueryV1> readAllFirm(int page, int size) {
+
+        List<Firm> firmList = firmRepository.findAll(page, size);
+
+        return FirmInfoListQueryV1.from(firmList);
+    }
+
 }

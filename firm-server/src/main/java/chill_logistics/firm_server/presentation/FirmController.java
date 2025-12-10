@@ -3,9 +3,11 @@ package chill_logistics.firm_server.presentation;
 import chill_logistics.firm_server.application.service.FirmService;
 import chill_logistics.firm_server.domain.entity.FirmType;
 import chill_logistics.firm_server.presentation.dto.request.FirmCreateRequestV1;
+import chill_logistics.firm_server.presentation.dto.response.FirmInfoListResponseV1;
 import chill_logistics.firm_server.presentation.dto.response.FirmSearchInfoResponseV1;
 import chill_logistics.firm_server.presentation.dto.response.HubSearchIdResponseV1;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,6 +37,15 @@ public class FirmController {
         firmService.createFirm(createRequest.to());
 
         return BaseResponse.ok(BaseStatus.CREATED);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    public BaseResponse<List<FirmInfoListResponseV1>> readAllFirm(
+        @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+
+        return BaseResponse.ok(FirmInfoListResponseV1.from(firmService.readAllFirm(page, size)), BaseStatus.OK);
     }
 
 

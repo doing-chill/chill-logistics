@@ -4,9 +4,12 @@ import chill_logistics.firm_server.domain.entity.Firm;
 import chill_logistics.firm_server.domain.entity.FirmType;
 import chill_logistics.firm_server.domain.repository.FirmRepository;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @RequiredArgsConstructor
 public class FirmRepositoryAdapter implements FirmRepository {
@@ -41,6 +44,12 @@ public class FirmRepositoryAdapter implements FirmRepository {
     @Override
     public Optional<Firm> findByIdAndFirmTypeAndDeletedAtIsNull(UUID firmId, FirmType firmType) {
         return jpaFirmRepository.findByIdAndFirmTypeAndDeletedAtIsNull(firmId, firmType);
+    }
+
+    @Override
+    public List<Firm> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return jpaFirmRepository.findAllByDeletedAtIsNull(pageable);
     }
 
 }
