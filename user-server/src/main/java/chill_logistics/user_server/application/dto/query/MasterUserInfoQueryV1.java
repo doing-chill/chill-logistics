@@ -8,7 +8,6 @@ import java.util.UUID;
 @Builder
 public record MasterUserInfoQueryV1(
         String email,
-        String password,
         String username,
         String nickname,
         UserRole role,

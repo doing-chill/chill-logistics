@@ -9,7 +9,6 @@ import java.util.UUID;
 @Builder
 public record MasterUserInfoResponseDtoV1(
         String email,
-        String password,
         String username,
         String nickname,
         UserRole role,
@@ -20,7 +19,6 @@ public record MasterUserInfoResponseDtoV1(
     public static MasterUserInfoResponseDtoV1 from(MasterUserInfoQueryV1 query) {
         return MasterUserInfoResponseDtoV1.builder()
                 .email(query.email())
-                .password(query.password())
                 .username(query.username())
                 .nickname(query.nickname())
                 .role(query.role())

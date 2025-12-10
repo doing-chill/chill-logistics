@@ -91,7 +91,6 @@ public class MasterQueryServiceV1 {
                     return MasterUserInfoListQueryV1.builder()
                             .id(user.getId())
                             .email(user.getEmail())
-                            .password(user.getPassword())
                             .username(user.getUsername())
                             .nickname(user.getNickname())
                             .role(user.getRole())
@@ -124,7 +123,6 @@ public class MasterQueryServiceV1 {
 
         return MasterUserInfoQueryV1.builder()
                 .email(user.getEmail())
-                .password(user.getPassword())
                 .username(user.getUsername())
                 .nickname(user.getNickname())
                 .role(user.getRole())

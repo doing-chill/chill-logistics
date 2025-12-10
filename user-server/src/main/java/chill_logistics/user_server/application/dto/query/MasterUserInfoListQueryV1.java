@@ -9,7 +9,6 @@ import java.util.UUID;
 public record MasterUserInfoListQueryV1(
         UUID id,
         String email,
-        String password,
         String username,
         String nickname,
         UserRole role,

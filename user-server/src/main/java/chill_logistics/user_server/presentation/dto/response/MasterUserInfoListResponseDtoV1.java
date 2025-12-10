@@ -11,7 +11,6 @@ import java.util.UUID;
 public record MasterUserInfoListResponseDtoV1(
         UUID id,
         String email,
-        String password,
         String username,
         String nickname,
         UserRole role,
@@ -22,7 +21,6 @@ public record MasterUserInfoListResponseDtoV1(
         return MasterUserInfoListResponseDtoV1.builder()
                 .id(query.id())
                 .email(query.email())
-                .password(query.password())
                 .username(query.username())
                 .nickname(query.nickname())
                 .role(query.role())
