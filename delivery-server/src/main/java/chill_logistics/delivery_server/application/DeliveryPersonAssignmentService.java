@@ -27,7 +27,7 @@ public class DeliveryPersonAssignmentService {
         log.info("[허브 배송 담당자 배정 요청] hubId={}", hubId);
 
         AssignDeliveryAdminRequestDtoV1 request =
-            new AssignDeliveryAdminRequestDtoV1(hubId, DeliveryAdminType.HUB);
+            new AssignDeliveryAdminRequestDtoV1(hubId, "HUB");
 
         BaseResponse<AssignDeliveryAdminResponseDtoV1> response =
             userClient.assignDeliveryAdmin(request);
@@ -52,7 +52,7 @@ public class DeliveryPersonAssignmentService {
         log.info("[업체 배송 담당자 배정 요청] hubId={}", hubId);
 
         AssignDeliveryAdminRequestDtoV1 request =
-            new AssignDeliveryAdminRequestDtoV1(hubId, DeliveryAdminType.FIRM);
+            new AssignDeliveryAdminRequestDtoV1(hubId, "FIRM");
 
         BaseResponse<AssignDeliveryAdminResponseDtoV1> response =
             userClient.assignDeliveryAdmin(request);

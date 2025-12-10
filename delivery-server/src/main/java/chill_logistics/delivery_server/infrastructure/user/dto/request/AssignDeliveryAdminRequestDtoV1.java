@@ -5,5 +5,5 @@ import java.util.UUID;
 
 public record AssignDeliveryAdminRequestDtoV1(
     UUID hubId,
-    DeliveryAdminType deliveryAdminType
+    String deliveryAdminType
 ) {}
