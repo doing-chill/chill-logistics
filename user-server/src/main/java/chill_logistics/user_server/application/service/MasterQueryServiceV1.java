@@ -2,6 +2,7 @@ package chill_logistics.user_server.application.service;
 
 import chill_logistics.user_server.application.dto.query.MasterSignupUserQueryV1;
 import chill_logistics.user_server.application.dto.query.MasterUserInfoListQueryV1;
+import chill_logistics.user_server.application.dto.query.MasterUserInfoQueryV1;
 import chill_logistics.user_server.domain.entity.DeliveryAdmin;
 import chill_logistics.user_server.domain.entity.User;
 import chill_logistics.user_server.domain.port.HubPort;
@@ -99,5 +100,36 @@ public class MasterQueryServiceV1 {
                             .build();
                 })
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public MasterUserInfoQueryV1 readUserInfo(UUID userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+
+        UUID hubId = deliveryAdminRepository.findByUserId(user.getId())
+                .map(DeliveryAdmin::getHubId)
+                .orElse(null);
+
+        String hubName = null;
+
+        if(hubId != null) {
+            try {
+                hubName = hubPort.readHubName(hubId);
+            } catch (Exception e){
+                log.warn("허브 조회 실패 userId={}, hubId={}", userId, hubId);
+            }
+        }
+
+        return MasterUserInfoQueryV1.builder()
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .username(user.getUsername())
+                .nickname(user.getNickname())
+                .role(user.getRole())
+                .hubId(hubId)
+                .hubName(hubName)
+                .build();
     }
 }
