@@ -81,7 +81,7 @@ public class FirmDelivery extends BaseEntity {
     public static FirmDelivery createFrom(
         HubRouteAfterCommandV1 message,
         UUID endHubId,
-        UUID deliveryPersonId,
+        UUID firmDeliveryPersonId,
         Integer deliverySequenceNum,
         DeliveryStatus deliveryStatus
     ) {
@@ -92,7 +92,7 @@ public class FirmDelivery extends BaseEntity {
 //            message.receiverFirmFullAddress(),
             "업체 임시 주소",
             message.receiverFirmOwnerName(),
-            deliveryPersonId,
+            firmDeliveryPersonId,
             deliverySequenceNum,
             deliveryStatus
         );

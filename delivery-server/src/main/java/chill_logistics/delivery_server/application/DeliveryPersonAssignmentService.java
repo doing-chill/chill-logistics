@@ -1,7 +1,6 @@
 package chill_logistics.delivery_server.application;
 
 import chill_logistics.delivery_server.application.dto.command.AssignedDeliveryPersonV1;
-import chill_logistics.delivery_server.infrastructure.user.DeliveryAdminType;
 import chill_logistics.delivery_server.infrastructure.user.UserClient;
 import chill_logistics.delivery_server.infrastructure.user.dto.request.AssignDeliveryAdminRequestDtoV1;
 import chill_logistics.delivery_server.infrastructure.user.dto.response.AssignDeliveryAdminResponseDtoV1;
@@ -24,7 +23,7 @@ public class DeliveryPersonAssignmentService {
      */
     public AssignedDeliveryPersonV1 assignHubDeliveryPerson(UUID hubId) {
 
-        log.info("[허브 배송 담당자 배정 요청] hubId={}", hubId);
+        log.info("[허브배송 담당자 배정 요청] hubId={}", hubId);
 
         AssignDeliveryAdminRequestDtoV1 request =
             new AssignDeliveryAdminRequestDtoV1(hubId, "HUB");
@@ -33,13 +32,13 @@ public class DeliveryPersonAssignmentService {
             userClient.assignDeliveryAdmin(request);
 
         if (response == null || response.getData() == null) {
-            log.error("[허브 배송 담당자 배정 실패] hubId={}", hubId);
+            log.error("[허브배송 담당자 배정 실패] hubId={}", hubId);
             throw new BusinessException(ErrorCode.DELIVERY_PERSON_NOT_FOUND);
         }
 
         AssignDeliveryAdminResponseDtoV1 data = response.getData();
 
-        log.info("[허브 배송 담당자 배정 완료] hubId={}, userId={}, username={}",
+        log.info("[허브배송 담당자 배정 완료] hubId={}, userId={}, username={}",
             hubId, data.userId(), data.username());
 
         return new AssignedDeliveryPersonV1(data.userId(), data.username());
@@ -49,7 +48,7 @@ public class DeliveryPersonAssignmentService {
      */
     public AssignedDeliveryPersonV1 assignFirmDeliveryPerson(UUID hubId) {
 
-        log.info("[업체 배송 담당자 배정 요청] hubId={}", hubId);
+        log.info("[업체배송 담당자 배정 요청] hubId={}", hubId);
 
         AssignDeliveryAdminRequestDtoV1 request =
             new AssignDeliveryAdminRequestDtoV1(hubId, "FIRM");
@@ -58,13 +57,13 @@ public class DeliveryPersonAssignmentService {
             userClient.assignDeliveryAdmin(request);
 
         if (response == null || response.getData() == null) {
-            log.error("[업체 배송 담당자 배정 실패] hubId={}", hubId);
+            log.error("[업체배송 담당자 배정 실패] hubId={}", hubId);
             throw new BusinessException(ErrorCode.DELIVERY_PERSON_NOT_FOUND);
         }
 
         AssignDeliveryAdminResponseDtoV1 data = response.getData();
 
-        log.info("[업체 배송 담당자 배정 완료] hubId={}, userId={}, username={}",
+        log.info("[업체배송 담당자 배정 완료] hubId={}, userId={}, username={}",
             hubId, data.userId(), data.username());
 
         return new AssignedDeliveryPersonV1(data.userId(), data.username());
