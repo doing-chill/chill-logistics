@@ -7,6 +7,8 @@ import chill_logistics.order_server.presentation.dto.request.UpdateOrderStatusRe
 import chill_logistics.order_server.presentation.dto.response.CreateOrderResponseV1;
 import chill_logistics.order_server.presentation.dto.response.ReadOrderDetailResponseV1;
 import chill_logistics.order_server.presentation.dto.response.ReadOrderSummaryResponseV1;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
@@ -23,14 +25,15 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/v1/orders")
 @RequiredArgsConstructor
+@Tag(name = "1. 주문 관리", description = "주문 관리용 API")
 public class OrderController {
 
     private final OrderFacade orderFacade;
 
-    /* 주문 생성 */
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyRole('MASTER', 'FIRM_MANAGER')")
+    @Operation(summary = "주문 생성", description = "주문 생성 API입니다. 주문 생성 시 kafka 메시지를 발행합니다.")
     public BaseResponse<CreateOrderResponseV1> createOrder(
             @RequestBody @Valid CreateOrderRequestV1 request) {
 
@@ -48,6 +51,7 @@ public class OrderController {
     @PutMapping("/{id}/status")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER')")
+    @Operation(summary = "주문 상태 수정", description = "주문 상태 수정 API입니다.")
     public BaseResponse<Void> updateOrderStatus(
             @PathVariable UUID id,
             @RequestBody @Valid UpdateOrderStatusRequestV1 request) {
@@ -61,6 +65,7 @@ public class OrderController {
     @DeleteMapping("/{id}/cancel")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "주문 취소", description = "주문 취소 API입니다. 주문 상태를 CANCELED로 변경하고 소프트 딜리트를 수행합니다.")
     public BaseResponse<Void> deleteOrder(@PathVariable UUID id) {
 
         orderFacade.deleteOrder(id);
@@ -72,6 +77,7 @@ public class OrderController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "주문 목록 조회 ", description = "주문 목록 조회 API입니다. 검색 조건: 공급업체id, 수령업체id, 주문 상태")
     public BaseResponse<List<ReadOrderSummaryResponseV1>> readOrderList(
             @ModelAttribute ReadOrderRequestV1 request) {
 
@@ -88,6 +94,7 @@ public class OrderController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "주문 단건 조회", description = "주문 단건 조회 API입니다.")
     public BaseResponse<ReadOrderDetailResponseV1> readOrder(@PathVariable UUID id) {
 
         ReadOrderDetailResponseV1 response =
