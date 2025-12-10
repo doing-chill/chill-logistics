@@ -4,6 +4,7 @@ import chill_logistics.firm_server.application.service.FirmService;
 import chill_logistics.firm_server.domain.entity.FirmType;
 import chill_logistics.firm_server.presentation.dto.request.FirmCreateRequestV1;
 import chill_logistics.firm_server.presentation.dto.response.FirmInfoListResponseV1;
+import chill_logistics.firm_server.presentation.dto.response.FirmInfoResponseV1;
 import chill_logistics.firm_server.presentation.dto.response.FirmSearchInfoResponseV1;
 import chill_logistics.firm_server.presentation.dto.response.HubSearchIdResponseV1;
 import jakarta.validation.Valid;
@@ -39,6 +40,8 @@ public class FirmController {
         return BaseResponse.ok(BaseStatus.CREATED);
     }
 
+
+    // 업체들 조회
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
@@ -47,6 +50,21 @@ public class FirmController {
 
         return BaseResponse.ok(FirmInfoListResponseV1.from(firmService.readAllFirm(page, size)), BaseStatus.OK);
     }
+
+    // 업체 단건 상세 조회
+    @GetMapping("/firmId")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    public BaseResponse<FirmInfoResponseV1> readFirm(@RequestParam UUID firmId) {
+
+         return BaseResponse.ok(FirmInfoResponseV1.from(firmService.readFirm(firmId)),BaseStatus.OK);
+    }
+
+    // 업체 업데이트
+
+
+    //업체 삭제
+
 
 
     // 수령 허브 ID 조회

@@ -2,6 +2,7 @@ package chill_logistics.firm_server.application.service;
 
 import chill_logistics.firm_server.application.dto.command.FirmCreateCommandV1;
 import chill_logistics.firm_server.application.dto.query.FirmInfoListQueryV1;
+import chill_logistics.firm_server.application.dto.query.FirmInfoQueryV1;
 import chill_logistics.firm_server.application.dto.query.FirmSearchInfoQueryV1;
 import chill_logistics.firm_server.application.dto.query.HubSearchQueryV1;
 import chill_logistics.firm_server.application.port.HubClient;
@@ -108,4 +109,12 @@ public class FirmService {
         return FirmInfoListQueryV1.from(firmList);
     }
 
+    @Transactional(readOnly = true)
+    public FirmInfoQueryV1 readFirm(UUID firmId) {
+
+        Firm firm = firmRepository.findById(firmId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
+
+        return FirmInfoQueryV1.from(firm);
+    }
 }
