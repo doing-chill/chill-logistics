@@ -17,6 +17,7 @@ import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -62,6 +63,7 @@ public class DeliveryController {
      * @return status OK 반환
      */
     @PatchMapping("/deliveries/{deliveryId}")
+    @PreAuthorize("hasRole('MASTER')")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "배송 상태 변경", description = "필요 시 수동으로 특정 배송 상태를 변경할 때 사용하는 API 입니다.")
     public BaseResponse<Void> changeDeliveryStatus(
@@ -81,6 +83,7 @@ public class DeliveryController {
      * @return status OK 반환
      */
     @DeleteMapping("/deliveries/{deliveryId}")
+    @PreAuthorize("hasRole('MASTER')")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "배송 취소", description = "특정 배송을 취소할 때 사용하는 API 입니다.")
     public BaseResponse<Void> cancelDelivery(
@@ -99,6 +102,7 @@ public class DeliveryController {
      * @return 허브배송 상세 정보
      */
     @GetMapping("/hub-deliveries/{hubDeliveryId}")
+    @PreAuthorize("hasRole('MASTER')")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "허브배송 단건 조회", description = "특정 허브배송을 조회할 때 사용하는 API 입니다.")
     public BaseResponse<HubDeliveryInfoResponseV1> getHubDelivery(
@@ -118,6 +122,7 @@ public class DeliveryController {
      * @return 허브배송 요약 정보 목록 + 페이징 정보
      */
     @GetMapping("/hub-deliveries")
+    @PreAuthorize("hasRole('MASTER')")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "허브배송 검색 조회", description = "허브배송 검색 목록을 조회할 때 사용하는 API 입니다.")
     public BaseResponse<HubDeliveryPageResponseV1> searchHubDeliveries(
@@ -138,6 +143,7 @@ public class DeliveryController {
      * @return 업체배송 상세 정보
      */
     @GetMapping("/firm-deliveries/{firmDeliveryId}")
+    @PreAuthorize("hasRole('MASTER')")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "업체배송 단건 조회", description = "특정 업체배송을 조회할 때 사용하는 API 입니다.")
     public BaseResponse<FirmDeliveryInfoResponseV1> getFirmDelivery(
@@ -157,6 +163,7 @@ public class DeliveryController {
      * @return 업체배송 요약 정보 목록 + 페이징 정보
      */
     @GetMapping("/firm-deliveries")
+    @PreAuthorize("hasRole('MASTER')")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "업체배송 검색 조회", description = "업체배송 검색 목록을 조회할 때 사용하는 API 입니다.")
     public BaseResponse<FirmDeliveryPageResponseV1> searchFirmDeliveries(
