@@ -10,7 +10,8 @@ public final class RoleMapper {
         return switch (userRole){
             case MASTER -> Role.MASTER;
             case HUB_MANAGER -> Role.HUB_MANAGER;
-            case DELIVERY_MANAGER -> Role.DELIVERY_MANAGER;
+            case HUB_DELIVERY_MANAGER -> Role.HUB_DELIVERY_MANAGER;
+            case FIRM_DELIVERY_MANAGER -> Role.FIRM_DELIVERY_MANAGER;
             case FIRM_MANAGER -> Role.FIRM_MANAGER;
         };
     }
@@ -20,7 +21,8 @@ public final class RoleMapper {
         return switch (role){
             case MASTER -> UserRole.MASTER;
             case HUB_MANAGER -> UserRole.HUB_MANAGER;
-            case DELIVERY_MANAGER -> UserRole.DELIVERY_MANAGER;
+            case HUB_DELIVERY_MANAGER -> UserRole.HUB_DELIVERY_MANAGER;
+            case FIRM_DELIVERY_MANAGER -> UserRole.FIRM_DELIVERY_MANAGER;
             case FIRM_MANAGER -> UserRole.FIRM_MANAGER;
         };
     }

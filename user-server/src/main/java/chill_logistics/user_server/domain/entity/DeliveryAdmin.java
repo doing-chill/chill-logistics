@@ -3,6 +3,7 @@ package chill_logistics.user_server.domain.entity;
 import jakarta.persistence.*;
 import lib.entity.BaseEntity;
 import lombok.Getter;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
 
@@ -12,13 +13,16 @@ import java.util.UUID;
 public class DeliveryAdmin extends BaseEntity {
 
     @Id
+    @GeneratedValue(generator = "uuidv7")
+    @GenericGenerator(
+            name = "uuidv7",
+            strategy = "lib.id.UUIDv7Generator"
+    )
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId    // User의 id를 그대로 PK로 사용
-    @JoinColumn(name = "id")
-    private User user;
+    @Column(name = "user_id", columnDefinition = "BINARY(16)", nullable = false)
+    private UUID userId;
 
     @Column(name = "hub_id", columnDefinition = "BINARY(16)", nullable = false)
     private UUID hubId;
@@ -36,5 +40,9 @@ public class DeliveryAdmin extends BaseEntity {
 
     public void updateHubId(UUID hubId) {
         this.hubId = hubId;
+    }
+
+    public void updateDeliveryPossibility(DeliveryPossibility deliveryPossibility) {
+        this.deliveryPossibility = deliveryPossibility;
     }
 }

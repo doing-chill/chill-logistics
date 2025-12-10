@@ -8,8 +8,6 @@ import chill_logistics.hub_server.presentation.dto.request.UpdateHubInfoRequestV
 import chill_logistics.hub_server.presentation.dto.response.HubRoadInfoListResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.HubRoadInfoResponseV1;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.UUID;
 import lib.entity.BaseStatus;
 import lib.util.SecurityUtils;
 import lib.web.response.BaseResponse;
@@ -17,16 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -52,7 +44,7 @@ public class HubInfoControllerV1 {
 
     @GetMapping("/{hubInfoId}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<HubRoadInfoResponseV1> readHubInfo(
         @PathVariable UUID hubInfoId) {
 
@@ -65,7 +57,7 @@ public class HubInfoControllerV1 {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
     public BaseResponse<List<HubRoadInfoListResponseV1>> readAllHubInfo(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
