@@ -9,6 +9,8 @@ import chill_logistics.delivery_server.presentation.dto.request.DeliveryCreateRe
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryStatusChangeRequestV1;
 import chill_logistics.delivery_server.presentation.dto.response.FirmDeliveryPageResponseV1;
 import chill_logistics.delivery_server.presentation.dto.response.HubDeliveryPageResponseV1;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1")
+@Tag(name = "1. 배송 관리", description = "배송 관리용 API")
 public class DeliveryController {
 
     private final DeliveryCommandService deliveryCommandService;
@@ -43,6 +46,7 @@ public class DeliveryController {
      */
     @PostMapping("/internal/create-delivery")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "배송 생성", description = "주문 생성 시 사용되는 내부 API 입니다.")
     public BaseResponse<Void> createDelivery(@RequestBody DeliveryCreateRequestV1 request) {
 
         deliveryCommandService.createDelivery(request.orderInfo());
@@ -59,6 +63,7 @@ public class DeliveryController {
      */
     @PatchMapping("/deliveries/{deliveryId}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "배송 상태 변경", description = "필요 시 수동으로 특정 배송 상태를 변경할 때 사용하는 API 입니다.")
     public BaseResponse<Void> changeDeliveryStatus(
         @PathVariable("deliveryId") UUID deliveryId,
         @RequestBody DeliveryStatusChangeRequestV1 request) {
@@ -77,6 +82,7 @@ public class DeliveryController {
      */
     @DeleteMapping("/deliveries/{deliveryId}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "배송 취소", description = "특정 배송을 취소할 때 사용하는 API 입니다.")
     public BaseResponse<Void> cancelDelivery(
         @PathVariable("deliveryId") UUID deliveryId,
         @RequestBody DeliveryCancelRequestV1 request) {
@@ -94,6 +100,7 @@ public class DeliveryController {
      */
     @GetMapping("/hub-deliveries/{hubDeliveryId}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "허브배송 단건 조회", description = "특정 허브배송을 조회할 때 사용하는 API 입니다.")
     public BaseResponse<HubDeliveryInfoResponseV1> getHubDelivery(
         @PathVariable("hubDeliveryId") UUID hubDeliveryId) {
 
@@ -112,6 +119,7 @@ public class DeliveryController {
      */
     @GetMapping("/hub-deliveries")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "허브배송 검색 조회", description = "허브배송 검색 목록을 조회할 때 사용하는 API 입니다.")
     public BaseResponse<HubDeliveryPageResponseV1> searchHubDeliveries(
         @RequestParam(required = false) String startHubName,
         @RequestParam(defaultValue = "0") int page,
@@ -131,6 +139,7 @@ public class DeliveryController {
      */
     @GetMapping("/firm-deliveries/{firmDeliveryId}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "업체배송 단건 조회", description = "특정 업체배송을 조회할 때 사용하는 API 입니다.")
     public BaseResponse<FirmDeliveryInfoResponseV1> getFirmDelivery(
         @PathVariable("firmDeliveryId") UUID firmDeliveryId) {
 
@@ -149,6 +158,7 @@ public class DeliveryController {
      */
     @GetMapping("/firm-deliveries")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "업체배송 검색 조회", description = "업체배송 검색 목록을 조회할 때 사용하는 API 입니다.")
     public BaseResponse<FirmDeliveryPageResponseV1> searchFirmDeliveries(
         @RequestParam(required = false) String firmOwnerName,
         @RequestParam(defaultValue = "0") int page,
