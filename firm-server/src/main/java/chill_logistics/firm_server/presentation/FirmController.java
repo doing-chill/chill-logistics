@@ -3,6 +3,7 @@ package chill_logistics.firm_server.presentation;
 import chill_logistics.firm_server.application.service.FirmService;
 import chill_logistics.firm_server.domain.entity.FirmType;
 import chill_logistics.firm_server.presentation.dto.request.FirmCreateRequestV1;
+import chill_logistics.firm_server.presentation.dto.request.FirmUpdateRequestV1;
 import chill_logistics.firm_server.presentation.dto.response.FirmInfoListResponseV1;
 import chill_logistics.firm_server.presentation.dto.response.FirmInfoResponseV1;
 import chill_logistics.firm_server.presentation.dto.response.FirmSearchInfoResponseV1;
@@ -15,7 +16,9 @@ import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,18 +55,26 @@ public class FirmController {
     }
 
     // 업체 단건 상세 조회
-    @GetMapping("/firmId")
+    @GetMapping("/{firmId}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
-    public BaseResponse<FirmInfoResponseV1> readFirm(@RequestParam UUID firmId) {
+    public BaseResponse<FirmInfoResponseV1> readFirm(@PathVariable UUID firmId) {
 
          return BaseResponse.ok(FirmInfoResponseV1.from(firmService.readFirm(firmId)),BaseStatus.OK);
     }
 
     // 업체 업데이트
+    @PatchMapping("/{firmId}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('MASTER')")
+    public BaseResponse<Void> updateFirm(@PathVariable UUID firmId, @RequestBody FirmUpdateRequestV1 firmUpdateRequest) {
+         firmService.updateFirm(firmId, firmUpdateRequest.to());
+
+         return BaseResponse.ok(BaseStatus.OK);
+    }
 
 
-    //업체 삭제
+
 
 
 

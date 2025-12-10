@@ -108,4 +108,39 @@ public class Firm extends BaseEntity {
         firm.longitude = longitude;
         return firm;
     }
+
+    public void update(
+        String name,
+        UUID hubId,
+        UUID ownerId,
+        FirmType firmType,
+        String postalCode,
+        String country,
+        String region,
+        String city,
+        String district,
+        String roadName,
+        String buildingName,
+        String detailAddress,
+        String fullAddress,
+        BigDecimal latitude,
+        BigDecimal longitude)
+    {
+        if (name != null) this.name = name;
+        if (hubId != null) this.hubId = hubId;
+        if (ownerId != null) this.ownerId = ownerId;
+        if (firmType != null) this.firmType = firmType;
+        if (postalCode != null) this.postalCode = postalCode;
+        if (country != null) this.country = country;
+        if (region != null) this.region = region;
+        if (city != null) this.city = city;
+        if (district != null) this.district = district;
+        if (roadName != null) this.roadName = roadName;
+        if (buildingName != null) this.buildingName = buildingName;
+        if (detailAddress != null) this.detailAddress = detailAddress;
+        if (fullAddress != null) this.fullAddress = fullAddress;
+        if (latitude != null) this.latitude = latitude;
+        if (longitude != null) this.longitude = longitude;
+    }
+
 }

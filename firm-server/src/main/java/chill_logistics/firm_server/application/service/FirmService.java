@@ -1,6 +1,7 @@
 package chill_logistics.firm_server.application.service;
 
 import chill_logistics.firm_server.application.dto.command.FirmCreateCommandV1;
+import chill_logistics.firm_server.application.dto.command.FirmUpdateCommandV1;
 import chill_logistics.firm_server.application.dto.query.FirmInfoListQueryV1;
 import chill_logistics.firm_server.application.dto.query.FirmInfoQueryV1;
 import chill_logistics.firm_server.application.dto.query.FirmSearchInfoQueryV1;
@@ -11,6 +12,7 @@ import chill_logistics.firm_server.domain.entity.Firm;
 import chill_logistics.firm_server.domain.entity.FirmType;
 import chill_logistics.firm_server.domain.repository.FirmRepository;
 import chill_logistics.firm_server.lib.error.ErrorCode;
+import chill_logistics.firm_server.presentation.dto.request.FirmUpdateRequestV1;
 import java.util.List;
 import java.util.UUID;
 import lib.web.error.BusinessException;
@@ -117,4 +119,37 @@ public class FirmService {
 
         return FirmInfoQueryV1.from(firm);
     }
+
+    @Transactional
+    public void updateFirm(UUID firmId, FirmUpdateCommandV1 command) {
+        Firm firm = firmRepository.findById(firmId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
+
+        if (firm.getHubId() != command.hubId()){
+            // 기존에 존재하는 허브인지 검증
+            if (! hubClient.readHubInfo(command.hubId())){
+                throw new BusinessException(ErrorCode.HUB_NOT_FOUND);
+            }
+        }
+
+        firm.update(
+            command.name(),
+            command.hubId(),
+            command.ownerId(),
+            command.firmType(),
+            command.postalCode(),
+            command.country(),
+            command.region(),
+            command.city(),
+            command.district(),
+            command.roadName(),
+            command.buildingName(),
+            command.detailAddress(),
+            command.fullAddress(),
+            command.latitude(),
+            command.longitude()
+        );
+    }
+
+
 }
