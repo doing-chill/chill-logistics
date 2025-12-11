@@ -8,6 +8,8 @@ import chill_logistics.hub_server.presentation.dto.request.UpdateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.response.HubInfoResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.HubListResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.UserHubsResponseV1;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lib.entity.BaseStatus;
 import lib.util.SecurityUtils;
@@ -25,6 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("v1/hubs")
+@Tag(name = "1. 허브 관리", description = "허브 관리용 API")
 public class HubControllerV1 {
 
     private final HubService hubService;
@@ -33,6 +36,7 @@ public class HubControllerV1 {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "허브 추가", description = "허브 추가 API입니다.")
     public BaseResponse<Void> createHub(@RequestBody @Valid CreateHubRequestV1 createHubRequest) {
 
         // 본인 userId가 아니라 이미 존재하는 유저인지 확인 후 넣게 작업 필요
@@ -47,6 +51,7 @@ public class HubControllerV1 {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "허브 검색", description = "허브 검색 API입니다.")
     public BaseResponse<List<HubListResponseV1>> readAllHub(
 
         @RequestParam(required = false) String hubName,
@@ -64,6 +69,7 @@ public class HubControllerV1 {
     @GetMapping("/{hubId}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "허브 상세 조회", description = "허브 상세 조회 API입니다.")
     public BaseResponse<HubInfoResponseV1> readOneHub(@PathVariable UUID hubId) {
 
         HubInfoQueryV1 hubInfoQuery = hubService.readOneHub(hubId);
@@ -77,6 +83,7 @@ public class HubControllerV1 {
     @PatchMapping("/{hubId}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "허브 업데이트", description = "허브 업데이트 API입니다.")
     public BaseResponse<Void> updateHub(
         @PathVariable UUID hubId, @RequestBody @Valid UpdateHubRequestV1 updateHubRequest) {
 
@@ -89,6 +96,7 @@ public class HubControllerV1 {
     @DeleteMapping({"{hubId}"})
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "허브 삭제", description = "서브 삭제 API 입니다.")
     public BaseResponse<Void> deleteHub(
         @PathVariable UUID hubId) {
 
@@ -102,6 +110,7 @@ public class HubControllerV1 {
     @GetMapping("/internal/{hubId}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "허브 존재 확인", description = "허브 존재 확인 API 입니다.")
     public boolean validateHub(@PathVariable UUID hubId) {
         return hubService.validateHub(hubId);
     }
@@ -111,6 +120,7 @@ public class HubControllerV1 {
     @GetMapping("/userHubs/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "유저의 허브 조회", description = "유저가 소유한 hubId 반환 API입니다.")
     public BaseResponse<List<UserHubsResponseV1>> readUserHubs(@PathVariable UUID userId){
         List<UserHubsResponseV1> userHubsResponse = UserHubsResponseV1.from(hubService.readUserHubs(userId));
 
