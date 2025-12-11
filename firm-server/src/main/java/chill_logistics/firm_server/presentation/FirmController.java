@@ -8,6 +8,8 @@ import chill_logistics.firm_server.presentation.dto.response.FirmInfoListRespons
 import chill_logistics.firm_server.presentation.dto.response.FirmInfoResponseV1;
 import chill_logistics.firm_server.presentation.dto.response.FirmSearchInfoResponseV1;
 import chill_logistics.firm_server.presentation.dto.response.HubSearchIdResponseV1;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/firms")
+@Tag(name = "1. 업체 관리", description = "업체 관리용 API")
 public class FirmController {
 
     private final FirmService firmService;
@@ -38,6 +41,7 @@ public class FirmController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "업체 추가", description = "업체 추가 API입니다.")
     public BaseResponse<Void> createFirm(@RequestBody @Valid FirmCreateRequestV1 createRequest) {
         firmService.createFirm(createRequest.to());
 
@@ -49,6 +53,7 @@ public class FirmController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "업체들 조회", description = "업체들 조회 API입니다.")
     public BaseResponse<List<FirmInfoListResponseV1>> readAllFirm(
         @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
@@ -59,6 +64,7 @@ public class FirmController {
     @GetMapping("/{firmId}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "업체 상세 조회", description = "업체 상세 조회 API입니다.")
     public BaseResponse<FirmInfoResponseV1> readFirm(@PathVariable UUID firmId) {
 
          return BaseResponse.ok(FirmInfoResponseV1.from(firmService.readFirm(firmId)),BaseStatus.OK);
@@ -68,6 +74,7 @@ public class FirmController {
     @PatchMapping("/{firmId}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "업체 업데이트", description = "업체 업데이트 API입니다.")
     public BaseResponse<Void> updateFirm(@PathVariable UUID firmId, @RequestBody FirmUpdateRequestV1 firmUpdateRequest) {
          firmService.updateFirm(firmId, firmUpdateRequest.to());
 
@@ -78,6 +85,7 @@ public class FirmController {
     @DeleteMapping("/{firmId}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "업체 삭제", description = "업체 삭제 API입니다.")
     public BaseResponse<Void> deleteFirm(@PathVariable UUID firmId) {
         firmService.deleteFirm(SecurityUtils.getCurrentUserId(), firmId);
 
@@ -90,6 +98,7 @@ public class FirmController {
     @GetMapping("/hubIdSearch/{firmId}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "업체 Id로 허브 Id 조회", description = "업체 Id로 허브 Id 조회 API입니다.")
     public BaseResponse<HubSearchIdResponseV1> searchFirm(@PathVariable("firmId") UUID firmId) {
 
         return BaseResponse.ok(HubSearchIdResponseV1.from(firmService.searchFirm(firmId)), BaseStatus.OK);
@@ -101,6 +110,7 @@ public class FirmController {
     @GetMapping("/{firmId}/firmType/{firmType}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
+    @Operation(summary = "업체 Id로 허브 Id 조회", description = "업체 Id로 허브 Id 조회 API입니다.")
     public BaseResponse<FirmSearchInfoResponseV1> searchFirmInfo(@PathVariable UUID firmId, @PathVariable FirmType firmType) {
 
         return BaseResponse.ok(FirmSearchInfoResponseV1.from(firmService.searchFirmInfo(firmId, firmType)), BaseStatus.OK);
