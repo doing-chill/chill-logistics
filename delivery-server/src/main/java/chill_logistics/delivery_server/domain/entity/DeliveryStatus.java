@@ -1,5 +1,8 @@
 package chill_logistics.delivery_server.domain.entity;
 
+import chill_logistics.delivery_server.presentation.ErrorCode;
+import lib.web.error.BusinessException;
+
 public enum DeliveryStatus {
     WAITING_FOR_HUB,            // 허브 이동 대기중
     MOVING_TO_HUB,              // 허브 이동중
@@ -15,7 +18,7 @@ public enum DeliveryStatus {
         try {
             return DeliveryStatus.valueOf(status);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("지원하지 않는 배송 상태입니다. status=" + status);
+            throw new BusinessException(ErrorCode.INVALID_DELIVERY_STATUS);
         }
     }
 
