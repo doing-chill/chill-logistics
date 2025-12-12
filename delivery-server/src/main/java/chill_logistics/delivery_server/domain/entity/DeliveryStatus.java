@@ -3,6 +3,7 @@ package chill_logistics.delivery_server.domain.entity;
 import chill_logistics.delivery_server.presentation.ErrorCode;
 import lib.web.error.BusinessException;
 
+// TODO: 배송중 → 업체 배송중으로 수정 예정
 public enum DeliveryStatus {
     WAITING_FOR_HUB,            // 허브 이동 대기중
     MOVING_TO_HUB,              // 허브 이동중
