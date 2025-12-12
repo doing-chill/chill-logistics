@@ -60,6 +60,7 @@ public class HubDelivery extends BaseEntity {
     @Column(name = "delivery_sequence_num")
     private Integer deliverySequenceNum;
 
+    // TODO: length 삭제 예정
     @Enumerated(EnumType.STRING)
     @Column(name = "delivery_status", length = 15, nullable = false)
     private DeliveryStatus deliveryStatus;
