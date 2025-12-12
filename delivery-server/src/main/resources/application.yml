@@ -2,7 +2,7 @@ spring:
   application:
     name: delivery-server
   profiles:
-    active: dev
+    active: prod
 
   config:
     import: "optional:configserver:http://localhost:8888"
