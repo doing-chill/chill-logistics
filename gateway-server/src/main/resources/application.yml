@@ -5,4 +5,5 @@ spring:
     active: prod
 
   config:
-    import: "optional:configserver:http://localhost:8888"
+    import: "optional:configserver:${CONFIG_SERVER}"
+

@@ -5,4 +5,4 @@ spring:
     active: prod
 
   config:
-    import: "optional:configserver:http://localhost:8888"
+    import: "optional:configserver:http://config-server:${CONFIG_PORT}"
