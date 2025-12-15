@@ -1,0 +1,29 @@
+services:
+  user-server:
+    build:
+      context: .
+      dockerfile: user-server/Dockerfile
+    env_file:
+      - .env
+
+  order-server:
+    build:
+      context: .
+      dockerfile: order-server/Dockerfile
+    env_file:
+      - .env
+
+  hub-server:
+    build:
+      context: .
+      dockerfile: hub-server/Dockerfile
+    env_file:
+      - .env
+
+  delivery-server:
+    build:
+      context: .
+      dockerfile: delivery-server/Dockerfile
+    env_file:
+      - .env
+

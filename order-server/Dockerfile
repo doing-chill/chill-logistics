@@ -9,9 +9,9 @@ COPY . .
 RUN chmod +x gradlew
 
 # 루트에서 전체 멀티모듈 빌드
-RUN ./gradlew :config-server:bootJar --no-daemon -x test
+RUN ./gradlew :order-server:bootJar --no-daemon -x test
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
 # 빌드된 모듈 JAR만 복사

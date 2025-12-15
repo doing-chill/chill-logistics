@@ -1,0 +1,55 @@
+services:
+  eureka-server:
+    build:
+      context: .
+      dockerfile: eureka-server/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${EUREKA_PORT}:${EUREKA_PORT}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${EUREKA_PORT}/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  gateway-server:
+    build:
+      context: .
+      dockerfile: gateway-server/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${GATEWAY_PORT}/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  firm-server:
+    build:
+      context: .
+      dockerfile: firm-server/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      gateway-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  product-server:
+    build:
+      context: .
+      dockerfile: product-server/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      gateway-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
