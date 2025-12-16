@@ -173,6 +173,7 @@ jobs:
           username: ${{ secrets.PI1_USER }}
           password: ${{ secrets.PI1_PASSWORD }}
           port: ${{ secrets.PI1_PORT }}
+          command_timeout: 60m
           script_stop: true
           script: |
             set -euo pipefail
@@ -283,6 +284,7 @@ jobs:
           username: ${{ secrets.PI2_USER }}
           password: ${{ secrets.PI2_PASSWORD }}
           port: ${{ secrets.PI2_PORT }}
+          command_timeout: 60m
           script_stop: true
           script: |
             set -euo pipefail
@@ -355,6 +357,7 @@ jobs:
           password: ${{ secrets.PI3_PASSWORD }}
           port: ${{ secrets.PI3_PORT }}
           script_stop: true
+          command_timeout: 60m
           script: |
             set -euo pipefail
 
@@ -402,4 +405,5 @@ jobs:
             fi
 
             echo "Pi3 deploy done"
+
 
