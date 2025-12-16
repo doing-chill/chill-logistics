@@ -126,10 +126,8 @@ jobs:
             }
 
             # =========================
-            # 2) DB up + 대기
+            # 2) DB 대기
             # =========================
-            docker compose -f docker-compose.db.yml --env-file .env down --remove-orphans
-            docker compose -f docker-compose.db.yml --env-file .env up -d
             wait_healthy chill-mysql1
             wait_healthy chill-mysql2
             wait_healthy chill-mysql3
@@ -154,4 +152,5 @@ jobs:
   
 
             echo "Deploy & health checks done"
+
 
