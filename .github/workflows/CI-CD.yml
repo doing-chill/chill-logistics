@@ -21,22 +21,31 @@ jobs:
           username: ${{secrets.DOCKERHUB_USERNAME}}
           password: ${{secrets.DOCKERHUB_TOKEN}}
 
+      # buildx 세팅 (멀티아키 필수)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       # =========================
-      # schema / config build & push
+      # Multi-arch build & push (latest only)
       # =========================
-      - name: Build & Push Images (latest)
+      - name: Build & Push Multi-Arch Images (latest)
         run: |
           set -euo pipefail
+          
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/config-server:latest \
+            -f config-server/Dockerfile \
+            --push .
 
-          docker build \
-            -t ${{secrets.DOCKERHUB_USERNAME}}/config-server:latest \
-            -f config-server/Dockerfile .
-          docker push ${{secrets.DOCKERHUB_USERNAME}}/config-server:latest
-
-          docker build \
-            -t ${{secrets.DOCKERHUB_USERNAME}}/schema-server:latest \
-            -f schema-server/Dockerfile .
-          docker push ${{secrets.DOCKERHUB_USERNAME}}/schema-server:latest
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/schema-server:latest \
+            -f schema-server/Dockerfile \
+            --push .
 
   deploy_pi1:
     needs: build_and_push
@@ -52,6 +61,7 @@ jobs:
           port: ${{secrets.PI1_PORT}}
           script_stop: true
           script: |
+            set -euo pipefail
             sudo rm -rf chill-logistics
             git clone -b prod --single-branch https://github.com/doing-chill/chill-logistics.git
             cd chill-logistics
@@ -134,4 +144,5 @@ jobs:
 
             docker exec "$CID" curl -fsS "http://127.0.0.1:${CONFIG_PORT}/actuator/health"
   
+
             echo "Deploy & health checks done"
