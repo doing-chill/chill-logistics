@@ -1,6 +1,7 @@
 package chill_logistics.order_server.infrastructure.config;
 
 import chill_logistics.order_server.application.dto.command.OrderAfterCreateV1;
+import chill_logistics.order_server.application.dto.command.OrderStatusChangedV1;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
@@ -16,9 +17,8 @@ import java.util.Map;
 @Configuration
 public class KafkaProducerConfig {
 
-    @Bean
-    public ProducerFactory<String, OrderAfterCreateV1> orderAfterCreateProducerFactory() {
-
+    /* 공통 Producer 설정 */
+    private Map<String, Object> baseProducerProps() {
         Map<String, Object> props = new HashMap<>();
 
         // Kafka Broker
@@ -28,13 +28,28 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-        // 필요시 기타 옵션 (acks, retries 등) 추가
+        return props;
+    }
 
-        return new DefaultKafkaProducerFactory<>(props);
+    /* OrderAfterCreate */
+    @Bean
+    public ProducerFactory<String, OrderAfterCreateV1> orderAfterCreateProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(baseProducerProps());
     }
 
     @Bean
     public KafkaTemplate<String, OrderAfterCreateV1> orderAfterCreateKafkaTemplate() {
         return new KafkaTemplate<>(orderAfterCreateProducerFactory());
+    }
+
+    /* OrderStatusChanged */
+    @Bean
+    public ProducerFactory<String, OrderStatusChangedV1> orderStatusChangedProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(baseProducerProps());
+    }
+
+    @Bean
+    public KafkaTemplate<String, OrderStatusChangedV1> orderStatusChangedKafkaTemplate() {
+        return new KafkaTemplate<>(orderStatusChangedProducerFactory());
     }
 }
