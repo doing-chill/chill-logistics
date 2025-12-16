@@ -1,20 +1,20 @@
 services:
   config-server:
-    build:
-      context: .
-      dockerfile: config-server/Dockerfile
+    image: ${DOCKERHUB_USERNAME}/config-server:latest
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:${CONFIG_PORT}/actuator/health"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://127.0.0.1:${CONFIG_PORT}/actuator/health | grep -q '\"status\":\"UP\"'"
+        ]
       interval: 10s
       timeout: 3s
       retries: 10
 
   schema-server:
-    build:
-      context: .
-      dockerfile: schema-server/Dockerfile
+    image: ${DOCKERHUB_USERNAME}/schema-server:latest
     env_file:
       - .env
     depends_on:
