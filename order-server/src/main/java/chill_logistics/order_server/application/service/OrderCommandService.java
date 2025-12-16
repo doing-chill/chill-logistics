@@ -13,6 +13,7 @@ import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
 import chill_logistics.order_server.domain.port.FirmPort;
 import chill_logistics.order_server.lib.error.ErrorCode;
+import java.time.LocalDateTime;
 import lib.entity.Role;
 import lib.util.SecurityUtils;
 import lib.web.error.BusinessException;
@@ -177,6 +178,15 @@ public class OrderCommandService {
         for (OrderProduct p : order.getOrderProductList()) {
             productPort.recoverStock(p.getProductId(), p.getQuantity());
         }
+
+        // Kafka 메시지 발행
+        OrderStatusChangedV1 message = new OrderStatusChangedV1(
+            order.getId(),
+            order.getOrderStatus(),  // CANCELED
+            LocalDateTime.now()
+        );
+
+        eventPublisher.sendOrderStatusChanged(message);
 
         // TODO: 주문 읽기 업데이트 (OrderStatus, delete)
     }
