@@ -17,6 +17,7 @@ public class HubRouteAfterCreateListener {
 
     @KafkaListener(
         topics = "hub-route-after-create",
+        groupId = "delivery-server-hub-route-group",
         containerFactory = "hubKafkaListenerContainerFactory"
     )
     public void listen(HubRouteAfterCreateV1 message) {
