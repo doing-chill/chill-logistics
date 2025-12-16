@@ -146,4 +146,22 @@ public class HubDelivery extends BaseEntity {
 
         this.deliveryStatus = nextDeliveryStatus;
     }
+
+    // 주문 취소 시 처리 메서드
+    public void cancelDueToOrder() {
+
+        // 멱등성: 이미 취소된 상태면 다시 호출되어도 OK || 이미 상품 받았으면 주문 취소 불가
+        if (this.deliveryStatus == DeliveryStatus.DELIVERY_CANCELLED
+            || this.deliveryStatus == DeliveryStatus.DELIVERY_COMPLETED) {
+            return;
+        }
+
+        DeliveryStatus nextDeliveryStatus = DeliveryStatus.DELIVERY_CANCELLED;
+
+        if (!this.deliveryStatus.canTransitTo(nextDeliveryStatus)) {
+            throw new BusinessException(ErrorCode.DELIVERY_ALREADY_COMPLETED_OR_CANCELED);
+        }
+
+        this.deliveryStatus = nextDeliveryStatus;
+    }
 }
