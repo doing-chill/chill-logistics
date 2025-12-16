@@ -1,4 +1,4 @@
-package chill_logistics.delivery_server.application;
+package chill_logistics.delivery_server.application.service;
 
 import chill_logistics.delivery_server.application.dto.query.FirmDeliveryInfoResponseV1;
 import chill_logistics.delivery_server.application.dto.query.FirmDeliverySummaryResponseV1;

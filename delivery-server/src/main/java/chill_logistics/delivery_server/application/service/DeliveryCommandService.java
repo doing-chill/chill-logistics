@@ -1,5 +1,6 @@
-package chill_logistics.delivery_server.application;
+package chill_logistics.delivery_server.application.service;
 
+import chill_logistics.delivery_server.application.DeliveryType;
 import chill_logistics.delivery_server.application.dto.command.AssignedDeliveryPersonV1;
 import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
 import chill_logistics.delivery_server.application.dto.command.HubRouteHubInfoV1;
