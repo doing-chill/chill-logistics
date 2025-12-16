@@ -10,6 +10,12 @@ services:
       - "${ZOOKEEPER_CLIENT_PORT}:${ZOOKEEPER_CLIENT_PORT}"
     networks:
       - kafka-net
+    healthcheck:
+      test: [ "CMD-SHELL", "echo ruok | nc -w 2 127.0.0.1 ${ZOOKEEPER_CLIENT_PORT} | grep imok" ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
@@ -30,6 +36,12 @@ services:
       - zookeeper
     networks:
       - kafka-net
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server 127.0.0.1:${KAFKA_PORT_INTERNAL} --list >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
 
 networks:
   kafka-net:
