@@ -98,6 +98,13 @@ jobs:
             EOF
 
             echo "[OK] .env created"
+            
+            # =========================
+            # .env → bash 환경변수로 로드
+            # =========================
+            set -a
+            . ./.env
+            set +a
 
             # =========================
             # 공통 함수: 컨테이너 healthy 대기
@@ -121,6 +128,7 @@ jobs:
             # =========================
             # 2) DB up + 대기
             # =========================
+            docker compose -f docker-compose.db.yml --env-file .env down --remove-orphans
             docker compose -f docker-compose.db.yml --env-file .env up -d
             wait_healthy chill-mysql1
             wait_healthy chill-mysql2
@@ -146,3 +154,4 @@ jobs:
   
 
             echo "Deploy & health checks done"
+
