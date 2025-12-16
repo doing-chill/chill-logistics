@@ -2,6 +2,7 @@ package chill_logistics.delivery_server.infrastructure.repository;
 
 import chill_logistics.delivery_server.domain.entity.HubDelivery;
 import chill_logistics.delivery_server.domain.repository.HubDeliveryRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lib.pagination.CustomPageRequest;
@@ -47,5 +48,10 @@ public class HubDeliveryRepositoryAdapter implements HubDeliveryRepository {
             page.getSize(),
             page.getTotalElements()
         );
+    }
+
+    @Override
+    public List<HubDelivery> findByOrderId(UUID orderId) {
+        return jpaHubDeliveryRepository.findByOrderId(orderId);
     }
 }
