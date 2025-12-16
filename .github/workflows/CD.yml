@@ -140,7 +140,7 @@ jobs:
             local dockerfile="$2"
             echo "==> build & push: $svc ($dockerfile)"
             docker buildx build \
-              --platform linux/amd64,linux/arm64 \
+              --platform linux/arm64 \
               -t "${DOCKERHUB_USERNAME}/${svc}:latest" \
               -f "${dockerfile}" \
               --push .
@@ -302,6 +302,11 @@ jobs:
             cat > .env <<EOF
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             CONFIG_SERVER=${{ secrets.CONFIG_SERVER }}
+            EUREKA_PORT=${{ secrets.EUREKA_PORT }}
+            GATEWAY_PORT=${{ secrets.GATEWAY_PORT }}
+            CONFIG_SERVER=${{ secrets.CONFIG_SERVER }}
+
+            
             EOF
 
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
@@ -397,3 +402,4 @@ jobs:
             fi
 
             echo "Pi3 deploy done"
+
