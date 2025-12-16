@@ -53,9 +53,8 @@ public class FirmDelivery extends BaseEntity {
     @Column(name = "receiver_firm_owner_name", length = 15)
     private String receiverFirmOwnerName;
 
-    // TODO: length 삭제 예정
     @Enumerated(EnumType.STRING)
-    @Column(name = "delivery_status", length = 15, nullable = false)
+    @Column(name = "delivery_status", nullable = false)
     private DeliveryStatus deliveryStatus;
 
     protected FirmDelivery(
