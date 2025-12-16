@@ -1,0 +1,399 @@
+name: CD
+
+on:
+  push:
+    branches: [prod]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      # pi1
+      # 아래에서 설정한 경로에 변경이 있으면 output을 만들어서 true / false로 세팅
+      config: ${{ steps.filter.outputs.config }}
+      schema: ${{ steps.filter.outputs.schema }}
+      compose01: ${{ steps.filter.outputs.compose01 }}
+      dbcompose: ${{ steps.filter.outputs.dbcompose }}
+
+      # pi2
+      eureka: ${{ steps.filter.outputs.eureka }}
+      gateway: ${{ steps.filter.outputs.gateway }}
+      firm: ${{ steps.filter.outputs.firm }}
+      product: ${{ steps.filter.outputs.product }}
+      compose02: ${{ steps.filter.outputs.compose02 }}
+
+      # pi3
+      order: ${{ steps.filter.outputs.order }}
+      hub: ${{ steps.filter.outputs.hub }}
+      user: ${{ steps.filter.outputs.user }}
+      delivery: ${{ steps.filter.outputs.delivery }}
+      compose03: ${{ steps.filter.outputs.compose03 }}
+
+      # any changed?
+      any: ${{ steps.filter.outputs.any }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            # -------------------------
+            # Pi1 (DB + config/schema)
+            # -------------------------
+            config:
+              - 'config-server/**'
+            schema:
+              - 'schema-server/**'
+            compose01:
+              - 'docker-compose-01.yml'
+            dbcompose:
+              - 'docker-compose.db.yml'
+
+            # -------------------------
+            # Pi2 (eureka/gateway/firm/product)
+            # -------------------------
+            eureka:
+              - 'eureka-server/**'
+            gateway:
+              - 'gateway-server/**'
+            firm:
+              - 'firm-server/**'
+            product:
+              - 'product-server/**'
+            compose02:
+              - 'docker-compose-02.yml'
+
+            # -------------------------
+            # Pi3 (order/hub/user/delivery)
+            # -------------------------
+            order:
+              - 'order-server/**'
+            hub:
+              - 'hub-server/**'
+            user:
+              - 'user-server/**'
+            delivery:
+              - 'delivery-server/**'
+            compose03:
+              - 'docker-compose-03.yml'
+
+            # -------------------------
+            # any (위 항목 중 뭐든 바뀌면 true)
+            # -------------------------
+            any:
+              - 'config-server/**'
+              - 'schema-server/**'
+              - 'eureka-server/**'
+              - 'gateway-server/**'
+              - 'firm-server/**'
+              - 'product-server/**'
+              - 'order-server/**'
+              - 'hub-server/**'
+              - 'user-server/**'
+              - 'delivery-server/**'
+              - 'docker-compose-01.yml'
+              - 'docker-compose-02.yml'
+              - 'docker-compose-03.yml'
+              - 'docker-compose.db.yml'
+
+  build_and_push:
+    needs: changes
+    if: needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push only changed services
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          # 변경 여부 flags
+          CHG_CONFIG: ${{ needs.changes.outputs.config }}
+          CHG_SCHEMA: ${{ needs.changes.outputs.schema }}
+          CHG_EUREKA: ${{ needs.changes.outputs.eureka }}
+          CHG_GATEWAY: ${{ needs.changes.outputs.gateway }}
+          CHG_FIRM: ${{ needs.changes.outputs.firm }}
+          CHG_PRODUCT: ${{ needs.changes.outputs.product }}
+          CHG_ORDER: ${{ needs.changes.outputs.order }}
+          CHG_HUB: ${{ needs.changes.outputs.hub }}
+          CHG_USER: ${{ needs.changes.outputs.user }}
+          CHG_DELIVERY: ${{ needs.changes.outputs.delivery }}
+        run: |
+          set -euo pipefail
+
+          build_push () {
+            local svc="$1"
+            local dockerfile="$2"
+            echo "==> build & push: $svc ($dockerfile)"
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              -t "${DOCKERHUB_USERNAME}/${svc}:latest" \
+              -f "${dockerfile}" \
+              --push .
+          }
+
+          [ "${CHG_CONFIG}"   = "true" ] && build_push "config-server"   "config-server/Dockerfile"   || true
+          [ "${CHG_SCHEMA}"   = "true" ] && build_push "schema-server"   "schema-server/Dockerfile"   || true
+          [ "${CHG_EUREKA}"   = "true" ] && build_push "eureka-server"   "eureka-server/Dockerfile"   || true
+          [ "${CHG_GATEWAY}"  = "true" ] && build_push "gateway-server"  "gateway-server/Dockerfile"  || true
+          [ "${CHG_FIRM}"     = "true" ] && build_push "firm-server"     "firm-server/Dockerfile"     || true
+          [ "${CHG_PRODUCT}"  = "true" ] && build_push "product-server"  "product-server/Dockerfile"  || true
+          [ "${CHG_ORDER}"    = "true" ] && build_push "order-server"    "order-server/Dockerfile"    || true
+          [ "${CHG_HUB}"      = "true" ] && build_push "hub-server"      "hub-server/Dockerfile"      || true
+          [ "${CHG_USER}"     = "true" ] && build_push "user-server"     "user-server/Dockerfile"     || true
+          [ "${CHG_DELIVERY}" = "true" ] && build_push "delivery-server" "delivery-server/Dockerfile" || true
+
+  deploy_pi1:
+    needs: [changes, build_and_push]
+    if: |
+      needs.changes.outputs.config == 'true' ||
+      needs.changes.outputs.schema == 'true' ||
+      needs.changes.outputs.compose01 == 'true' ||
+      needs.changes.outputs.dbcompose == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Pi1 (DB + schema/config)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PI1_HOST }}
+          username: ${{ secrets.PI1_USER }}
+          password: ${{ secrets.PI1_PASSWORD }}
+          port: ${{ secrets.PI1_PORT }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            CHG_CONFIG='${{ needs.changes.outputs.config }}'
+            CHG_SCHEMA='${{ needs.changes.outputs.schema }}'
+            CHG_COMPOSE01='${{ needs.changes.outputs.compose01 }}'
+            CHG_DBCOMPOSE='${{ needs.changes.outputs.dbcompose }}'
+
+            sudo rm -rf chill-logistics
+            git clone -b prod --single-branch https://github.com/doing-chill/chill-logistics.git
+            cd chill-logistics
+
+            cat > .env <<EOF
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+
+            MYSQL1_ROOT_PASSWORD=${{ secrets.MYSQL1_ROOT_PASSWORD }}
+            MYSQL1_DATABASE=${{ secrets.MYSQL1_DATABASE }}
+            MYSQL1_USER=${{ secrets.MYSQL1_USER }}
+            MYSQL1_PASSWORD=${{ secrets.MYSQL1_PASSWORD }}
+            MYSQL1_PORT=${{ secrets.MYSQL1_PORT }}
+
+            MYSQL2_ROOT_PASSWORD=${{ secrets.MYSQL2_ROOT_PASSWORD }}
+            MYSQL2_DATABASE=${{ secrets.MYSQL2_DATABASE }}
+            MYSQL2_USER=${{ secrets.MYSQL2_USER }}
+            MYSQL2_PASSWORD=${{ secrets.MYSQL2_PASSWORD }}
+            MYSQL2_PORT=${{ secrets.MYSQL2_PORT }}
+
+            MYSQL3_ROOT_PASSWORD=${{ secrets.MYSQL3_ROOT_PASSWORD }}
+            MYSQL3_DATABASE=${{ secrets.MYSQL3_DATABASE }}
+            MYSQL3_USER=${{ secrets.MYSQL3_USER }}
+            MYSQL3_PASSWORD=${{ secrets.MYSQL3_PASSWORD }}
+            MYSQL3_PORT=${{ secrets.MYSQL3_PORT }}
+
+            CONFIG_PORT=${{ secrets.CONFIG_PORT }}
+            CONFIG_GIT_URI=${{ secrets.CONFIG_GIT_URI }}
+            CONFIG_GIT_USERNAME=${{ secrets.CONFIG_GIT_USERNAME }}
+            CONFIG_GIT_PASSWORD=${{ secrets.CONFIG_GIT_PASSWORD }}
+            CONFIG_GIT_BRANCH=${{ secrets.CONFIG_GIT_BRANCH }}
+            EOF
+
+            set -a
+            . ./.env
+            set +a
+
+            wait_healthy () {
+              local cname="$1"
+              echo ">> waiting healthy: ${cname}"
+              for i in $(seq 1 120); do
+                status="$(docker inspect -f '{{.State.Health.Status}}' "${cname}" 2>/dev/null || true)"
+                [ "${status}" = "healthy" ] && echo ">> ${cname} is healthy" && return 0
+                sleep 2
+              done
+              docker logs "${cname}" --tail 200 || true
+              return 1
+            }
+            
+            # (DB는 보통 상시 운영이므로, 변경 없으면 건드리지 않는 게 일반적)
+            if [ "${CHG_DBCOMPOSE}" = "true" ]; then
+              docker compose -f docker-compose.db.yml --env-file .env up -d
+            fi
+
+            # DB가 이미 떠있다는 전제로 health만 대기하게
+            wait_healthy chill-mysql1
+            wait_healthy chill-mysql2
+            wait_healthy chill-mysql3
+
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            # compose 파일 자체가 바뀐 경우 전체 up -d 
+            if [ "${CHG_COMPOSE01}" = "true" ]; then
+              docker compose -f docker-compose-01.yml --env-file .env up -d --pull always
+            else
+              # 변경된 서비스만 pull + up -d <service>
+              if [ "${CHG_CONFIG}" = "true" ]; then
+                docker compose -f docker-compose-01.yml --env-file .env pull config-server
+                docker compose -f docker-compose-01.yml --env-file .env up -d config-server
+              fi
+
+              if [ "${CHG_SCHEMA}" = "true" ]; then
+                docker compose -f docker-compose-01.yml --env-file .env pull schema-server
+                docker compose -f docker-compose-01.yml --env-file .env up -d schema-server
+              fi
+            fi
+
+            # config-server 헬스체크 (config가 바뀌었거나 compose01이 바뀌었을 때만)
+            if [ "${CHG_CONFIG}" = "true" ] || [ "${CHG_COMPOSE01}" = "true" ]; then
+              CID="$(docker compose -f docker-compose-01.yml ps -q config-server)"
+              docker exec "$CID" curl -fsS "http://127.0.0.1:${CONFIG_PORT}/actuator/health"
+            fi
+
+            echo "Pi1 deploy done"
+
+  deploy_pi2:
+    needs: [changes, build_and_push]
+    if: |
+      needs.changes.outputs.eureka == 'true' ||
+      needs.changes.outputs.gateway == 'true' ||
+      needs.changes.outputs.firm == 'true' ||
+      needs.changes.outputs.product == 'true' ||
+      needs.changes.outputs.compose02 == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Pi2 (eureka/gateway/firm/product)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PI2_HOST }}
+          username: ${{ secrets.PI2_USER }}
+          password: ${{ secrets.PI2_PASSWORD }}
+          port: ${{ secrets.PI2_PORT }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            CHG_EUREKA='${{ needs.changes.outputs.eureka }}'
+            CHG_GATEWAY='${{ needs.changes.outputs.gateway }}'
+            CHG_FIRM='${{ needs.changes.outputs.firm }}'
+            CHG_PRODUCT='${{ needs.changes.outputs.product }}'
+            CHG_COMPOSE02='${{ needs.changes.outputs.compose02 }}'
+
+            sudo rm -rf chill-logistics
+            git clone -b prod --single-branch https://github.com/doing-chill/chill-logistics.git
+            cd chill-logistics
+
+            # Pi2도 동일하게 .env 필요하면 생성(공통이면 복붙)
+            # 여기서는 최소한 DOCKERHUB_USERNAME만 쓰는 형태로 둠
+            cat > .env <<EOF
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            CONFIG_SERVER=${{ secrets.CONFIG_SERVER }}
+            EOF
+
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            if [ "${CHG_COMPOSE02}" = "true" ]; then
+              docker compose -f docker-compose-02.yml --env-file .env up -d --pull always
+            else
+              if [ "${CHG_EUREKA}" = "true" ]; then
+                docker compose -f docker-compose-02.yml --env-file .env pull eureka-server
+                docker compose -f docker-compose-02.yml --env-file .env up -d eureka-server
+              fi
+
+              if [ "${CHG_GATEWAY}" = "true" ]; then
+                docker compose -f docker-compose-02.yml --env-file .env pull gateway-server
+                docker compose -f docker-compose-02.yml --env-file .env up -d gateway-server
+              fi
+
+              if [ "${CHG_FIRM}" = "true" ]; then
+                docker compose -f docker-compose-02.yml --env-file .env pull firm-server
+                docker compose -f docker-compose-02.yml --env-file .env up -d firm-server
+              fi
+
+              if [ "${CHG_PRODUCT}" = "true" ]; then
+                docker compose -f docker-compose-02.yml --env-file .env pull product-server
+                docker compose -f docker-compose-02.yml --env-file .env up -d product-server
+              fi
+            fi
+
+            echo "Pi2 deploy done"
+
+  deploy_pi3:
+    needs: [changes, build_and_push]
+    if: |
+      needs.changes.outputs.order == 'true' ||
+      needs.changes.outputs.hub == 'true' ||
+      needs.changes.outputs.user == 'true' ||
+      needs.changes.outputs.delivery == 'true' ||
+      needs.changes.outputs.compose03 == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Pi3 (order/hub/user/delivery)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PI3_HOST }}
+          username: ${{ secrets.PI3_USER }}
+          password: ${{ secrets.PI3_PASSWORD }}
+          port: ${{ secrets.PI3_PORT }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            CHG_ORDER='${{ needs.changes.outputs.order }}'
+            CHG_HUB='${{ needs.changes.outputs.hub }}'
+            CHG_USER='${{ needs.changes.outputs.user }}'
+            CHG_DELIVERY='${{ needs.changes.outputs.delivery }}'
+            CHG_COMPOSE03='${{ needs.changes.outputs.compose03 }}'
+
+            sudo rm -rf chill-logistics
+            git clone -b prod --single-branch https://github.com/doing-chill/chill-logistics.git
+            cd chill-logistics
+
+            cat > .env <<EOF
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            CONFIG_SERVER=${{ secrets.CONFIG_SERVER }}
+            
+            
+            EOF
+
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            if [ "${CHG_COMPOSE03}" = "true" ]; then
+              docker compose -f docker-compose-03.yml --env-file .env up -d --pull always
+            else
+              if [ "${CHG_ORDER}" = "true" ]; then
+                docker compose -f docker-compose-03.yml --env-file .env pull order-server
+                docker compose -f docker-compose-03.yml --env-file .env up -d order-server
+              fi
+
+              if [ "${CHG_HUB}" = "true" ]; then
+                docker compose -f docker-compose-03.yml --env-file .env pull hub-server
+                docker compose -f docker-compose-03.yml --env-file .env up -d hub-server
+              fi
+
+              if [ "${CHG_USER}" = "true" ]; then
+                docker compose -f docker-compose-03.yml --env-file .env pull user-server
+                docker compose -f docker-compose-03.yml --env-file .env up -d user-server
+              fi
+
+              if [ "${CHG_DELIVERY}" = "true" ]; then
+                docker compose -f docker-compose-03.yml --env-file .env pull delivery-server
+                docker compose -f docker-compose-03.yml --env-file .env up -d delivery-server
+              fi
+            fi
+
+            echo "Pi3 deploy done"
