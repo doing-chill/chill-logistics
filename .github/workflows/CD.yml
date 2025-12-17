@@ -4,12 +4,15 @@ on:
   push:
     branches: [prod]
 
+concurrency:
+  group: cd-prod
+  cancel-in-progress: true
+
 jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
       # pi1
-      # 아래에서 설정한 경로에 변경이 있으면 output을 만들어서 true / false로 세팅
       config: ${{ steps.filter.outputs.config }}
       schema: ${{ steps.filter.outputs.schema }}
       compose01: ${{ steps.filter.outputs.compose01 }}
@@ -29,8 +32,8 @@ jobs:
       delivery: ${{ steps.filter.outputs.delivery }}
       compose03: ${{ steps.filter.outputs.compose03 }}
 
-      # any changed?
       any: ${{ steps.filter.outputs.any }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -38,9 +41,6 @@ jobs:
         uses: dorny/paths-filter@v3
         with:
           filters: |
-            # -------------------------
-            # Pi1 (DB + config/schema)
-            # -------------------------
             config:
               - 'config-server/**'
             schema:
@@ -50,9 +50,6 @@ jobs:
             dbcompose:
               - 'docker-compose.db.yml'
 
-            # -------------------------
-            # Pi2 (eureka/gateway/firm/product)
-            # -------------------------
             eureka:
               - 'eureka-server/**'
             gateway:
@@ -64,9 +61,6 @@ jobs:
             compose02:
               - 'docker-compose-02.yml'
 
-            # -------------------------
-            # Pi3 (order/hub/user/delivery)
-            # -------------------------
             order:
               - 'order-server/**'
             hub:
@@ -78,9 +72,6 @@ jobs:
             compose03:
               - 'docker-compose-03.yml'
 
-            # -------------------------
-            # any (위 항목 중 뭐든 바뀌면 true)
-            # -------------------------
             any:
               - 'config-server/**'
               - 'schema-server/**'
@@ -97,41 +88,31 @@ jobs:
               - 'docker-compose-03.yml'
               - 'docker-compose.db.yml'
 
-  build_and_push:
+  # ------------------------------------------------------------
+  # Build Core (순차): config -> schema -> eureka -> gateway
+  # ------------------------------------------------------------
+  build_core:
     needs: changes
     if: needs.changes.outputs.any == 'true'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Login Docker Hub
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build & Push only changed services
+      - name: Build & Push core services in order
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          # 변경 여부 flags
           CHG_CONFIG: ${{ needs.changes.outputs.config }}
           CHG_SCHEMA: ${{ needs.changes.outputs.schema }}
           CHG_EUREKA: ${{ needs.changes.outputs.eureka }}
           CHG_GATEWAY: ${{ needs.changes.outputs.gateway }}
-          CHG_FIRM: ${{ needs.changes.outputs.firm }}
-          CHG_PRODUCT: ${{ needs.changes.outputs.product }}
-          CHG_ORDER: ${{ needs.changes.outputs.order }}
-          CHG_HUB: ${{ needs.changes.outputs.hub }}
-          CHG_USER: ${{ needs.changes.outputs.user }}
-          CHG_DELIVERY: ${{ needs.changes.outputs.delivery }}
         run: |
           set -euo pipefail
 
@@ -148,19 +129,97 @@ jobs:
               --push .
           }
 
-          [ "${CHG_CONFIG}"   = "true" ] && build_push "config-server"   "config-server/Dockerfile"   || true
-          [ "${CHG_SCHEMA}"   = "true" ] && build_push "schema-server"   "schema-server/Dockerfile"   || true
-          [ "${CHG_EUREKA}"   = "true" ] && build_push "eureka-server"   "eureka-server/Dockerfile"   || true
-          [ "${CHG_GATEWAY}"  = "true" ] && build_push "gateway-server"  "gateway-server/Dockerfile"  || true
-          [ "${CHG_FIRM}"     = "true" ] && build_push "firm-server"     "firm-server/Dockerfile"     || true
-          [ "${CHG_PRODUCT}"  = "true" ] && build_push "product-server"  "product-server/Dockerfile"  || true
-          [ "${CHG_ORDER}"    = "true" ] && build_push "order-server"    "order-server/Dockerfile"    || true
-          [ "${CHG_HUB}"      = "true" ] && build_push "hub-server"      "hub-server/Dockerfile"      || true
-          [ "${CHG_USER}"     = "true" ] && build_push "user-server"     "user-server/Dockerfile"     || true
-          [ "${CHG_DELIVERY}" = "true" ] && build_push "delivery-server" "delivery-server/Dockerfile" || true
+          [ "${CHG_CONFIG}"  = "true" ] && build_push "config-server"  "config-server/Dockerfile"  || echo "Skip config-server"
+          [ "${CHG_SCHEMA}"  = "true" ] && build_push "schema-server"  "schema-server/Dockerfile"  || echo "Skip schema-server"
+          [ "${CHG_EUREKA}"  = "true" ] && build_push "eureka-server"  "eureka-server/Dockerfile"  || echo "Skip eureka-server"
+          [ "${CHG_GATEWAY}" = "true" ] && build_push "gateway-server" "gateway-server/Dockerfile" || echo "Skip gateway-server"
 
+  # ------------------------------------------------------------
+  # Build Rest (matrix + max-parallel: 3)
+  # ------------------------------------------------------------
+  build_rest:
+    needs: [changes, build_core]
+    if: needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - key: firm
+            svc: firm-server
+            dockerfile: firm-server/Dockerfile
+          - key: product
+            svc: product-server
+            dockerfile: product-server/Dockerfile
+          - key: order
+            svc: order-server
+            dockerfile: order-server/Dockerfile
+          - key: hub
+            svc: hub-server
+            dockerfile: hub-server/Dockerfile
+          - key: user
+            svc: user-server
+            dockerfile: user-server/Dockerfile
+          - key: delivery
+            svc: delivery-server
+            dockerfile: delivery-server/Dockerfile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push (only changed)
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          CHG_FIRM: ${{ needs.changes.outputs.firm }}
+          CHG_PRODUCT: ${{ needs.changes.outputs.product }}
+          CHG_ORDER: ${{ needs.changes.outputs.order }}
+          CHG_HUB: ${{ needs.changes.outputs.hub }}
+          CHG_USER: ${{ needs.changes.outputs.user }}
+          CHG_DELIVERY: ${{ needs.changes.outputs.delivery }}
+        run: |
+          set -euo pipefail
+
+          should_build="false"
+          case "${{ matrix.key }}" in
+            firm)     [ "${CHG_FIRM}"     = "true" ] && should_build="true" ;;
+            product)  [ "${CHG_PRODUCT}"  = "true" ] && should_build="true" ;;
+            order)    [ "${CHG_ORDER}"    = "true" ] && should_build="true" ;;
+            hub)      [ "${CHG_HUB}"      = "true" ] && should_build="true" ;;
+            user)     [ "${CHG_USER}"     = "true" ] && should_build="true" ;;
+            delivery) [ "${CHG_DELIVERY}" = "true" ] && should_build="true" ;;
+          esac
+
+          if [ "${should_build}" != "true" ]; then
+            echo "Skip: ${{ matrix.svc }} (no changes)"
+            exit 0
+          fi
+
+          svc="${{ matrix.svc }}"
+          dockerfile="${{ matrix.dockerfile }}"
+
+          echo "==> build & push: ${svc} (${dockerfile})"
+          docker buildx build \
+            --platform linux/arm64 \
+            -t "${DOCKERHUB_USERNAME}/${svc}:latest" \
+            -f "${dockerfile}" \
+            --cache-from=type=registry,ref=${DOCKERHUB_USERNAME}/${svc}:buildcache \
+            --cache-to=type=registry,ref=${DOCKERHUB_USERNAME}/${svc}:buildcache,mode=max \
+            --push .
+
+  # ------------------------------------------------------------
+  # Deploy Pi1
+  # ------------------------------------------------------------
   deploy_pi1:
-    needs: [changes, build_and_push]
+    needs: [changes, build_rest]
     if: |
       needs.changes.outputs.config == 'true' ||
       needs.changes.outputs.schema == 'true' ||
@@ -232,24 +291,20 @@ jobs:
               docker logs "${cname}" --tail 200 || true
               return 1
             }
-            
-            # (DB는 보통 상시 운영이므로, 변경 없으면 건드리지 않는 게 일반적)
+
             if [ "${CHG_DBCOMPOSE}" = "true" ]; then
               docker compose -f docker-compose.db.yml --env-file .env up -d
             fi
 
-            # DB가 이미 떠있다는 전제로 health만 대기하게
             wait_healthy chill-mysql1
             wait_healthy chill-mysql2
             wait_healthy chill-mysql3
 
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-            # compose 파일 자체가 바뀐 경우 전체 up -d 
             if [ "${CHG_COMPOSE01}" = "true" ]; then
               docker compose -f docker-compose-01.yml --env-file .env up -d --pull always
             else
-              # 변경된 서비스만 pull + up -d <service>
               if [ "${CHG_CONFIG}" = "true" ]; then
                 docker compose -f docker-compose-01.yml --env-file .env pull config-server
                 docker compose -f docker-compose-01.yml --env-file .env up -d config-server
@@ -261,7 +316,6 @@ jobs:
               fi
             fi
 
-            # config-server 헬스체크 (config가 바뀌었거나 compose01이 바뀌었을 때만)
             if [ "${CHG_CONFIG}" = "true" ] || [ "${CHG_COMPOSE01}" = "true" ]; then
               CID="$(docker compose -f docker-compose-01.yml ps -q config-server)"
               docker exec "$CID" curl -fsS "http://127.0.0.1:${CONFIG_PORT}/actuator/health"
@@ -269,8 +323,11 @@ jobs:
 
             echo "Pi1 deploy done"
 
+  # ------------------------------------------------------------
+  # Deploy Pi2 (Pi1 완료 후에만)
+  # ------------------------------------------------------------
   deploy_pi2:
-    needs: [changes, build_and_push]
+    needs: [changes, build_rest, deploy_pi1]
     if: |
       needs.changes.outputs.eureka == 'true' ||
       needs.changes.outputs.gateway == 'true' ||
@@ -301,15 +358,14 @@ jobs:
             git clone -b prod --single-branch https://github.com/doing-chill/chill-logistics.git
             cd chill-logistics
 
-            # Pi2도 동일하게 .env 필요하면 생성(공통이면 복붙)
-            # 여기서는 최소한 DOCKERHUB_USERNAME만 쓰는 형태로 둠
             cat > .env <<EOF
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             CONFIG_SERVER=${{ secrets.CONFIG_SERVER }}
             EUREKA_PORT=${{ secrets.EUREKA_PORT }}
             GATEWAY_PORT=${{ secrets.GATEWAY_PORT }}
-            CONFIG_SERVER=${{ secrets.CONFIG_SERVER }}
-
+            
+            FIRM_PORT=${{ secrets.FIRM_PORT }}
+            PRODUCT_PORT=${{ secrets.PRODUCT_PORT }}
             
             EOF
 
@@ -341,8 +397,11 @@ jobs:
 
             echo "Pi2 deploy done"
 
+  # ------------------------------------------------------------
+  # Deploy Pi3 (Pi2 완료 후에만)
+  # ------------------------------------------------------------
   deploy_pi3:
-    needs: [changes, build_and_push]
+    needs: [changes, build_rest, deploy_pi2]
     if: |
       needs.changes.outputs.order == 'true' ||
       needs.changes.outputs.hub == 'true' ||
@@ -377,7 +436,10 @@ jobs:
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             CONFIG_SERVER=${{ secrets.CONFIG_SERVER }}
             
-            
+            USER_PORT=${{ secrets.USER_PORT }}
+            ORDER_PORT=${{ secrets.ORDER_PORT }}
+            HUB_PORT=${{ secrets.HUB_PORT }}
+            DELIVERY_PORT=${{ secrets.DELIVERY_PORT }}
             EOF
 
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
@@ -407,6 +469,3 @@ jobs:
             fi
 
             echo "Pi3 deploy done"
-
-
-

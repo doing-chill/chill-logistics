@@ -30,6 +30,8 @@ services:
     image: ${DOCKERHUB_USERNAME}/firm-server:latest
     env_file:
       - .env
+    ports:
+      - "${FIRM_PORT}:${FIRM_PORT}"
     depends_on:
       gateway-server:
         condition: service_healthy
@@ -40,6 +42,8 @@ services:
     image: ${DOCKERHUB_USERNAME}/product-server:latest
     env_file:
       - .env
+    ports:
+      - "${PRODUCT_PORT}:${PRODUCT_PORT}"
     depends_on:
       gateway-server:
         condition: service_healthy
