@@ -3,6 +3,7 @@ package chill_logistics.order_server.infrastructure.config;
 import chill_logistics.order_server.application.dto.command.OrderAfterCreateV1;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -16,13 +17,16 @@ import java.util.Map;
 @Configuration
 public class KafkaProducerConfig {
 
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServersConfig;
+
     @Bean
     public ProducerFactory<String, OrderAfterCreateV1> orderAfterCreateProducerFactory() {
 
         Map<String, Object> props = new HashMap<>();
 
         // Kafka Broker
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServersConfig);
 
         // 직렬화 설정
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
