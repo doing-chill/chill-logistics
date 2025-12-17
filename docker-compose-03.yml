@@ -3,19 +3,27 @@ services:
     image: ${DOCKERHUB_USERNAME}/user-server:latest
     env_file:
       - .env
+    ports:
+      - "${USER_PORT}:${USER_PORT}"
 
   order-server:
     image: ${DOCKERHUB_USERNAME}/order-server:latest
     env_file:
       - .env
+    ports:
+      - "${ORDER_PORT}:${ORDER_PORT}"
 
   hub-server:
     image: ${DOCKERHUB_USERNAME}/hub-server:latest
     env_file:
       - .env
+    ports:
+      - "${HUB_PORT}:${HUB_PORT}"
 
   delivery-server:
     image: ${DOCKERHUB_USERNAME}/delivery-server:latest
     env_file:
       - .env
+    ports:
+      - "${DELIVERY_PORT}:${DELIVERY_PORT}"
 
