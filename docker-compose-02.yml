@@ -1,8 +1,6 @@
 services:
   eureka-server:
-    build:
-      context: .
-      dockerfile: eureka-server/Dockerfile
+    image: ${DOCKERHUB_USERNAME}/eureka-server:latest
     env_file:
       - .env
     ports:
@@ -14,9 +12,7 @@ services:
       retries: 10
 
   gateway-server:
-    build:
-      context: .
-      dockerfile: gateway-server/Dockerfile
+    image: ${DOCKERHUB_USERNAME}/gateway-server:latest
     env_file:
       - .env
     ports:
@@ -31,9 +27,7 @@ services:
       retries: 10
 
   firm-server:
-    build:
-      context: .
-      dockerfile: firm-server/Dockerfile
+    image: ${DOCKERHUB_USERNAME}/firm-server:latest
     env_file:
       - .env
     depends_on:
@@ -43,9 +37,7 @@ services:
         condition: service_healthy
 
   product-server:
-    build:
-      context: .
-      dockerfile: product-server/Dockerfile
+    image: ${DOCKERHUB_USERNAME}/product-server:latest
     env_file:
       - .env
     depends_on:
