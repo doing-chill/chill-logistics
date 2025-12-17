@@ -363,6 +363,10 @@ jobs:
             CONFIG_SERVER=${{ secrets.CONFIG_SERVER }}
             EUREKA_PORT=${{ secrets.EUREKA_PORT }}
             GATEWAY_PORT=${{ secrets.GATEWAY_PORT }}
+            
+            FIRM_PORT=${{ secrets.FIRM_PORT }}
+            PRODUCT_PORT=${{ secrets.PRODUCT_PORT }}
+            
             EOF
 
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
@@ -431,6 +435,11 @@ jobs:
             cat > .env <<EOF
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             CONFIG_SERVER=${{ secrets.CONFIG_SERVER }}
+            
+            USER_PORT=${{ secrets.USER_PORT }}
+            ORDER_PORT=${{ secrets.ORDER_PORT }}
+            HUB_PORT=${{ secrets.HUB_PORT }}
+            DELIVERY_PORT=${{ secrets.DELIVERY_PORT }}
             EOF
 
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
