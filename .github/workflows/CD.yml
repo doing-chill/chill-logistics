@@ -143,6 +143,8 @@ jobs:
               --platform linux/arm64 \
               -t "${DOCKERHUB_USERNAME}/${svc}:latest" \
               -f "${dockerfile}" \
+              --cache-from=type=registry,ref=${DOCKERHUB_USERNAME}/${svc}:buildcache \
+              --cache-to=type=registry,ref=${DOCKERHUB_USERNAME}/${svc}:buildcache,mode=max \
               --push .
           }
 
@@ -405,5 +407,6 @@ jobs:
             fi
 
             echo "Pi3 deploy done"
+
 
 
