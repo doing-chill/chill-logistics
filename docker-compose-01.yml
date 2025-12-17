@@ -3,6 +3,8 @@ services:
     image: ${DOCKERHUB_USERNAME}/config-server:latest
     env_file:
       - .env
+    ports:
+      - "${CONFIG_PORT}:${CONFIG_PORT}"
     healthcheck:
       test:
         [
@@ -21,4 +23,5 @@ services:
       config-server:
         condition: service_healthy
     restart: "no"
+
 
