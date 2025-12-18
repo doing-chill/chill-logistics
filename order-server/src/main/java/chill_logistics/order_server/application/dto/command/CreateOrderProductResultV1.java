@@ -1,5 +1,6 @@
 package chill_logistics.order_server.application.dto.command;
 
+import chill_logistics.order_server.application.dto.query.OrderProductResultV1;
 import chill_logistics.order_server.domain.entity.OrderProduct;
 
 import java.util.UUID;
@@ -16,6 +17,15 @@ public record CreateOrderProductResultV1(
                 orderProduct.getProductName(),
                 orderProduct.getQuantity(),
                 orderProduct.getProductPrice()
+        );
+    }
+
+    public static CreateOrderProductResultV1 fromReadOrder(OrderProductResultV1 result) {
+        return new CreateOrderProductResultV1(
+                result.productId(),
+                result.name(),
+                result.quantity(),
+                result.productPrice()
         );
     }
 }

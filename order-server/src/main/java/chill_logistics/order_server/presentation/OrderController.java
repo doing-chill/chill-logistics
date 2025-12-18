@@ -35,11 +35,13 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('MASTER', 'FIRM_MANAGER')")
     @Operation(summary = "주문 생성", description = "주문 생성 API입니다. 주문 생성 시 kafka 메시지를 발행합니다.")
     public BaseResponse<CreateOrderResponseV1> createOrder(
+            @RequestHeader(value = "Idempotency-Key", required = false) UUID key,
             @RequestBody @Valid CreateOrderRequestV1 request) {
 
         CreateOrderResponseV1 response =
                 CreateOrderResponseV1.from(
                         orderFacade.createOrder(
+                                key,
                                 request.toCommand()
                         )
                 );
