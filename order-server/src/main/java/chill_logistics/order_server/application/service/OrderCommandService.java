@@ -180,13 +180,13 @@ public class OrderCommandService {
         }
 
         // Kafka 메시지 발행
-        OrderStatusChangedV1 message = new OrderStatusChangedV1(
+        OrderCanceledV1 message = new OrderCanceledV1(
             order.getId(),
             order.getOrderStatus(),  // CANCELED
             LocalDateTime.now()
         );
 
-        eventPublisher.sendOrderStatusChanged(message);
+        eventPublisher.sendOrderCanceled(message);
 
         // TODO: 주문 읽기 업데이트 (OrderStatus, delete)
     }

@@ -4,7 +4,7 @@ import chill_logistics.delivery_server.application.OrderStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record OrderStatusChangedV1(
+public record OrderCanceledV1(
     UUID orderId,
     OrderStatus orderStatus,
     LocalDateTime changedAt

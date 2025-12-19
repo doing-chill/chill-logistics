@@ -1,7 +1,7 @@
 package chill_logistics.order_server.infrastructure.config;
 
 import chill_logistics.order_server.application.dto.command.OrderAfterCreateV1;
-import chill_logistics.order_server.application.dto.command.OrderStatusChangedV1;
+import chill_logistics.order_server.application.dto.command.OrderCanceledV1;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
@@ -42,14 +42,14 @@ public class KafkaProducerConfig {
         return new KafkaTemplate<>(orderAfterCreateProducerFactory());
     }
 
-    /* OrderStatusChanged */
+    /* OrderCanceled */
     @Bean
-    public ProducerFactory<String, OrderStatusChangedV1> orderStatusChangedProducerFactory() {
+    public ProducerFactory<String, OrderCanceledV1> orderCanceledProducerFactory() {
         return new DefaultKafkaProducerFactory<>(baseProducerProps());
     }
 
     @Bean
-    public KafkaTemplate<String, OrderStatusChangedV1> orderStatusChangedKafkaTemplate() {
-        return new KafkaTemplate<>(orderStatusChangedProducerFactory());
+    public KafkaTemplate<String, OrderCanceledV1> orderCanceledKafkaTemplate() {
+        return new KafkaTemplate<>(orderCanceledProducerFactory());
     }
 }

@@ -1,7 +1,7 @@
 package chill_logistics.delivery_server.infrastructure.config;
 
 import chill_logistics.delivery_server.infrastructure.kafka.dto.HubRouteAfterCreateV1;
-import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderStatusChangedV1;
+import chill_logistics.delivery_server.infrastructure.kafka.dto.OrderCanceledV1;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -75,12 +75,12 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    /* OrderStatusChanged */
+    /* OrderCanceled */
     @Bean
-    public ConsumerFactory<String, OrderStatusChangedV1> orderStatusChangedConsumerFactory() {
+    public ConsumerFactory<String, OrderCanceledV1> orderCanceledConsumerFactory() {
 
-        JsonDeserializer<OrderStatusChangedV1> deserializer =
-            new JsonDeserializer<>(OrderStatusChangedV1.class, false);
+        JsonDeserializer<OrderCanceledV1> deserializer =
+            new JsonDeserializer<>(OrderCanceledV1.class, false);
 
         deserializer.addTrustedPackages(
             "chill_logistics.delivery_server.infrastructure.kafka.dto",
@@ -88,21 +88,21 @@ public class KafkaConsumerConfig {
         );
 
         return new DefaultKafkaConsumerFactory<>(
-            baseConsumerProps("delivery-server-order-status-group"),
+            baseConsumerProps("delivery-server-order-cancel-group"),
             new StringDeserializer(),
             deserializer
         );
     }
 
-    /* OrderStatusChanged */
+    /* OrderCanceled */
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, OrderStatusChangedV1>
-    orderStatusChangedKafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, OrderCanceledV1>
+    orderCanceledKafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, OrderStatusChangedV1> factory =
+        ConcurrentKafkaListenerContainerFactory<String, OrderCanceledV1> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
 
-        factory.setConsumerFactory(orderStatusChangedConsumerFactory());
+        factory.setConsumerFactory(orderCanceledConsumerFactory());
 
         return factory;
     }
