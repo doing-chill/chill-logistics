@@ -57,16 +57,16 @@ public class OrderAfterCreateProducer implements EventPublisher {
 
         String key = message.orderId().toString();
 
-        log.info("[Kafka] OrderStatusChanged 메시지 발행, topic={}, key={}, message={}",
+        log.info("[Kafka] OrderCanceled 메시지 발행, topic={}, key={}, message={}",
             orderCanceledTopic, key, message);
 
         orderCanceledKafkaTemplate
             .send(orderCanceledTopic, key, message)
             .whenComplete((result, ex) -> {
                 if (ex != null) {
-                    log.error("[Kafka] OrderStatusChanged 메시지 전송 실패, key={}", key, ex);
+                    log.error("[Kafka] OrderCanceled 메시지 전송 실패, key={}", key, ex);
                 } else {
-                    log.info("[Kafka] OrderStatusChanged 메시지 전송 성공, orderId={}, offset={}",
+                    log.info("[Kafka] OrderCanceled 메시지 전송 성공, orderId={}, offset={}",
                         key, result.getRecordMetadata().offset());
                 }
             });
