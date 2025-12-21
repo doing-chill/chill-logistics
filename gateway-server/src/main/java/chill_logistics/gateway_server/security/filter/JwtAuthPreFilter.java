@@ -5,6 +5,9 @@ import java.util.UUID;
 import lib.entity.Role;
 import lib.jwt.JwtTokenProvider;
 import lib.jwt.TokenBody;
+import lib.passport.PassportHeaders;
+import lib.passport.PassportIssuer;
+import lib.passport.ServicePassport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -23,30 +26,32 @@ import reactor.core.publisher.Mono;
 public class JwtAuthPreFilter implements GlobalFilter, Ordered {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final PassportIssuer passportIssuer;
     private final String TRACE_ID_HEADER = "Trace-Id";
     private final String USER_ID_HEADER = "User-Id";
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        System.out.println("### JwtAuthPreFilter LOADED ###");
+    }
 
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+        System.out.println("### JwtAuthPreFilter HIT ### path=" + exchange.getRequest().getURI().getPath());
+
         String path = exchange.getRequest().getPath().toString();
 
-        log.debug("JwtAuthPreFilter path = {}", path);
-
-        // 1) Swagger / 문서 관련 경로는 전부 화이트리스트
         if (isWhitelisted(path)) {
-            log.debug("JwtAuthPreFilter whitelist pass = {}", path);
-            return chain.filter(exchange);
+            return forwardWithPassportOnly(exchange, chain);
         }
 
-        // 2) 로그인/회원가입/토큰 재발급 같은 경로도 화이트리스트
-        if (path.startsWith("/v1/users/login")
-                || path.startsWith("/v1/users/signup")
-                || path.startsWith("/v1/users/reissue-token")) {
-            return chain.filter(exchange);
+        if (isPublicAuthEndpoint(path)) {
+            return forwardWithPassportOnly(exchange, chain);
         }
 
-        // === 이 아래부터는 기존 JWT 검사 로직 그대로 ===
+        log.info("Gateway path = {}", exchange.getRequest().getURI().getPath());
 
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader == null) {
@@ -55,9 +60,7 @@ public class JwtAuthPreFilter implements GlobalFilter, Ordered {
         }
 
         String token = authHeader.trim();
-        if (token.regionMatches(true, 0, "Bearer", 0, 6)) {
-            token = token.substring(6).trim();
-        }
+        if (token.regionMatches(true, 0, "Bearer", 0, 6)) token = token.substring(6).trim();
         token = token.strip();
 
         if (!jwtTokenProvider.validate(token)) {
@@ -66,42 +69,80 @@ public class JwtAuthPreFilter implements GlobalFilter, Ordered {
         }
 
         TokenBody tokenBody = jwtTokenProvider.parseJwt(token);
-        if (!tokenBody.getType().equals("access")) {
+        if (!"access".equals(tokenBody.getType())) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
-        }
-
-        if (path.startsWith("/v1/master")) {
-            if (!tokenBody.getRole().equals(Role.MASTER)) {
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
-            }
         }
 
         String traceId = UUID.randomUUID().toString();
-        UUID userUUID = tokenBody.getUserId();
-        if (userUUID == null) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
-        }
-        String userId = userUUID.toString();
+        String userId = tokenBody.getUserId().toString();
+        String userRole = tokenBody.getRole().name();
+        String username = tokenBody.getUsername(); // optional
 
-        final String cleanToken = token;
-        final String traceIdHeaderValue = traceId;
-        final String userIdHeaderValue = userId;
+        // ✅ Passport 발급 (callerService를 "gateway"로 시작)
+        ServicePassport passport = passportIssuer.issue("gateway");
+
         ServerHttpRequest mutated = exchange.getRequest().mutate()
                 .headers(h -> {
-                    h.set(HttpHeaders.AUTHORIZATION, cleanToken);
-                    h.set(TRACE_ID_HEADER, traceIdHeaderValue);
-                    h.set(USER_ID_HEADER, userIdHeaderValue);
+                    // ❌ 내부로 JWT 전달 금지
+                    h.remove(HttpHeaders.AUTHORIZATION);
+
+                    // ✅ Passport
+                    h.set(PassportHeaders.PASSPORT_ISSUER, passport.issuer());
+                    h.set(PassportHeaders.PASSPORT_SERVICE, passport.service());
+                    h.set(PassportHeaders.PASSPORT_IAT, String.valueOf(passport.issuedAt()));
+                    h.set(PassportHeaders.PASSPORT_SIG, passport.signature());
+
+                    // ✅ UserContext (Gateway가 JWT 검증 후 결과 전달)
+                    h.set(PassportHeaders.TRACE_ID, traceId);
+                    h.set(PassportHeaders.USER_ID, userId);
+                    h.set(PassportHeaders.USER_ROLE, userRole);
+                    if (username != null) h.set(PassportHeaders.USERNAME, username);
                 })
                 .build();
+
         return chain.filter(exchange.mutate().request(mutated).build());
     }
 
     @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
+    public int getOrder() { return Ordered.HIGHEST_PRECEDENCE; }
+
+    private boolean isPublicAuthEndpoint(String path) {
+        return path.startsWith("/v1/users/login")
+                || path.startsWith("/user-server/v1/users/login")
+                || path.startsWith("/v1/users/signup")
+                || path.startsWith("/user-server/v1/users/signup")
+                || path.startsWith("/v1/users/reissue-token")
+                || path.startsWith("/user-server/v1/users/reissue-token");
+    }
+
+    private Mono<Void> forwardWithPassportOnly(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+        String traceId = UUID.randomUUID().toString();
+        ServicePassport passport = passportIssuer.issue("gateway");
+
+        ServerHttpRequest mutated = exchange.getRequest().mutate()
+                .headers(h -> {
+                    // 내부로 JWT 전달 금지
+                    h.remove(HttpHeaders.AUTHORIZATION);
+
+                    // ✅ Passport만 주입
+                    h.set(PassportHeaders.PASSPORT_ISSUER, passport.issuer());
+                    h.set(PassportHeaders.PASSPORT_SERVICE, passport.service());
+                    h.set(PassportHeaders.PASSPORT_IAT, String.valueOf(passport.issuedAt()));
+                    h.set(PassportHeaders.PASSPORT_SIG, passport.signature());
+
+                    // trace는 주입
+                    h.set(PassportHeaders.TRACE_ID, traceId);
+
+                    // ✅ public endpoint는 유저컨텍스트 없음
+                    h.remove(PassportHeaders.USER_ID);
+                    h.remove(PassportHeaders.USER_ROLE);
+                    h.remove(PassportHeaders.USERNAME);
+                })
+                .build();
+
+        return chain.filter(exchange.mutate().request(mutated).build());
     }
 
     private boolean isWhitelisted(String path) {

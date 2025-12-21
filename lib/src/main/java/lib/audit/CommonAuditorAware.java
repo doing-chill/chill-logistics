@@ -1,6 +1,6 @@
 package lib.audit;
 
-import lib.jwt.TokenBody;
+import lib.passport.ServicePrincipal;
 import lib.security.LoginUser;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -26,21 +26,14 @@ public class CommonAuditorAware implements AuditorAware<UUID> {
 
         Object principal = auth.getPrincipal();
 
-        // 1) JWT 기반 TokenBody
-        if (principal instanceof TokenBody tokenBody) {
-            if (tokenBody.getUserId() != null) {
-                return Optional.of(tokenBody.getUserId());
-            }
+        if (principal instanceof LoginUser loginUser && loginUser.id() != null) {
+            return Optional.of(loginUser.id());
         }
 
-        // 2) LoginUser 기반 (다른 구조에서 쓸 수도 있음)
-        if (principal instanceof LoginUser loginUser) {
-            if (loginUser.id() != null) {
-                return Optional.of(loginUser.id());
-            }
+        if (principal instanceof ServicePrincipal sp && sp.loginUser() != null && sp.loginUser().id() != null) {
+            return Optional.of(sp.loginUser().id());
         }
 
-        // 3) 그 외는 null 값으로 오류 처리
-        return Optional.empty();
+        return Optional.of(SYSTEM);
     }
 }
