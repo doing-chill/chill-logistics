@@ -1,6 +1,6 @@
 package chill_logistics.delivery_server.infrastructure.kafka;
 
-import chill_logistics.delivery_server.application.DeliveryCommandService;
+import chill_logistics.delivery_server.application.service.DeliveryCommandService;
 import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
 import chill_logistics.delivery_server.infrastructure.kafka.dto.HubRouteAfterCreateV1;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,7 @@ public class HubRouteAfterCreateListener {
 
     @KafkaListener(
         topics = "hub-route-after-create",
+        groupId = "delivery-server-hub-route-group",
         containerFactory = "hubKafkaListenerContainerFactory"
     )
     public void listen(HubRouteAfterCreateV1 message) {

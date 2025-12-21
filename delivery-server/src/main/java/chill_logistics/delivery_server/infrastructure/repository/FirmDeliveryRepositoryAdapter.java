@@ -2,6 +2,7 @@ package chill_logistics.delivery_server.infrastructure.repository;
 
 import chill_logistics.delivery_server.domain.entity.FirmDelivery;
 import chill_logistics.delivery_server.domain.repository.FirmDeliveryRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lib.pagination.CustomPageRequest;
@@ -47,5 +48,10 @@ public class FirmDeliveryRepositoryAdapter implements FirmDeliveryRepository {
             page.getSize(),
             page.getTotalElements()
         );
+    }
+
+    @Override
+    public List<FirmDelivery> findByOrderId(UUID orderId) {
+        return jpaFirmDeliveryRepository.findByOrderId(orderId);
     }
 }

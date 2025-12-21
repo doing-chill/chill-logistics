@@ -16,7 +16,8 @@ public enum ErrorCode implements BaseErrorCode {
     INVALID_CHANGE_DELIVERY_STATUS(HttpStatus.BAD_REQUEST, "허용되지 않는 배송 상태 변경입니다."),
     DELIVERY_ALREADY_COMPLETED_OR_CANCELED(HttpStatus.BAD_REQUEST, "이미 완료되었거나 취소된 배송입니다."),
     DELIVERY_HAS_BEEN_DELETED(HttpStatus.BAD_REQUEST, "삭제된 배송입니다."),
-    INVALID_HUB_ROUTE_PATH(HttpStatus.BAD_REQUEST, "잘못된 허브 배송 경로입니다.");
+    INVALID_HUB_ROUTE_PATH(HttpStatus.BAD_REQUEST, "잘못된 허브 배송 경로입니다."),
+    INVALID_DELIVERY_STATUS(HttpStatus.BAD_REQUEST, "지원하지 않는 배송 상태입니다.");
 
     private final HttpStatus status;
     private final String message;
