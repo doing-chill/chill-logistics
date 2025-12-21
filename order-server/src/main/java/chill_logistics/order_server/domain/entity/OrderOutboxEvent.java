@@ -1,7 +1,6 @@
 package chill_logistics.order_server.domain.entity;
 
 import jakarta.persistence.*;
-import lib.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +16,7 @@ import java.util.UUID;
 @Table(name = "p_order_outbox_event")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class OrderOutboxEvent extends BaseEntity {
+public class OrderOutboxEvent {
 
     @Id
     @GeneratedValue(generator = "uuidv7")
