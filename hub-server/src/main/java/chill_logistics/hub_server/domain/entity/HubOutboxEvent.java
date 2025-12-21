@@ -17,7 +17,7 @@ import java.util.UUID;
 @Table(name = "p_hub_outbox_event")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class HubOutboxEvent extends BaseEntity {
+public class HubOutboxEvent {
 
     @Id
     @GeneratedValue(generator = "uuidv7")
