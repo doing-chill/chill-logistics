@@ -1,5 +1,6 @@
-package chill_logistics.delivery_server.application;
+package chill_logistics.delivery_server.application.service;
 
+import chill_logistics.delivery_server.application.DeliveryType;
 import chill_logistics.delivery_server.application.dto.command.AssignedDeliveryPersonV1;
 import chill_logistics.delivery_server.application.dto.command.HubRouteAfterCommandV1;
 import chill_logistics.delivery_server.application.dto.command.HubRouteHubInfoV1;
@@ -256,7 +257,3 @@ public class DeliveryCommandService {
             .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_DELIVERY_NOT_FOUND));
     }
 }
-
-/* TODO
- * 배송 추적에 따라 상태 변경 로직 추가 필요 (deliveryStatus ENUM 수정 필요)
- */
