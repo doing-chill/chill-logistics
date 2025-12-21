@@ -53,8 +53,6 @@ public class FeignConfig implements RequestInterceptor {
         if (loginUser.email() != null) {
             template.header(PassportHeaders.USERNAME, loginUser.email());
         }
-
-        template.header("Authorization");
-        template.removeHeader("Authorization");
+        
     }
 }
