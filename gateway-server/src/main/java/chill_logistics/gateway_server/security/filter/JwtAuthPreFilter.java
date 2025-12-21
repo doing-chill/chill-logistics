@@ -2,7 +2,6 @@ package chill_logistics.gateway_server.security.filter;
 
 
 import java.util.UUID;
-import lib.entity.Role;
 import lib.jwt.JwtTokenProvider;
 import lib.jwt.TokenBody;
 import lib.passport.PassportHeaders;
@@ -30,16 +29,8 @@ public class JwtAuthPreFilter implements GlobalFilter, Ordered {
     private final String TRACE_ID_HEADER = "Trace-Id";
     private final String USER_ID_HEADER = "User-Id";
 
-    @jakarta.annotation.PostConstruct
-    public void init() {
-        System.out.println("### JwtAuthPreFilter LOADED ###");
-    }
-
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-
-        System.out.println("### JwtAuthPreFilter HIT ### path=" + exchange.getRequest().getURI().getPath());
 
         String path = exchange.getRequest().getPath().toString();
 
