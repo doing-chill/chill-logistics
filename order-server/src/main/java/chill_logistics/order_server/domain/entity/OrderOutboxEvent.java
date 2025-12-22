@@ -51,9 +51,11 @@ public class OrderOutboxEvent extends BaseEntity {
     @Column(name = "retry_count", nullable = false)
     private int retryCount;
 
-    @CreatedDate
-    @Column(name = "created_at", updatable = false, nullable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "published_at")
+    private LocalDateTime publishedAt;
+
+    @Column(name = "last_retry_at")
+    private LocalDateTime lastRetryAt;
 
     private static final int MAX_RETRY_COUNT = 3;
     private static final long MAX_BACKOFF_MILLIS = 100L;
@@ -62,7 +64,7 @@ public class OrderOutboxEvent extends BaseEntity {
         this.orderId = orderId;
         this.eventType = eventType;
         this.payload = payload;
-        this.orderOutboxStatus = OrderOutboxStatus.INIT;  // 의논 후 PENDING으로 수정
+        this.orderOutboxStatus = OrderOutboxStatus.PENDING;
         this.retryCount = 0;
     }
 
@@ -78,7 +80,7 @@ public class OrderOutboxEvent extends BaseEntity {
 
     /* 재시도 해도 되는지 */
     public boolean canRetry() {
-        return this.orderOutboxStatus == OrderOutboxStatus.INIT
+        return this.orderOutboxStatus == OrderOutboxStatus.PENDING
             && this.retryCount < MAX_RETRY_COUNT;
     }
 
@@ -89,10 +91,10 @@ public class OrderOutboxEvent extends BaseEntity {
             return false;
         }
 
-//        // 첫 시도는 즉시 성공
-//        if (this.lastRetryAt == null) {
-//            return true;
-//        }
+        // 첫 시도는 즉시 성공
+        if (this.lastRetryAt == null) {
+            return true;
+        }
 
         long timeSinceLastRetryMillis =
             Duration.between(this.lastRetryAt, LocalDateTime.now()).toMillis();
@@ -103,13 +105,13 @@ public class OrderOutboxEvent extends BaseEntity {
     /* 성공 확정 */
     public void markPublished() {
         this.orderOutboxStatus = OrderOutboxStatus.PUBLISHED;
-//        this.publishedAt == LocalDateTime.now();
+        this.publishedAt = LocalDateTime.now();
     }
 
     /* 실패 처리 */
     public void markFailed() {
         this.retryCount++;
-//        this.lastRetryAt == LocalDateTime.now();
+        this.lastRetryAt = LocalDateTime.now();
 
         // 최대 초과 시 FAILED
         if (this.retryCount >= MAX_RETRY_COUNT) {
