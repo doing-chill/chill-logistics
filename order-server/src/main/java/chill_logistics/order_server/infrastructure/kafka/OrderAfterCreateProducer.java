@@ -58,7 +58,6 @@ public class OrderAfterCreateProducer implements EventPublisher {
                 });
     }
 
-    /* 여기 추가 */
     /**
      * 주문 상태 변경(취소/실패/완료 등) 시 Kafka로 OrderCanceled 이벤트 발행
      */
