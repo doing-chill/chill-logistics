@@ -1,7 +1,7 @@
 package chill_logistics.delivery_server.presentation;
 
-import chill_logistics.delivery_server.application.DeliveryCommandService;
-import chill_logistics.delivery_server.application.DeliveryQueryService;
+import chill_logistics.delivery_server.application.service.DeliveryCommandService;
+import chill_logistics.delivery_server.application.service.DeliveryQueryService;
 import chill_logistics.delivery_server.application.dto.query.FirmDeliveryInfoResponseV1;
 import chill_logistics.delivery_server.application.dto.query.HubDeliveryInfoResponseV1;
 import chill_logistics.delivery_server.presentation.dto.request.DeliveryCancelRequestV1;

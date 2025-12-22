@@ -1,6 +1,7 @@
 package chill_logistics.delivery_server.infrastructure.repository;
 
 import chill_logistics.delivery_server.domain.entity.HubDelivery;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,4 +12,6 @@ public interface JpaHubDeliveryRepository extends JpaRepository<HubDelivery, UUI
     Page<HubDelivery> findByDeletedAtIsNull(Pageable pageable);
 
     Page<HubDelivery> findByStartHubNameAndDeletedAtIsNull(String hubName, Pageable pageable);
+
+    List<HubDelivery> findByOrderId(UUID orderId);
 }
