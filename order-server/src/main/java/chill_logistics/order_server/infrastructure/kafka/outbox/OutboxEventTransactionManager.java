@@ -2,8 +2,10 @@ package chill_logistics.order_server.infrastructure.kafka.outbox;
 
 import chill_logistics.order_server.domain.entity.OrderOutboxEvent;
 import chill_logistics.order_server.domain.event.OutboxEventProducer;
+import chill_logistics.order_server.lib.error.ErrorCode;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,8 @@ public class OutboxEventTransactionManager {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void publishEvent(UUID outboxId) {
 
-        // TODO: ErrorCode 추가
         OrderOutboxEvent event = outboxEventRepository.findById(outboxId)
-            .orElseThrow();
+            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_OUTBOX_EVENT_NOT_FOUND));
 
         // 이미 처리되었거나, 재시도 조건 충족 안 되면 종료
         if (event.alreadyHandled() || !event.readyToRetry()) {
