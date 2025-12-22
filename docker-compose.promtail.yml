@@ -1,0 +1,15 @@
+services:
+  promtail:
+    image: grafana/promtail:2.9.8
+    container_name: promtail
+    restart: always
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - /c/app/promtail/config.yml:/etc/promtail/config.yml:ro
+      - /c/app/logs:/app/logs:ro
+      - promtail_positions:/tmp
+    ports:
+      - "${PROMTAIL_PORT}:${PROMTAIL_PORT}"
+
+volumes:
+  promtail_positions:
