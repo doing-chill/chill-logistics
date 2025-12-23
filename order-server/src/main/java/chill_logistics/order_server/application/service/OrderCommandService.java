@@ -223,4 +223,22 @@ public class OrderCommandService {
 
         // TODO: 주문 읽기 업데이트 (OrderStatus, delete)
     }
+
+    @Transactional
+    public void decreaseStockCompleted(UUID orderId, UUID productId) {
+
+        Order order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+        order.markOrderProductStockConfirmed(productId);
+
+        if (order.hasAnyStockFailed()) {
+            order.cancelDueToStockFailure();
+            return;
+        }
+
+        if (order.isAllOrderProductsStockConfirmed()) {
+            order.markStockConfirmed();
+        }
+    }
 }

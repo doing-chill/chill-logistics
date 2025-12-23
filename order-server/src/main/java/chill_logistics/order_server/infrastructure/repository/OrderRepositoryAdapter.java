@@ -28,4 +28,9 @@ public class OrderRepositoryAdapter implements OrderRepository {
     public List<Order> readOrderList(UUID supplierFirmId, UUID receiverFirmId, OrderStatus orderStatus) {
         return jpaOrderRepository.readOrderList(supplierFirmId, receiverFirmId, orderStatus);
     }
+
+    @Override
+    public Optional<Order> findByIdForUpdate(UUID orderId) {
+        return jpaOrderRepository.findByIdForUpdate(orderId);
+    }
 }

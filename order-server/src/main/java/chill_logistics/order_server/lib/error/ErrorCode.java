@@ -15,6 +15,7 @@ public enum ErrorCode implements BaseErrorCode {
 
     // 404
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문을 찾을 수 없습니다."),
+    ORDER_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문 상품을 찾을 수 없습니다."),
     ORDER_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "저장된 주문 ID가 없습니다."),
     ORDER_OUTBOX_EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 OUTBOX 이벤트를 찾을 수 없습니다."),
 

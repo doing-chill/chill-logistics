@@ -89,4 +89,36 @@ public class Order extends BaseEntity {
             case COMPLETED, CANCELED -> false;
         };
     }
+
+    public void markOrderProductStockConfirmed(UUID productId) {
+
+        OrderProduct item = this.orderProductList.stream()
+                .filter(p -> p.getProductId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_ITEM_NOT_FOUND));
+
+        if (item.getStockStatus() == StockStatus.STOCK_CONFIRMED) {
+            return;
+        }
+
+        item.markStockConfirmed();
+    }
+
+    public boolean hasAnyStockFailed() {
+        return orderProductList.stream()
+                .anyMatch(p -> p.getStockStatus() == StockStatus.STOCK_FAILED);
+    }
+
+    public boolean isAllOrderProductsStockConfirmed() {
+        return orderProductList.stream()
+                .allMatch(p -> p.getStockStatus() == StockStatus.STOCK_CONFIRMED);
+    }
+
+    public void markStockConfirmed() {
+        updateStatus(OrderStatus.STOCK_CONFIRMED);
+    }
+
+    public void cancelDueToStockFailure() {
+        updateStatus(OrderStatus.CANCELED);
+    }
 }
