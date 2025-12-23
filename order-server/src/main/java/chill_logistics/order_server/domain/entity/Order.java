@@ -39,7 +39,7 @@ public class Order extends BaseEntity {
     private String requestNote;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_status", nullable = false, length = 15)
+    @Column(name = "order_status", nullable = false, length = 50)
     private OrderStatus orderStatus;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
