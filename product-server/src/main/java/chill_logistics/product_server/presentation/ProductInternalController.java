@@ -68,4 +68,18 @@ public class ProductInternalController {
 
         return BaseResponse.ok(BaseStatus.OK);
     }
+
+    /* 재고 차감 - 검증 확인을 상품서버에서 처리하는 버전 (내부 API) */
+    @PutMapping("/internal/{id}/decrease/{quantity}")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('MASTER', 'FIRM_MANAGER')")
+    @Operation(summary = "재고 차감 (내부 API)", description = "재고 차감 (내부 API) API입니다.")
+    public BaseResponse<Void> decreaseStockInternalV2(
+            @PathVariable UUID id,
+            @PathVariable int quantity) {
+
+        productFacade.decreaseStockInternalV2(id, quantity);
+
+        return BaseResponse.ok(BaseStatus.OK);
+    }
 }

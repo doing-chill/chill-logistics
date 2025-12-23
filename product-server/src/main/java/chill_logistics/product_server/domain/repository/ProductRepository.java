@@ -7,9 +7,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ProductRepository {
+
     Product save(Product product);
 
     Optional<Product> findById(UUID id);
 
     List<Product> readProductList(String name, UUID firmId, UUID hubId, Boolean sellable);
+
+    Optional<Product> findByIdForUpdate(UUID productId);
+
+    List<Product> findAll();
 }

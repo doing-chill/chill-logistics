@@ -27,4 +27,14 @@ public class ProductRepositoryAdapter implements ProductRepository {
     public List<Product> readProductList(String name, UUID firmId, UUID hubId, Boolean sellable) {
         return jpaProductRepository.readProductList(name, firmId, hubId, sellable);
     }
+
+    @Override
+    public Optional<Product> findByIdForUpdate(UUID productId) {
+        return jpaProductRepository.findByIdForUpdate(productId);
+    }
+
+    @Override
+    public List<Product> findAll() {
+        return jpaProductRepository.findAll();
+    }
 }
