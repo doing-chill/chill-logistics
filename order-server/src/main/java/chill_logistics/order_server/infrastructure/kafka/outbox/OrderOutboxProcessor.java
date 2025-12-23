@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -15,12 +16,13 @@ import org.springframework.stereotype.Component;
 public class OrderOutboxProcessor {
 
     private static final int BATCH_SIZE = 200;       // 한 번의 process 에 처리할 이벤트 건 수
-    private static final long FIXED_DELAY_MS = 500;  // Processor 스케줄러 실행 주기
+    private static final long FIXED_DELAY_MS = 3_000L;  // Processor 스케줄러 실행 주기
 
     private final OrderOutboxEventRepository outboxEventRepository;
     private final OutboxEventTransactionManager transactionManager;
 
     @Scheduled(fixedDelay = FIXED_DELAY_MS)
+    @Transactional
     public void publishPendingEvents() {
 
         // 상태가 PENDING인 이벤트만 조회 & createdAt 기준 오래된 이벤트부터 처리
