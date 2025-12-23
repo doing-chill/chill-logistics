@@ -2,10 +2,10 @@ package chill_logistics.order_server.infrastructure.kafka.outbox;
 
 import chill_logistics.order_server.domain.entity.OrderOutboxEvent;
 import chill_logistics.order_server.domain.entity.OrderOutboxStatus;
+import chill_logistics.order_server.domain.repository.OrderOutboxEventRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrderOutboxProcessor {
 
-    private static final int BATCH_SIZE = 200;                 // 한 번의 process 에 처리할 이벤트 건 수
-    private static final long FIXED_DELAY_MS = 500;            // Processor 스케줄러 실행 주기
+    private static final int BATCH_SIZE = 200;       // 한 번의 process 에 처리할 이벤트 건 수
+    private static final long FIXED_DELAY_MS = 500;  // Processor 스케줄러 실행 주기
 
     private final OrderOutboxEventRepository outboxEventRepository;
     private final OutboxEventTransactionManager transactionManager;
@@ -24,10 +24,8 @@ public class OrderOutboxProcessor {
     public void publishPendingEvents() {
 
         // 상태가 PENDING인 이벤트만 조회 & createdAt 기준 오래된 이벤트부터 처리
-        List<OrderOutboxEvent> eventList = outboxEventRepository.findPendingEvents(
-            OrderOutboxStatus.PENDING,
-            PageRequest.of(0, BATCH_SIZE)
-        );
+        List<OrderOutboxEvent> eventList =
+            outboxEventRepository.findPendingEvents(OrderOutboxStatus.PENDING, BATCH_SIZE);
 
         if (eventList.isEmpty()) {
             return;

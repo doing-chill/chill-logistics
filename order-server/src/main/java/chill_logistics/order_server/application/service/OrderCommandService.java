@@ -19,6 +19,7 @@ import chill_logistics.order_server.domain.entity.OrderStatus;
 import chill_logistics.order_server.domain.port.FirmPort;
 import chill_logistics.order_server.domain.port.HubPort;
 import chill_logistics.order_server.domain.port.ProductPort;
+import chill_logistics.order_server.domain.repository.OrderOutboxEventRepository;
 import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
 import chill_logistics.order_server.lib.error.ErrorCode;

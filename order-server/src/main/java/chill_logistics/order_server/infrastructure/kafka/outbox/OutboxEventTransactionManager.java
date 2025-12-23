@@ -2,6 +2,7 @@ package chill_logistics.order_server.infrastructure.kafka.outbox;
 
 import chill_logistics.order_server.domain.entity.OrderOutboxEvent;
 import chill_logistics.order_server.domain.event.OutboxEventProducer;
+import chill_logistics.order_server.domain.repository.OrderOutboxEventRepository;
 import chill_logistics.order_server.lib.error.ErrorCode;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
