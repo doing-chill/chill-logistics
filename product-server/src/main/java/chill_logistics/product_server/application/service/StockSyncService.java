@@ -2,6 +2,8 @@ package chill_logistics.product_server.application.service;
 
 import chill_logistics.product_server.domain.entity.Product;
 import chill_logistics.product_server.domain.repository.ProductRepository;
+import chill_logistics.product_server.infrastructure.kafka.StockDecreaseCompletedProducer;
+import chill_logistics.product_server.infrastructure.kafka.dto.StockDecreaseCompletedV1;
 import chill_logistics.product_server.lib.error.ErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +16,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -26,6 +31,7 @@ public class StockSyncService {
     private final StringRedisTemplate redisTemplate;
     private final ProductRepository productRepository;
     private final ObjectMapper objectMapper;
+    private final StockDecreaseCompletedProducer stockDecreaseCompletedProducer;
 
     /**
      * 30분마다 호출되는 배치 엔트리포인트
@@ -80,6 +86,8 @@ public class StockSyncService {
         int totalDecrease = 0;
         int moved = 0;
 
+        Map<UUID, Integer> decreaseByOrder = new HashMap<>();
+
         // 1) 로그를 processing으로 옮기면서 합산
         for (int i = 0; i < BATCH_SIZE_PER_PRODUCT; i++) {
             String json = redisTemplate.opsForList().rightPopAndLeftPush(src, processing);
@@ -87,11 +95,15 @@ public class StockSyncService {
 
             moved++;
 
+            UUID orderId = UUID.fromString(parseOrderId(json));
             int qty = parseQty(json);
             String type = parseType(json);
 
-            if ("DECREASE".equals(type)) totalDecrease += qty;
-            else if ("INCREASE".equals(type)) totalDecrease -= qty; // 롤백 로그 반영
+            int signedQty = "DECREASE".equals(type) ? qty : -qty;
+
+            totalDecrease += signedQty;
+
+            decreaseByOrder.merge(orderId, signedQty, Integer::sum);
         }
 
         if (moved == 0) return; // 처리할 로그 없음
@@ -99,7 +111,22 @@ public class StockSyncService {
         // 2) DB 반영 (트랜잭션)
         applyToDb(productId, totalDecrease);
 
-        // 3) 성공했으면 processing에서 moved개 제거 (우리는 leftPush 했으니 leftPop으로 제거)
+        // 3) 주문 단위 완료 이벤트 생성
+        for (Map.Entry<UUID, Integer> e : decreaseByOrder.entrySet()) {
+            if (e.getValue() > 0) {
+                StockDecreaseCompletedV1 message =
+                        new StockDecreaseCompletedV1(
+                                e.getKey(),
+                                productId,
+                                e.getValue(),
+                                LocalDateTime.now()
+                        );
+
+                stockDecreaseCompletedProducer.sendStockDecreaseCompleted(message);
+            }
+        }
+
+        // 4) 성공했으면 processing에서 moved개 제거 (우리는 leftPush 했으니 leftPop으로 제거)
         for (int i = 0; i < moved; i++) {
             redisTemplate.opsForList().leftPop(processing);
         }
@@ -108,6 +135,16 @@ public class StockSyncService {
         Long remain = redisTemplate.opsForList().size(processing);
         if (remain != null && remain == 0L) {
             redisTemplate.delete(processing);
+        }
+    }
+
+    private String parseOrderId(String json) {
+
+        try {
+            JsonNode n = objectMapper.readTree(json);
+            return n.get(0).asText();
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.STOCK_LOG_CORRUPTED);
         }
     }
 
