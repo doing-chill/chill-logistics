@@ -1,4 +1,4 @@
-package chill_logistics.product_server.infrastructure.config;
+package chill_logistics.product_server.infrastructure.config.kafka;
 
 import chill_logistics.product_server.infrastructure.kafka.dto.StockDecreaseV1;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
