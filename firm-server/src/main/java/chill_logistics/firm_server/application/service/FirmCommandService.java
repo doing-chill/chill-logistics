@@ -103,7 +103,7 @@ public class FirmCommandService {
             throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
         }
 
-        // fullAdress가 중복인지
+        // fullAddress가 중복인지
         if (firmRepository.existsByFullAddressAndDeletedAtIsNull(fullAddress)){
             throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
         }
