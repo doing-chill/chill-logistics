@@ -1,19 +1,17 @@
 package chill_logistics.order_server.application.service;
 
-import chill_logistics.order_server.application.dto.command.SupplierInfoV1;
 import chill_logistics.order_server.application.dto.command.*;
 import chill_logistics.order_server.domain.entity.Order;
 import chill_logistics.order_server.domain.entity.OrderProduct;
 import chill_logistics.order_server.domain.entity.OrderQuery;
 import chill_logistics.order_server.domain.entity.OrderStatus;
 import chill_logistics.order_server.domain.event.EventPublisher;
+import chill_logistics.order_server.domain.port.FirmPort;
 import chill_logistics.order_server.domain.port.HubPort;
 import chill_logistics.order_server.domain.port.ProductPort;
 import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
-import chill_logistics.order_server.domain.port.FirmPort;
 import chill_logistics.order_server.lib.error.ErrorCode;
-import java.time.LocalDateTime;
 import lib.entity.Role;
 import lib.util.SecurityUtils;
 import lib.web.error.BusinessException;
@@ -22,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,26 +48,24 @@ public class OrderCommandService {
         FirmResultV1 supplierResult = firmPort.readFirmById(command.supplierFirmId(), "SUPPLIER");
         FirmResultV1 receiverResult = firmPort.readFirmById(command.receiverFirmId(), "RECEIVER");
 
+        // TODO: 재고 감소 비동기로 변경 필요 (카프카 이벤트 발행)
         // 주문 상품 체크 및 재고 감소
         List<OrderProductInfoV1> orderProductInfoList =
                 command.productList()
                         .stream()
                         .map(p -> {
+
                             // 상품 조회
                             ProductResultV1 product = productPort.readProductById(p.productId());
+
+                            // TODO: 카프카 메시지 발행으로 리팩토링 예정
+                            // 재고 차감 + 검증을 상품 서버에 위임
+                            productPort.decreaseStock(p.productId(), p.quantity());
 
                             // 공급 업체 소속 상품인지 체크
                             if (!product.firmId().equals(command.supplierFirmId())) {
                                 throw new BusinessException(ErrorCode.PRODUCT_NOT_FROM_FIRM);
                             }
-
-                            // 상품 재고 체크
-                            if (product.stockQuantity() < p.quantity()) {
-                                throw new BusinessException(ErrorCode.OUT_OF_STOCK);
-                            }
-
-                            // 상품 재고 감소
-                            productPort.decreaseStock(p.productId(), p.quantity());
 
                             return new OrderProductInfoV1(
                                     p.productId(),
