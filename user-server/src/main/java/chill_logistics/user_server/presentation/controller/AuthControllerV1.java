@@ -11,9 +11,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lib.entity.BaseStatus;
 import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/v1/users")
 @Tag(name = "1.회원 관리", description = "로그인, 회원가입 관리용 API")
