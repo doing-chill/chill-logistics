@@ -30,6 +30,7 @@ public class OrderCommandService {
 
     private static final String EVENT_ORDER_AFTER_CREATE = "OrderAfterCreateV1";
     private static final String EVENT_ORDER_CANCELED = "OrderCanceledV1";
+    private static final String EVENT_STOCK_DECREASE = "StockDecreaseV1";
 
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
@@ -74,7 +75,7 @@ public class OrderCommandService {
         FirmResultV1 receiverResult = firmPort.readFirmById(command.receiverFirmId(), "RECEIVER");
 
         // TODO: 재고 감소 비동기로 변경 필요 (카프카 이벤트 발행)
-        // 주문 상품 체크 및 재고 감소
+        // 주문 상품 정보 구성
         List<OrderProductInfoV1> orderProductInfoList =
                 command.productList()
                         .stream()
@@ -82,10 +83,6 @@ public class OrderCommandService {
 
                             // 상품 조회
                             ProductResultV1 product = productPort.readProductById(p.productId());
-
-                            // TODO: 카프카 메시지 발행으로 리팩토링 예정
-                            // 재고 차감 + 검증을 상품 서버에 위임
-                            productPort.decreaseStock(p.productId(), p.quantity());
 
                             // 공급 업체 소속 상품인지 체크
                             if (!product.firmId().equals(command.supplierFirmId())) {
@@ -108,6 +105,9 @@ public class OrderCommandService {
                 command.requestNote(),
                 orderProductInfoList
         );
+
+        // 재고 확정 전 상태
+        order.updateStatus(OrderStatus.STOCK_PROCESSING);
 
         Order createOrder = orderRepository.save(order);
 
@@ -138,6 +138,17 @@ public class OrderCommandService {
 
         // Outbox 적재
         saveOutboxEvent(createOrder.getId(), EVENT_ORDER_AFTER_CREATE, message);
+
+        for (OrderProductInfoV1 p : orderProductInfoList) {
+
+            StockDecreaseV1 stockDecreaseMessage = new StockDecreaseV1(
+                    createOrder.getId(),
+                    p.productId(),
+                    p.quantity()
+            );
+
+            saveOutboxEvent(createOrder.getId(), EVENT_STOCK_DECREASE, stockDecreaseMessage);
+        }
 
         return CreateOrderResultV1.from(
                 createOrder,
