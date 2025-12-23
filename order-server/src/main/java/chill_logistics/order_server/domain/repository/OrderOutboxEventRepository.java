@@ -17,6 +17,4 @@ public interface OrderOutboxEventRepository {
     List<OrderOutboxEvent> findOutboxEvents(OrderOutboxStatus status, UUID orderId, int page, int size);
 
     List<OrderOutboxEvent> findFailedEvents(int page, int size);
-
-    int resetFailedToPending(List<UUID> ids);
 }

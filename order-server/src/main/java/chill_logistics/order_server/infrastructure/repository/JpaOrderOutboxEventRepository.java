@@ -41,15 +41,4 @@ public interface JpaOrderOutboxEventRepository extends JpaRepository<OrderOutbox
            "AND e.deletedAt IS NULL " +
            "ORDER BY e.lastRetryAt DESC, e.createdAt DESC")
     List<OrderOutboxEvent> findFailedEvents(Pageable pageable);
-
-    /* 재처리 API용 (상태를 PENDING으로 되돌림) */
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE OrderOutboxEvent e " +
-           "SET e.orderOutboxStatus = 'PENDING', " +
-           "    e.lastRetryAt = NULL " +
-           "WHERE e.id IN :ids " +
-           "AND e.orderOutboxStatus = 'FAILED' " +
-           "AND e.deletedAt IS NULL")
-    int resetFailedToPending(
-        @Param("ids") List<UUID> ids);
 }

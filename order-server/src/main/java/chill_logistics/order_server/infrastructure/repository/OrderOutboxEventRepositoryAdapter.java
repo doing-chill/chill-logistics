@@ -39,10 +39,4 @@ public class OrderOutboxEventRepositoryAdapter implements OrderOutboxEventReposi
     public List<OrderOutboxEvent> findFailedEvents(int page, int size) {
         return jpaRepository.findFailedEvents(PageRequest.of(page, size));
     }
-
-    @Override
-    @Transactional
-    public int resetFailedToPending(List<UUID> ids) {
-        return jpaRepository.resetFailedToPending(ids);
-    }
 }
