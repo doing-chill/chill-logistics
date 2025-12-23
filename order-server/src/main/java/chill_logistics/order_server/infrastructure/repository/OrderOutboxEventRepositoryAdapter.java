@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 public class OrderOutboxEventRepositoryAdapter implements OrderOutboxEventRepository {
