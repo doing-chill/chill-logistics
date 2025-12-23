@@ -1,36 +1,51 @@
 services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: chill-zookeeper
-    restart: always
-    environment:
-      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
-      ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
-    ports:
-      - "${ZOOKEEPER_CLIENT_PORT}:${ZOOKEEPER_CLIENT_PORT}"
-    networks:
-      - kafka-net
-
   kafka:
-    image: confluentinc/cp-kafka:7.5.0
+    image: confluentinc/cp-kafka:8.1.0
     container_name: chill-kafka
-    restart: always
-    environment:
-      KAFKA_BROKER_ID: ${KAFKA_BROKER_ID}
-      KAFKA_ZOOKEEPER_CONNECT: ${KAFKA_ZOOKEEPER_CONNECT}
-      KAFKA_LISTENERS: ${KAFKA_LISTENERS}
-      KAFKA_ADVERTISED_LISTENERS: ${KAFKA_ADVERTISED_LISTENERS}
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
-      KAFKA_INTER_BROKER_LISTENER_NAME: ${KAFKA_INTER_BROKER_LISTENER_NAME}
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
-    ports:
-      - "${KAFKA_PORT}:${KAFKA_PORT}"
-      - "${KAFKA_PORT_INTERNAL}:${KAFKA_PORT_INTERNAL}"
-    depends_on:
-      - zookeeper
-    networks:
-      - kafka-net
+    restart: unless-stopped
 
-networks:
-  kafka-net:
-    driver: bridge
+    ports:
+      # 호스트에서 Kafka 접근
+      - "${KAFKA_EXTERNAL_PORT}:${KAFKA_EXTERNAL_PORT}"
+
+      # INTERNAL 포트는 기본적으로 외부에 노출하지 않음
+      # 필요할 때만 열 것
+      ### INTERNAL 포트를 “여는” 대표 케이스 2개
+
+      ###
+      # - "${KAFKA_INTERNAL_PORT}:${KAFKA_INTERNAL_PORT}"
+
+    environment:
+      # ===== KRaft 필수 =====
+      CLUSTER_ID: ${CLUSTER_ID}
+      KAFKA_NODE_ID: ${KAFKA_NODE_ID}
+      KAFKA_PROCESS_ROLES: "broker,controller"
+
+      # ===== Controller (Raft) =====
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "${KAFKA_NODE_ID}@chill-kafka:${KAFKA_CONTROLLER_PORT}"
+
+      # ===== Listeners (한 줄로 파싱 이슈 방지) =====
+      KAFKA_LISTENERS: "EXTERNAL://0.0.0.0:${KAFKA_EXTERNAL_PORT},INTERNAL://0.0.0.0:${KAFKA_INTERNAL_PORT},CONTROLLER://0.0.0.0:${KAFKA_CONTROLLER_PORT}"
+
+      # 클라이언트에게 알려줄 주소
+      KAFKA_ADVERTISED_LISTENERS: "EXTERNAL://${KAFKA_EXTERNAL_HOST}:${KAFKA_EXTERNAL_PORT},INTERNAL://${KAFKA_INTERNAL_HOST}:${KAFKA_INTERNAL_PORT}"
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT"
+
+      # 브로커 간 통신 (확장 대비)
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      # ===== 단일 브로커 개발 환경 =====
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      #  토픽 자동 생성이지만 운영 시 false로 변경
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+volumes:
+  kafka-data:
