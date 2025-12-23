@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,7 +17,6 @@ public interface JpaOrderOutboxEventRepository extends JpaRepository<OrderOutbox
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e FROM OrderOutboxEvent e " +
            "WHERE e.orderOutboxStatus = :status " +
-           "AND e.deletedAt IS NULL " +
            "ORDER BY e.createdAt ASC")
     List<OrderOutboxEvent> findPendingEventsForUpdate(
         @Param("status") OrderOutboxStatus status,
@@ -28,7 +26,6 @@ public interface JpaOrderOutboxEventRepository extends JpaRepository<OrderOutbox
     @Query("SELECT e FROM OrderOutboxEvent e " +
            "WHERE (:status IS NULL OR e.orderOutboxStatus = :status) " +
            "AND (:orderId IS NULL OR e.orderId = :orderId) " +
-           "AND e.deletedAt IS NULL " +
            "ORDER BY e.createdAt ASC")
     List<OrderOutboxEvent> findOutboxEvents(
         @Param("status") OrderOutboxStatus status,
@@ -38,7 +35,6 @@ public interface JpaOrderOutboxEventRepository extends JpaRepository<OrderOutbox
     /* FAILED 모니터링/조회용 */
     @Query("SELECT e FROM OrderOutboxEvent e " +
            "WHERE e.orderOutboxStatus = 'FAILED' " +
-           "AND e.deletedAt IS NULL " +
            "ORDER BY e.lastRetryAt DESC, e.createdAt DESC")
     List<OrderOutboxEvent> findFailedEvents(Pageable pageable);
 }
