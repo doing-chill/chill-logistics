@@ -1,17 +1,16 @@
 package chill_logistics.order_server.application.service;
 
 import chill_logistics.order_server.application.dto.command.*;
-import chill_logistics.order_server.domain.entity.Order;
-import chill_logistics.order_server.domain.entity.OrderProduct;
-import chill_logistics.order_server.domain.entity.OrderQuery;
-import chill_logistics.order_server.domain.entity.OrderStatus;
-import chill_logistics.order_server.domain.event.EventPublisher;
+import chill_logistics.order_server.domain.entity.*;
 import chill_logistics.order_server.domain.port.FirmPort;
 import chill_logistics.order_server.domain.port.HubPort;
 import chill_logistics.order_server.domain.port.ProductPort;
+import chill_logistics.order_server.domain.repository.OrderOutboxEventRepository;
 import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
 import chill_logistics.order_server.lib.error.ErrorCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lib.entity.Role;
 import lib.util.SecurityUtils;
 import lib.web.error.BusinessException;
@@ -29,16 +28,42 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderCommandService {
 
+    private static final String EVENT_ORDER_AFTER_CREATE = "OrderAfterCreateV1";
+    private static final String EVENT_ORDER_CANCELED = "OrderCanceledV1";
+
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
     private final ProductPort productPort;
     private final HubPort hubPort;
     private final FirmPort firmPort;
-    private final EventPublisher eventPublisher;
+    private final OrderOutboxEventRepository outboxEventRepository;
+    private final ObjectMapper objectMapper;
 
     private Order readOrderOrThrow(UUID orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+    }
+
+    // Outbox 이벤트 적재
+    private void saveOutboxEvent(UUID orderId, String eventType, Object message) {
+
+        final String payload;
+        try {
+            payload = objectMapper.writeValueAsString(message);
+
+        } catch (JsonProcessingException e) {
+            // Outbox payload 직렬화 실패는 주문 트랜잭션 자체를 실패시키는 게 일반적으로 안전
+            log.error("[OUTBOX payload 직렬화 실패] orderId={} eventType={}", orderId, eventType, e);
+
+            throw new BusinessException(ErrorCode.OUTBOX_PAYLOAD_SERIALIZATION_FAILED);
+        }
+
+        OrderOutboxEvent outboxEvent = OrderOutboxEvent.create(orderId, eventType, payload);
+
+        outboxEventRepository.save(outboxEvent);
+
+        log.info("[OUTBOX 이벤트 적재 완료] orderId={} eventType={} outboxId={}",
+            orderId, eventType, outboxEvent.getId());
     }
 
     @Transactional
@@ -96,7 +121,7 @@ public class OrderCommandService {
 
         orderQueryRepository.save(orderQuery);
 
-        // Kafka 메시지 생성
+        // Kafka 메시지 생성 (즉시 발행하지 않음)
         OrderAfterCreateV1 message = new OrderAfterCreateV1(
                 createOrder.getId(),
                 supplierResult.hubId(),
@@ -111,8 +136,8 @@ public class OrderCommandService {
                 createOrder.getCreatedAt()
         );
 
-        // Kafka 메시지 발행
-        eventPublisher.sendOrderAfterCreate(message);
+        // Outbox 적재
+        saveOutboxEvent(createOrder.getId(), EVENT_ORDER_AFTER_CREATE, message);
 
         return CreateOrderResultV1.from(
                 createOrder,
@@ -176,14 +201,14 @@ public class OrderCommandService {
             productPort.recoverStock(p.getProductId(), p.getQuantity());
         }
 
-        // Kafka 메시지 발행
+        // Kafka 메시지 생성 (즉시 발행하지 않음)
         OrderCanceledV1 message = new OrderCanceledV1(
             order.getId(),
             order.getOrderStatus(),  // CANCELED
             LocalDateTime.now()
         );
 
-        eventPublisher.sendOrderCanceled(message);
+        saveOutboxEvent(order.getId(), EVENT_ORDER_CANCELED, message);
 
         // TODO: 주문 읽기 업데이트 (OrderStatus, delete)
     }

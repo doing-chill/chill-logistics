@@ -1,9 +1,12 @@
 package chill_logistics.order_server.infrastructure.config;
 
+import chill_logistics.order_server.domain.repository.OrderOutboxEventRepository;
 import chill_logistics.order_server.domain.repository.OrderQueryRepository;
 import chill_logistics.order_server.domain.repository.OrderRepository;
+import chill_logistics.order_server.infrastructure.repository.JpaOrderOutboxEventRepository;
 import chill_logistics.order_server.infrastructure.repository.JpaOrderQueryRepository;
 import chill_logistics.order_server.infrastructure.repository.JpaOrderRepository;
+import chill_logistics.order_server.infrastructure.repository.OrderOutboxEventRepositoryAdapter;
 import chill_logistics.order_server.infrastructure.repository.OrderQueryRepositoryAdapter;
 import chill_logistics.order_server.infrastructure.repository.OrderRepositoryAdapter;
 import org.springframework.context.annotation.Bean;
@@ -20,5 +23,10 @@ public class RepositoryConfig {
     @Bean
     public OrderQueryRepository orderQueryRepository(JpaOrderQueryRepository jpaOrderQueryRepository) {
         return new OrderQueryRepositoryAdapter(jpaOrderQueryRepository);
+    }
+
+    @Bean
+    public OrderOutboxEventRepository outboxEventRepository(JpaOrderOutboxEventRepository jpaOrderOutboxEventRepository) {
+        return new OrderOutboxEventRepositoryAdapter(jpaOrderOutboxEventRepository);
     }
 }
