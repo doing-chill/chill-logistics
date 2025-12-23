@@ -23,7 +23,7 @@ public class KafkaConsumerConfig {
         JsonDeserializer<OrderAfterCreateV1> deserializer = new JsonDeserializer<>(OrderAfterCreateV1.class, false);
 
         // Kafka 메시지 역직렬화 시 허용할 패키지를 명시적으로 지정
-        deserializer.addTrustedPackages("chill_logistics.delivery_server.infrastructure.kafka.dto");
+        deserializer.addTrustedPackages("chill_logistics.hub_server.infrastructure.kafka.dto");
 
         // Kafka Consumer 설정 값
         Map<String, Object> properties = new HashMap<>();
