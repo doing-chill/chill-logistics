@@ -60,12 +60,10 @@ public class ProductFacade {
         productCommandService.recoverStockInternal(command);
     }
 
-    public void decreaseStockInternalV2(UUID id, int quantity) {
+    public void decreaseStockInternalV2(UUID orderId, UUID productId, int quantity) {
 
-        RLock lock = redissonClient.getLock("lock:product:" + id);
+        RLock lock = redissonClient.getLock("lock:product:" + productId);
         boolean locked = false;
-
-        UUID orderId = UUID.randomUUID();
 
         try {
             locked = lock.tryLock(100, 5, TimeUnit.SECONDS);
@@ -74,7 +72,7 @@ public class ProductFacade {
                 throw new BusinessException(ErrorCode.STOCK_LOCK_FAILED);
             }
 
-            productCommandService.decreaseStockInternalV3(id, quantity, orderId);
+            productCommandService.decreaseStockInternalV3(productId, quantity, orderId);
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

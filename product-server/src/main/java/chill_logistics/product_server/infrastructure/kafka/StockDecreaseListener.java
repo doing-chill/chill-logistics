@@ -22,7 +22,7 @@ public class StockDecreaseListener {
 
         log.info("Kafka 메시지 수신: {}", message);
 
-        productFacade.decreaseStockInternalV2(message.productId(), message.quantity());
+        productFacade.decreaseStockInternalV2(message.orderId(), message.productId(), message.quantity());
     }
 }
 
