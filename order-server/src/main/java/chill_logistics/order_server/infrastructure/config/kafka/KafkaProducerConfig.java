@@ -1,4 +1,4 @@
-package chill_logistics.order_server.infrastructure.config;
+package chill_logistics.order_server.infrastructure.config.kafka;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,0 +1,2 @@
+ALTER TABLE p_order
+    MODIFY COLUMN order_status VARCHAR(50) NOT NULL;

@@ -44,7 +44,7 @@ public class OrderQuery extends BaseEntity {
     private String requestNote;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_status", nullable = false, length = 15)
+    @Column(name = "order_status", nullable = false, length = 50)
     private OrderStatus orderStatus;
 
     @Column(name = "product_name", nullable = false, length = 100)

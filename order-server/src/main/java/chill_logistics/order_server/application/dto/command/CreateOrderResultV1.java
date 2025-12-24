@@ -1,5 +1,6 @@
 package chill_logistics.order_server.application.dto.command;
 
+import chill_logistics.order_server.application.dto.query.ReadOrderDetailResultV1;
 import chill_logistics.order_server.domain.entity.Order;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,22 @@ public record CreateOrderResultV1(
                         .map(CreateOrderProductResultV1::from)
                         .toList(),
                 order.getCreatedAt()
+        );
+    }
+
+    public static CreateOrderResultV1 fromReadOrder(ReadOrderDetailResultV1 result) {
+        return new CreateOrderResultV1(
+                result.id(),
+                result.supplier().id(),
+                result.supplier().name(),
+                result.receiver().id(),
+                result.receiver().name(),
+                result.requestNote(),
+                result.orderProductList()
+                        .stream()
+                        .map(CreateOrderProductResultV1::fromReadOrder)
+                        .toList(),
+                result.createdAt()
         );
     }
 }

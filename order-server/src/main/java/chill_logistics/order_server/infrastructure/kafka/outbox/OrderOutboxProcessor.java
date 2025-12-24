@@ -3,12 +3,12 @@ package chill_logistics.order_server.infrastructure.kafka.outbox;
 import chill_logistics.order_server.domain.entity.OrderOutboxEvent;
 import chill_logistics.order_server.domain.entity.OrderOutboxStatus;
 import chill_logistics.order_server.domain.repository.OrderOutboxEventRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -22,7 +22,6 @@ public class OrderOutboxProcessor {
     private final OutboxEventTransactionManager transactionManager;
 
     @Scheduled(fixedDelay = FIXED_DELAY_MS)
-    @Transactional
     public void publishPendingEvents() {
 
         // 상태가 PENDING인 이벤트만 조회 & createdAt 기준 오래된 이벤트부터 처리

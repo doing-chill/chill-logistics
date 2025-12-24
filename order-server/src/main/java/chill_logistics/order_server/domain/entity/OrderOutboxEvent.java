@@ -28,8 +28,8 @@ public class OrderOutboxEvent {
     @Id
     @GeneratedValue(generator = "uuidv7")
     @GenericGenerator(
-        name = "uuidv7",
-        strategy = "lib.id.UUIDv7Generator"
+            name = "uuidv7",
+            strategy = "lib.id.UUIDv7Generator"
     )
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;

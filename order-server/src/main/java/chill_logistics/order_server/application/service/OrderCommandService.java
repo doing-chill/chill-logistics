@@ -1,21 +1,7 @@
 package chill_logistics.order_server.application.service;
 
-import chill_logistics.order_server.application.dto.command.CreateOrderCommandV1;
-import chill_logistics.order_server.application.dto.command.CreateOrderResultV1;
-import chill_logistics.order_server.application.dto.command.FirmInfoV1;
-import chill_logistics.order_server.application.dto.command.FirmResultV1;
-import chill_logistics.order_server.application.dto.command.OrderAfterCreateV1;
-import chill_logistics.order_server.application.dto.command.OrderCanceledV1;
-import chill_logistics.order_server.application.dto.command.OrderProductInfoV1;
-import chill_logistics.order_server.application.dto.command.ProductResultV1;
-import chill_logistics.order_server.application.dto.command.ReceiverInfoV1;
-import chill_logistics.order_server.application.dto.command.SupplierInfoV1;
-import chill_logistics.order_server.application.dto.command.UpdateOrderStatusCommandV1;
-import chill_logistics.order_server.domain.entity.Order;
-import chill_logistics.order_server.domain.entity.OrderOutboxEvent;
-import chill_logistics.order_server.domain.entity.OrderProduct;
-import chill_logistics.order_server.domain.entity.OrderQuery;
-import chill_logistics.order_server.domain.entity.OrderStatus;
+import chill_logistics.order_server.application.dto.command.*;
+import chill_logistics.order_server.domain.entity.*;
 import chill_logistics.order_server.domain.port.FirmPort;
 import chill_logistics.order_server.domain.port.HubPort;
 import chill_logistics.order_server.domain.port.ProductPort;
@@ -25,9 +11,6 @@ import chill_logistics.order_server.domain.repository.OrderRepository;
 import chill_logistics.order_server.lib.error.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 import lib.entity.Role;
 import lib.util.SecurityUtils;
 import lib.web.error.BusinessException;
@@ -36,6 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -43,6 +30,7 @@ public class OrderCommandService {
 
     private static final String EVENT_ORDER_AFTER_CREATE = "OrderAfterCreateV1";
     private static final String EVENT_ORDER_CANCELED = "OrderCanceledV1";
+    private static final String EVENT_STOCK_DECREASE = "StockDecreaseV1";
 
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
@@ -86,11 +74,13 @@ public class OrderCommandService {
         FirmResultV1 supplierResult = firmPort.readFirmById(command.supplierFirmId(), "SUPPLIER");
         FirmResultV1 receiverResult = firmPort.readFirmById(command.receiverFirmId(), "RECEIVER");
 
-        // 주문 상품 체크 및 재고 감소
+        // TODO: 재고 감소 비동기로 변경 필요 (카프카 이벤트 발행)
+        // 주문 상품 정보 구성
         List<OrderProductInfoV1> orderProductInfoList =
                 command.productList()
                         .stream()
                         .map(p -> {
+
                             // 상품 조회
                             ProductResultV1 product = productPort.readProductById(p.productId());
 
@@ -98,14 +88,6 @@ public class OrderCommandService {
                             if (!product.firmId().equals(command.supplierFirmId())) {
                                 throw new BusinessException(ErrorCode.PRODUCT_NOT_FROM_FIRM);
                             }
-
-                            // 상품 재고 체크
-                            if (product.stockQuantity() < p.quantity()) {
-                                throw new BusinessException(ErrorCode.OUT_OF_STOCK);
-                            }
-
-                            // 상품 재고 감소
-                            productPort.decreaseStock(p.productId(), p.quantity());
 
                             return new OrderProductInfoV1(
                                     p.productId(),
@@ -123,6 +105,9 @@ public class OrderCommandService {
                 command.requestNote(),
                 orderProductInfoList
         );
+
+        // 재고 확정 전 상태
+        order.updateStatus(OrderStatus.STOCK_PROCESSING);
 
         Order createOrder = orderRepository.save(order);
 
@@ -153,6 +138,17 @@ public class OrderCommandService {
 
         // Outbox 적재
         saveOutboxEvent(createOrder.getId(), EVENT_ORDER_AFTER_CREATE, message);
+
+        for (OrderProductInfoV1 p : orderProductInfoList) {
+
+            StockDecreaseV1 stockDecreaseMessage = new StockDecreaseV1(
+                    createOrder.getId(),
+                    p.productId(),
+                    p.quantity()
+            );
+
+            saveOutboxEvent(createOrder.getId(), EVENT_STOCK_DECREASE, stockDecreaseMessage);
+        }
 
         return CreateOrderResultV1.from(
                 createOrder,
@@ -226,5 +222,23 @@ public class OrderCommandService {
         saveOutboxEvent(order.getId(), EVENT_ORDER_CANCELED, message);
 
         // TODO: 주문 읽기 업데이트 (OrderStatus, delete)
+    }
+
+    @Transactional
+    public void decreaseStockCompleted(UUID orderId, UUID productId) {
+
+        Order order = orderRepository.findByIdForUpdate(orderId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+        order.markOrderProductStockConfirmed(productId);
+
+        if (order.hasAnyStockFailed()) {
+            order.cancelDueToStockFailure();
+            return;
+        }
+
+        if (order.isAllOrderProductsStockConfirmed()) {
+            order.markStockConfirmed();
+        }
     }
 }

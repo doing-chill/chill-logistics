@@ -49,6 +49,10 @@ public class OrderProduct {
     @Column(name = "quantity", nullable = false)
     private int quantity;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "stock_status", nullable = false, length = 50)
+    private StockStatus stockStatus;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
@@ -60,11 +64,16 @@ public class OrderProduct {
         orderProduct.productName = orderProductInfo.productName();
         orderProduct.productPrice = orderProductInfo.price();
         orderProduct.quantity = orderProductInfo.quantity();
+        orderProduct.stockStatus = StockStatus.STOCK_PENDING;
 
         return orderProduct;
     }
 
     protected void setOrder(Order order) {
         this.order = order;
+    }
+
+    public void markStockConfirmed() {
+        this.stockStatus = StockStatus.STOCK_CONFIRMED;
     }
 }

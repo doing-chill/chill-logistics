@@ -13,4 +13,6 @@ public interface OrderRepository {
     Optional<Order> findById(UUID orderId);
 
     List<Order> readOrderList(UUID supplierFirmId, UUID receiverFirmId, OrderStatus orderStatus);
+
+    Optional<Order> findByIdForUpdate(UUID orderId);
 }

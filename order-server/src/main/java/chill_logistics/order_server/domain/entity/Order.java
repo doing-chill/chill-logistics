@@ -39,7 +39,7 @@ public class Order extends BaseEntity {
     private String requestNote;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_status", nullable = false, length = 15)
+    @Column(name = "order_status", nullable = false, length = 50)
     private OrderStatus orderStatus;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -81,10 +81,44 @@ public class Order extends BaseEntity {
 
     private boolean canTransitionTo(OrderStatus status) {
         return switch (this.orderStatus) {
-            case CREATED -> status == OrderStatus.PROCESSING || status == OrderStatus.CANCELED;
+            case CREATED -> status == OrderStatus.STOCK_PROCESSING || status == OrderStatus.CANCELED;
+            case STOCK_PROCESSING -> status == OrderStatus.STOCK_CONFIRMED || status == OrderStatus.CANCELED;
+            case STOCK_CONFIRMED -> status == OrderStatus.PROCESSING || status == OrderStatus.CANCELED;
             case PROCESSING -> status == OrderStatus.IN_TRANSIT || status == OrderStatus.CANCELED;
             case IN_TRANSIT -> status == OrderStatus.COMPLETED;
             case COMPLETED, CANCELED -> false;
         };
+    }
+
+    public void markOrderProductStockConfirmed(UUID productId) {
+
+        OrderProduct item = this.orderProductList.stream()
+                .filter(p -> p.getProductId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_ITEM_NOT_FOUND));
+
+        if (item.getStockStatus() == StockStatus.STOCK_CONFIRMED) {
+            return;
+        }
+
+        item.markStockConfirmed();
+    }
+
+    public boolean hasAnyStockFailed() {
+        return orderProductList.stream()
+                .anyMatch(p -> p.getStockStatus() == StockStatus.STOCK_FAILED);
+    }
+
+    public boolean isAllOrderProductsStockConfirmed() {
+        return orderProductList.stream()
+                .allMatch(p -> p.getStockStatus() == StockStatus.STOCK_CONFIRMED);
+    }
+
+    public void markStockConfirmed() {
+        updateStatus(OrderStatus.STOCK_CONFIRMED);
+    }
+
+    public void cancelDueToStockFailure() {
+        updateStatus(OrderStatus.CANCELED);
     }
 }
