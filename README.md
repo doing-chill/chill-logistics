@@ -1,11 +1,11 @@
-# 🐾 PETORY
+# 🐾 chill-logistics
 
 <div align="center">
 
 <img src="https://github.com/user-attachments/assets/906ee278-6579-4b79-8ec2-b1882eec4cad" width="70%" />
 
 
-🐕**Chill Man과 함께하는 웹 플랫폼?**🐈‍⬛
+🐕**B2B 환경에서 허브 기반 배송 흐름을 관리하는 물류 관리 플랫폼**🐈‍⬛
 
 [[📖 API 문서]](https://chill-logistics.shop/swagger-ui/index.html)
 </div>
@@ -565,3 +565,4 @@ REST 중심의 동기 호출이 아닌, Kafka 기반 Event-Driven 방식으로 �
 
 Made with by chill-logistics Team
 </div>
+
