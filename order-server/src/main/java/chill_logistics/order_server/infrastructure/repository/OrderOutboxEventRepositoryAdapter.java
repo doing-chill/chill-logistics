@@ -3,11 +3,12 @@ package chill_logistics.order_server.infrastructure.repository;
 import chill_logistics.order_server.domain.entity.OrderOutboxEvent;
 import chill_logistics.order_server.domain.entity.OrderOutboxStatus;
 import chill_logistics.order_server.domain.repository.OrderOutboxEventRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 
 @RequiredArgsConstructor
 public class OrderOutboxEventRepositoryAdapter implements OrderOutboxEventRepository {
@@ -20,13 +21,13 @@ public class OrderOutboxEventRepositoryAdapter implements OrderOutboxEventReposi
     }
 
     @Override
-    public Optional<OrderOutboxEvent> findById(UUID id) {
-        return jpaRepository.findById(id);
+    public Optional<OrderOutboxEvent> findByIdForUpdate(UUID orderId) {
+        return jpaRepository.findByIdForUpdate(orderId);
     }
 
     @Override
     public List<OrderOutboxEvent> findPendingEvents(OrderOutboxStatus status, int batchSize) {
-        return jpaRepository.findPendingEventsForUpdate(status, PageRequest.of(0, batchSize));
+        return jpaRepository.findPendingEvents(status, PageRequest.of(0, batchSize));
     }
 
     @Override

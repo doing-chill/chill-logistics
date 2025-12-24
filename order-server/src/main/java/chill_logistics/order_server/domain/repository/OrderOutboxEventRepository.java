@@ -10,7 +10,7 @@ public interface OrderOutboxEventRepository {
 
     OrderOutboxEvent save(OrderOutboxEvent orderOutboxEvent);
 
-    Optional<OrderOutboxEvent> findById(UUID orderOutboxEventId);
+    Optional<OrderOutboxEvent> findByIdForUpdate(UUID orderOutboxEventId);
 
     List<OrderOutboxEvent> findPendingEvents(OrderOutboxStatus status, int batchSize);
 
