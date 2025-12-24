@@ -1,7 +1,5 @@
 package chill_logistics.product_server.application.service;
 
-import chill_logistics.product_server.domain.entity.Product;
-import chill_logistics.product_server.domain.repository.ProductRepository;
 import chill_logistics.product_server.infrastructure.kafka.StockDecreaseCompletedProducer;
 import chill_logistics.product_server.infrastructure.kafka.dto.StockDecreaseCompletedV1;
 import chill_logistics.product_server.lib.error.ErrorCode;
@@ -14,7 +12,6 @@ import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -29,9 +26,9 @@ public class StockSyncService {
     private static final int BATCH_SIZE_PER_PRODUCT = 1000;
 
     private final StringRedisTemplate redisTemplate;
-    private final ProductRepository productRepository;
     private final ObjectMapper objectMapper;
     private final StockDecreaseCompletedProducer stockDecreaseCompletedProducer;
+    private final StockDbApplyService stockDbApplyService;
 
     /**
      * 30분마다 호출되는 배치 엔트리포인트
@@ -59,6 +56,7 @@ public class StockSyncService {
             }
 
         } catch (Exception e) {
+            log.error("재고 db 동기화 중 실패 : ", e);
             throw new BusinessException(ErrorCode.STOCK_SYNC_FAILED);
         }
     }
@@ -109,7 +107,7 @@ public class StockSyncService {
         if (moved == 0) return; // 처리할 로그 없음
 
         // 2) DB 반영 (트랜잭션)
-        applyToDb(productId, totalDecrease);
+        stockDbApplyService.apply(productId, totalDecrease);
 
         // 3) 주문 단위 완료 이벤트 생성
         for (Map.Entry<UUID, Integer> e : decreaseByOrder.entrySet()) {
@@ -166,31 +164,6 @@ public class StockSyncService {
             return n.get(2).asText();
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.STOCK_LOG_CORRUPTED);
-        }
-    }
-
-    // DB 반영
-    @Transactional
-    protected void applyToDb(UUID productId, int netDecrease) {
-
-        if (netDecrease == 0) return;
-
-        Product product = productRepository.findByIdForUpdate(productId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        if (netDecrease > 0) {
-
-            // 감소
-            if (product.getStockQuantity() < netDecrease) {
-                // 여기 터지면 이미 Redis는 반영된 상태라, 설계상 "정산 불일치" 경고 케이스
-                // 우선은 실패로 두고 processing에 남겨 재처리 or 수동 조정
-                throw new BusinessException(ErrorCode.DB_STOCK_INCONSISTENT);
-            }
-
-            product.decreaseStock(netDecrease);
-        } else {
-            // 증가(롤백이 더 많았던 경우)
-            product.recoverStock(-netDecrease);
         }
     }
 }
