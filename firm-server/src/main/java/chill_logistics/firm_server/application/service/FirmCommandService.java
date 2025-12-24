@@ -2,32 +2,23 @@ package chill_logistics.firm_server.application.service;
 
 import chill_logistics.firm_server.application.dto.command.FirmCreateCommandV1;
 import chill_logistics.firm_server.application.dto.command.FirmUpdateCommandV1;
-import chill_logistics.firm_server.application.dto.query.FirmInfoListQueryV1;
-import chill_logistics.firm_server.application.dto.query.FirmInfoQueryV1;
-import chill_logistics.firm_server.application.dto.query.FirmSearchInfoQueryV1;
-import chill_logistics.firm_server.application.dto.query.HubSearchQueryV1;
 import chill_logistics.firm_server.application.dto.response.UserResponseV1;
 import chill_logistics.firm_server.application.port.HubClient;
 import chill_logistics.firm_server.application.port.UserClient;
 import chill_logistics.firm_server.domain.entity.Firm;
-import chill_logistics.firm_server.domain.entity.FirmType;
 import chill_logistics.firm_server.domain.repository.FirmRepository;
-import chill_logistics.firm_server.infrastructure.external.dto.response.FeignUserResponseV1;
 import chill_logistics.firm_server.lib.error.ErrorCode;
-import chill_logistics.firm_server.presentation.dto.request.FirmUpdateRequestV1;
 import feign.FeignException.FeignClientException;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 import lib.web.error.BusinessException;
-import lib.web.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class FirmService {
+public class FirmCommandService {
 
     private final FirmRepository firmRepository;
     private final UserClient userClient;
@@ -64,45 +55,7 @@ public class FirmService {
             command.latitude(),
             command.longitude()
         );
-
         firmRepository.save(firm);
-    }
-
-
-    @Transactional(readOnly = true)
-    public HubSearchQueryV1 searchFirm(UUID firmId) {
-
-        Firm firm = firmRepository.findById(firmId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
-
-        return new HubSearchQueryV1(firm.getHubId());
-    }
-
-
-    @Transactional(readOnly = true)
-    public FirmSearchInfoQueryV1 searchFirmInfo(UUID firmId, FirmType firmType) {
-
-        Firm firm = firmRepository.findByIdAndFirmTypeAndDeletedAtIsNull(firmId, firmType)
-            .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
-
-        return FirmSearchInfoQueryV1.from(firm.getId(), firm.getName(), firm.getHubId(), firm.getFullAddress(), firm.getOwnerName());
-    }
-
-    @Transactional(readOnly = true)
-    public List<FirmInfoListQueryV1> readAllFirm(int page, int size) {
-
-        List<Firm> firmList = firmRepository.findAll(page, size);
-
-        return FirmInfoListQueryV1.from(firmList);
-    }
-
-    @Transactional(readOnly = true)
-    public FirmInfoQueryV1 readFirm(UUID firmId) {
-
-        Firm firm = firmRepository.findById(firmId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
-
-        return FirmInfoQueryV1.from(firm);
     }
 
     @Transactional
@@ -110,7 +63,7 @@ public class FirmService {
         Firm firm = firmRepository.findById(firmId)
             .orElseThrow(() -> new BusinessException(ErrorCode.FIRM_NOT_FOUND));
 
-       duplicateFirm(command.hubId(), command.name(), command.fullAddress(), command.latitude(), command.longitude());
+        duplicateFirm(command.hubId(), command.name(), command.fullAddress(), command.latitude(), command.longitude());
 
         firm.update(
             command.name(),
@@ -139,8 +92,6 @@ public class FirmService {
         firm.delete(userId);
     }
 
-
-
     private void duplicateFirm(UUID hubId, String firmName, String fullAddress, BigDecimal latitude, BigDecimal longitude) {
         // 기존에 존재하는 허브인지 검증
         if (! hubClient.readHubInfo(hubId)){
@@ -152,7 +103,7 @@ public class FirmService {
             throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
         }
 
-        // fulladdress가 중복인지
+        // fullAddress가 중복인지
         if (firmRepository.existsByFullAddressAndDeletedAtIsNull(fullAddress)){
             throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
         }
@@ -162,6 +113,5 @@ public class FirmService {
             throw new BusinessException(ErrorCode.HUB_ALREADY_EXISTS);
         }
     }
-
 
 }
