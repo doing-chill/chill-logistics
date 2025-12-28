@@ -1,6 +1,6 @@
 package chill_logistics.hub_server.presentation.controller;
 
-import chill_logistics.hub_server.application.service.HubInfoService;
+import chill_logistics.hub_server.application.service.HubInfoFacade;
 import chill_logistics.hub_server.application.dto.query.HubRoadInfoListQuery;
 import chill_logistics.hub_server.application.dto.query.HubRoadInfoQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubInfoRequestV1;
@@ -30,7 +30,7 @@ import java.util.UUID;
 // 허브 경로
 public class HubInfoControllerV1 {
 
-    private final HubInfoService hubInfoService;
+    private final HubInfoFacade hubInfoFacade;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -40,11 +40,10 @@ public class HubInfoControllerV1 {
 
         @RequestBody @Valid CreateHubInfoRequestV1 createHubInfoRequest) {
 
-        hubInfoService.createHubInfo(createHubInfoRequest.toCreateHubInfoCommand());
+        hubInfoFacade.createHubInfo(createHubInfoRequest.toCreateHubInfoCommand());
 
         return BaseResponse.ok(BaseStatus.CREATED);
     }
-
 
     @GetMapping("/{hubInfoId}")
     @ResponseStatus(HttpStatus.OK)
@@ -53,7 +52,7 @@ public class HubInfoControllerV1 {
     public BaseResponse<HubRoadInfoResponseV1> readHubInfo(
         @PathVariable UUID hubInfoId) {
 
-        HubRoadInfoQueryV1 hubRoadInfoQuery = hubInfoService.readHubInfo(hubInfoId);
+        HubRoadInfoQueryV1 hubRoadInfoQuery = hubInfoFacade.readHubInfo(hubInfoId);
 
         return BaseResponse.ok(HubRoadInfoResponseV1.from(hubRoadInfoQuery), BaseStatus.OK);
     }
@@ -68,12 +67,10 @@ public class HubInfoControllerV1 {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
-        List<HubRoadInfoListQuery> hubRoadInfoListQueries = hubInfoService.readAllHubInfo(page, size);
+        List<HubRoadInfoListQuery> hubRoadInfoListQueries = hubInfoFacade.readAllHubInfo(page, size);
 
         return BaseResponse.ok(HubRoadInfoListResponseV1.from(hubRoadInfoListQueries), BaseStatus.OK);
     }
-
-
 
     @PatchMapping("/{hubInfoId}")
     @ResponseStatus(HttpStatus.OK)
@@ -83,12 +80,10 @@ public class HubInfoControllerV1 {
         @PathVariable UUID hubInfoId,
         @RequestBody @Valid UpdateHubInfoRequestV1 updateHubInfoRequest){
 
-        hubInfoService.updateHubInfo(hubInfoId, updateHubInfoRequest.to());
+        hubInfoFacade.updateHubInfo(hubInfoId, updateHubInfoRequest.to());
 
         return BaseResponse.ok(BaseStatus.OK);
     }
-
-
 
     @DeleteMapping("/{hubInfoId}")
     @ResponseStatus(HttpStatus.OK)
@@ -98,7 +93,7 @@ public class HubInfoControllerV1 {
 
         @PathVariable UUID hubInfoId){
 
-        hubInfoService.deleteHubInfo(SecurityUtils.getCurrentUserId(), hubInfoId);
+        hubInfoFacade.deleteHubInfo(SecurityUtils.getCurrentUserId(), hubInfoId);
 
         return BaseResponse.ok(BaseStatus.OK);
     }
