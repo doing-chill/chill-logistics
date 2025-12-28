@@ -10,6 +10,8 @@ import chill_logistics.firm_server.domain.repository.FirmRepository;
 import chill_logistics.firm_server.lib.error.ErrorCode;
 import java.util.List;
 import java.util.UUID;
+import lib.pagination.CustomPageRequest;
+import lib.pagination.CustomPageResult;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,9 +44,11 @@ public class FirmQueryService {
 
     // 업체들 조회
     @Transactional(readOnly = true)
-    public List<FirmInfoListQueryV1> readAllFirm(int page, int size) {
+    public FirmInfoListQueryV1 readAllFirm(int page, int size) {
 
-        List<Firm> firmList = firmRepository.findAll(page, size);
+        CustomPageRequest customPageRequest = CustomPageRequest.of(page, size, 0, 10);
+
+        CustomPageResult<Firm> firmList = firmRepository.findAll(customPageRequest);
 
         return FirmInfoListQueryV1.from(firmList);
     }

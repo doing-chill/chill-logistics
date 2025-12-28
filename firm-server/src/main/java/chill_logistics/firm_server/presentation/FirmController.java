@@ -48,13 +48,12 @@ public class FirmController {
         return BaseResponse.ok(BaseStatus.CREATED);
     }
 
-
     // 업체들 조회
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'DELIVERY_MANAGER', 'FIRM_MANAGER')")
     @Operation(summary = "업체들 조회", description = "업체들 조회 API입니다.")
-    public BaseResponse<List<FirmInfoListResponseV1>> readAllFirm(
+    public BaseResponse<FirmInfoListResponseV1> readAllFirm(
         @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
         return BaseResponse.ok(FirmInfoListResponseV1.from(firmFacade.readAllFirm(page, size)), BaseStatus.OK);
@@ -92,8 +91,6 @@ public class FirmController {
         return BaseResponse.ok(BaseStatus.OK);
     }
 
-
-
     // 수령 허브 ID 조회
     @GetMapping("/hubIdSearch/{firmId}")
     @ResponseStatus(HttpStatus.OK)
@@ -104,8 +101,6 @@ public class FirmController {
         return BaseResponse.ok(HubSearchIdResponseV1.from(firmFacade.searchFirm(firmId)), BaseStatus.OK);
     }
 
-
-
     // 업체 Id로 허브 Id 조회
     @GetMapping("/{firmId}/firmType/{firmType}")
     @ResponseStatus(HttpStatus.OK)
@@ -115,8 +110,4 @@ public class FirmController {
 
         return BaseResponse.ok(FirmSearchInfoResponseV1.from(firmFacade.searchFirmHubInfo(firmId, firmType)), BaseStatus.OK);
     }
-
-
-
-
 }

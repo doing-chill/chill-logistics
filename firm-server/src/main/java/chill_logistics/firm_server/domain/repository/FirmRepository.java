@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lib.pagination.CustomPageRequest;
+import lib.pagination.CustomPageResult;
 
 public interface FirmRepository {
 
@@ -19,5 +21,5 @@ public interface FirmRepository {
 
     Optional<Firm> findByIdAndFirmTypeAndDeletedAtIsNull(UUID firmId, FirmType firmType);
 
-    List<Firm> findAll(int page, int size);
+    CustomPageResult<Firm> findAll(CustomPageRequest pageRequest);
 }

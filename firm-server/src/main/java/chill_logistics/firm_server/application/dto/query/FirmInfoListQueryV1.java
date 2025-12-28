@@ -2,15 +2,22 @@ package chill_logistics.firm_server.application.dto.query;
 
 import chill_logistics.firm_server.domain.entity.Firm;
 import java.util.List;
-import java.util.UUID;
+import lib.pagination.CustomPageResult;
 
 public record FirmInfoListQueryV1 (
-    UUID id,
-    String name
+    List<FirmInfosQueryV1> contents,
+    int page,
+    int size,
+    long totalCount,
+    boolean hasNext,
+    int totalPages
 ){
-    public static List<FirmInfoListQueryV1> from (List<Firm> firms) {
-        return firms.stream()
-            .map(firm ->  new FirmInfoListQueryV1(firm.getId(), firm.getName()))
-            .toList();
+    public static FirmInfoListQueryV1 from (CustomPageResult<Firm> firms) {
+
+        List<FirmInfosQueryV1> firmInfoQuery = firms.getItemList()
+            .stream().map(FirmInfosQueryV1::from).toList();
+
+        return new FirmInfoListQueryV1(firmInfoQuery, firms.getPage(), firms.getSize(),
+            firms.getTotalCount(), firms.isHasNext(), firms.totalPages());
     }
 }
