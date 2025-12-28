@@ -1,6 +1,6 @@
 package chill_logistics.hub_server.presentation.controller;
 
-import chill_logistics.hub_server.application.service.HubService;
+import chill_logistics.hub_server.application.service.HubFacade;
 import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
 import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubRequestV1;
@@ -30,8 +30,7 @@ import java.util.UUID;
 @Tag(name = "1. 허브 관리", description = "허브 관리용 API")
 public class HubControllerV1 {
 
-    private final HubService hubService;
-
+    private final HubFacade hubFacade;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -40,12 +39,10 @@ public class HubControllerV1 {
     public BaseResponse<Void> createHub(@RequestBody @Valid CreateHubRequestV1 createHubRequest) {
 
         // 본인 userId가 아니라 이미 존재하는 유저인지 확인 후 넣게 작업 필요
-        hubService.createHub(createHubRequest.toCreateHubCommand(createHubRequest));
+        hubFacade.createHub(createHubRequest.toCreateHubCommand(createHubRequest));
 
         return BaseResponse.ok(BaseStatus.CREATED);
     }
-
-
 
     // 허브 검색
     @GetMapping
@@ -58,12 +55,10 @@ public class HubControllerV1 {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
-        List<HubListQueryV1> hubListQueries = hubService.readAllHub(hubName, page, size);
+        List<HubListQueryV1> hubListQueries = hubFacade.readAllHub(hubName, page, size);
 
         return BaseResponse.ok(HubListResponseV1.fromHubListQuery(hubListQueries), BaseStatus.OK);
     }
-
-
 
     // 단건 조회
     @GetMapping("/{hubId}")
@@ -72,12 +67,10 @@ public class HubControllerV1 {
     @Operation(summary = "허브 상세 조회", description = "허브 상세 조회 API입니다.")
     public BaseResponse<HubInfoResponseV1> readOneHub(@PathVariable UUID hubId) {
 
-        HubInfoQueryV1 hubInfoQuery = hubService.readOneHub(hubId);
+        HubInfoQueryV1 hubInfoQuery = hubFacade.readOneHub(hubId);
 
         return BaseResponse.ok(HubInfoResponseV1.from(hubInfoQuery), BaseStatus.OK);
     }
-
-
 
     // 허브 업데이트
     @PatchMapping("/{hubId}")
@@ -87,7 +80,7 @@ public class HubControllerV1 {
     public BaseResponse<Void> updateHub(
         @PathVariable UUID hubId, @RequestBody @Valid UpdateHubRequestV1 updateHubRequest) {
 
-        hubService.updateHub(hubId, updateHubRequest.toUpdateHubCommandV1());
+        hubFacade.updateHub(hubId, updateHubRequest.toUpdateHubCommandV1());
 
         return BaseResponse.ok(BaseStatus.OK);
     }
@@ -100,11 +93,10 @@ public class HubControllerV1 {
     public BaseResponse<Void> deleteHub(
         @PathVariable UUID hubId) {
 
-        hubService.deleteHub(SecurityUtils.getCurrentUserId(), hubId);
+        hubFacade.deleteHub(SecurityUtils.getCurrentUserId(), hubId);
 
         return BaseResponse.ok(BaseStatus.OK);
     }
-
 
     // 존재하는 허브인지 확인 단순 boolean
     @GetMapping("/internal/{hubId}")
@@ -112,7 +104,8 @@ public class HubControllerV1 {
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
     @Operation(summary = "허브 존재 확인", description = "허브 존재 확인 API 입니다.")
     public boolean validateHub(@PathVariable UUID hubId) {
-        return hubService.validateHub(hubId);
+
+        return hubFacade.validateHub(hubId);
     }
 
 
@@ -122,9 +115,8 @@ public class HubControllerV1 {
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
     @Operation(summary = "유저의 허브 조회", description = "유저가 소유한 hubId 반환 API입니다.")
     public BaseResponse<List<UserHubsResponseV1>> readUserHubs(@PathVariable UUID userId){
-        List<UserHubsResponseV1> userHubsResponse = UserHubsResponseV1.from(hubService.readUserHubs(userId));
+        List<UserHubsResponseV1> userHubsResponse = UserHubsResponseV1.from(hubFacade.readUserHubs(userId));
 
         return BaseResponse.ok(userHubsResponse, BaseStatus.OK);
-
     }
 }
