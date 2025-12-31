@@ -1,8 +1,9 @@
 package chill_logistics.hub_server.presentation.controller;
 
+import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.application.service.HubFacade;
 import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
-import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
+import chill_logistics.hub_server.application.dto.query.HubListInfoQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.request.UpdateHubRequestV1;
 import chill_logistics.hub_server.presentation.dto.response.HubInfoResponseV1;
@@ -49,15 +50,14 @@ public class HubControllerV1 {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
     @Operation(summary = "허브 검색", description = "허브 검색 API입니다.")
-    public BaseResponse<List<HubListResponseV1>> readAllHub(
-
+    public BaseResponse<HubListResponseV1> readAllHub(
         @RequestParam(required = false) String hubName,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
-        List<HubListQueryV1> hubListQueries = hubFacade.readAllHub(hubName, page, size);
+        HubListQueryV1 hubListQuery = hubFacade.readAllHub(hubName, page, size);
 
-        return BaseResponse.ok(HubListResponseV1.fromHubListQuery(hubListQueries), BaseStatus.OK);
+        return BaseResponse.ok(HubListResponseV1.fromHubListQuery(hubListQuery), BaseStatus.OK);
     }
 
     // 단건 조회
@@ -85,7 +85,6 @@ public class HubControllerV1 {
         return BaseResponse.ok(BaseStatus.OK);
     }
 
-
     @DeleteMapping({"{hubId}"})
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('MASTER')")
@@ -107,7 +106,6 @@ public class HubControllerV1 {
 
         return hubFacade.validateHub(hubId);
     }
-
 
     // 유저 id가 들어오면 해당 유저가 소유한 hubId 반환
     @GetMapping("/userHubs/{userId}")

@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import lib.pagination.CustomPageRequest;
+import lib.pagination.CustomPageResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,10 +30,17 @@ public class HubRepositoryAdapter implements HubRepository {
     }
 
     @Override
-    public List<Hub> findAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+    public CustomPageResult<Hub> findAll(CustomPageRequest pageRequest) {
+        Pageable pageable = PageRequest.of(pageRequest.page(), pageRequest.size(), Sort.by("name").ascending());
 
-        return jpaHubRepository.findAllByDeletedAtIsNull(pageable);
+        Page<Hub> readAllHub = jpaHubRepository.findAllByDeletedAtIsNull(pageable);
+
+        return CustomPageResult.of(
+            readAllHub.getContent(),
+            readAllHub.getNumber(),
+            readAllHub.getSize(),
+            readAllHub.getTotalElements()
+            );
     }
 
     @Override
@@ -44,10 +54,18 @@ public class HubRepositoryAdapter implements HubRepository {
     }
 
     @Override
-    public List<Hub> findByNameOrFullAddressContaining(String nameOrFullAddress, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public CustomPageResult<Hub> findByNameOrFullAddressContaining(String nameOrFullAddress, CustomPageRequest pageRequest) {
+        Pageable pageable = PageRequest.of(pageRequest.page(), pageRequest.size());
 
-        return jpaHubRepository.findByNameContainingOrFullAddressContainingAndDeletedAtIsNotNull(nameOrFullAddress, nameOrFullAddress, pageable);
+        Page<Hub> readHubSearchByName = jpaHubRepository.findByNameContainingOrFullAddressContainingAndDeletedAtIsNotNull(
+            nameOrFullAddress, nameOrFullAddress, pageable);
+
+        return CustomPageResult.of(
+            readHubSearchByName.getContent(),
+            readHubSearchByName.getNumber(),
+            readHubSearchByName.getSize(),
+            readHubSearchByName.getTotalElements()
+        );
     }
 
     @Override

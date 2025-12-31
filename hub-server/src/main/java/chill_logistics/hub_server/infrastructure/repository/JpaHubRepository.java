@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,13 +13,13 @@ public interface JpaHubRepository extends JpaRepository<Hub, UUID> {
 
     Optional<Hub> findByIdAndDeletedAtIsNull(UUID id);
 
-    List<Hub> findByNameContainingOrFullAddressContainingAndDeletedAtIsNotNull(String name, String address, Pageable pageable);
+    Page<Hub> findByNameContainingOrFullAddressContainingAndDeletedAtIsNotNull(String name, String address, Pageable pageable);
 
     boolean existsByName(String name);
 
     boolean existsByIdAndDeletedAtIsNull(UUID id);
 
-    List<Hub> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<Hub> findAllByDeletedAtIsNull(Pageable pageable);
 
     List<Hub> findAllByIdInAndDeletedAtIsNull(Collection<UUID> ids);
 

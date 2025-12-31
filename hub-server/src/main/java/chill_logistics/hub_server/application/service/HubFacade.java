@@ -3,6 +3,7 @@ package chill_logistics.hub_server.application.service;
 import chill_logistics.hub_server.application.dto.command.CreateHubCommandV1;
 import chill_logistics.hub_server.application.dto.command.UpdateHubCommandV1;
 import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
+import chill_logistics.hub_server.application.dto.query.HubListInfoQueryV1;
 import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.application.dto.query.UserHubsQueryV1;
 import chill_logistics.hub_server.application.port.UserClient;
@@ -35,8 +36,7 @@ public class HubFacade {
         hubCommandService.deleteHub(currentUserId, hubId);
     }
 
-
-    public List<HubListQueryV1> readAllHub(String hubName, int page, int size) {
+    public HubListQueryV1 readAllHub(String hubName, int page, int size) {
         return hubQueryService.readAllHub(hubName, page, size);
     }
 

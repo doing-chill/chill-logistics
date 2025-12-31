@@ -57,8 +57,6 @@ public class HubInfoControllerV1 {
         return BaseResponse.ok(HubRoadInfoResponseV1.from(hubRoadInfoQuery), BaseStatus.OK);
     }
 
-
-
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
