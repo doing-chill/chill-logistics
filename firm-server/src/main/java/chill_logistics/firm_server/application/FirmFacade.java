@@ -12,6 +12,7 @@ import chill_logistics.firm_server.application.service.FirmQueryService;
 import chill_logistics.firm_server.domain.entity.FirmType;
 import java.util.List;
 import java.util.UUID;
+import lib.pagination.CustomPageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +45,7 @@ public class FirmFacade {
         return firmQueryService.searchFirmHubInfo(firmId, firmType);
     }
 
-    public List<FirmInfoListQueryV1> readAllFirm(int page, int size) {
+    public FirmInfoListQueryV1 readAllFirm(int page, int size) {
         return firmQueryService.readAllFirm(page, size);
     }
 

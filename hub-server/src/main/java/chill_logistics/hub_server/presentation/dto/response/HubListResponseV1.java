@@ -1,20 +1,22 @@
 package chill_logistics.hub_server.presentation.dto.response;
 
+import chill_logistics.hub_server.application.dto.query.HubListInfoQueryV1;
 import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public record HubListResponseV1(
-   UUID hubId,
-   String name,
-   String fullAddress
+    List<HubListInfoQueryV1> contents,
+    int page,
+    int size,
+    long totalCount,
+    boolean hasNext,
+    int totalPages
 ){
-    public static List<HubListResponseV1>  fromHubListQuery(List<HubListQueryV1> hubListQueryV1) {
-        List<HubListResponseV1> hubListResponse = new ArrayList<>();
-        for (HubListQueryV1 hubQueryItem : hubListQueryV1) {
-            hubListResponse.add(new HubListResponseV1(hubQueryItem.hubId(), hubQueryItem.name(), hubQueryItem.fullAddress()));
-        }
-        return hubListResponse;
+    public static HubListResponseV1 fromHubListQuery(HubListQueryV1 hubListQuery) {
+        return new HubListResponseV1(hubListQuery.contents(), hubListQuery.page(),
+            hubListQuery.size(), hubListQuery.totalCount(), hubListQuery.hasNext(),
+            hubListQuery.totalPages());
     }
 }

@@ -1,6 +1,7 @@
 package chill_logistics.hub_server.application.service.query;
 
 import chill_logistics.hub_server.application.dto.query.HubInfoQueryV1;
+import chill_logistics.hub_server.application.dto.query.HubListInfoQueryV1;
 import chill_logistics.hub_server.application.dto.query.HubListQueryV1;
 import chill_logistics.hub_server.application.dto.query.UserHubsQueryV1;
 import chill_logistics.hub_server.domain.entity.Hub;
@@ -8,6 +9,8 @@ import chill_logistics.hub_server.domain.repository.HubRepository;
 import chill_logistics.hub_server.lib.error.ErrorCode;
 import java.util.List;
 import java.util.UUID;
+import lib.pagination.CustomPageRequest;
+import lib.pagination.CustomPageResult;
 import lib.web.error.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,17 +24,20 @@ public class HubQueryService {
 
     // 허브 리스트 조회
     @Transactional(readOnly = true)
-    public List<HubListQueryV1> readAllHub(String hubName, int page, int size) {
+    public HubListQueryV1 readAllHub(String hubName, int page, int size) {
+
+        CustomPageRequest customPageRequest = CustomPageRequest.of(page, size, 0, 10);
 
         // 허브에 이름이나 주소로 검색
-        List<Hub> hubList;
+        CustomPageResult<Hub> pageResultHub;
         if (hubName == null || hubName.isEmpty()){
-            hubList = hubRepository.findAll(page, size);
+            pageResultHub = hubRepository.findAll(customPageRequest);
         }else {
-            hubList =  hubRepository.findByNameOrFullAddressContaining(hubName, page, size);
+            pageResultHub = hubRepository.findByNameOrFullAddressContaining
+                (hubName, customPageRequest);
         }
 
-        return HubListQueryV1.fromHubs(hubList);
+        return HubListQueryV1.from(pageResultHub);
     }
 
     // 허브 단건 조회

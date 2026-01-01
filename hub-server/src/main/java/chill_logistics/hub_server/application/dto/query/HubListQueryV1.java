@@ -1,23 +1,24 @@
 package chill_logistics.hub_server.application.dto.query;
 
 import chill_logistics.hub_server.domain.entity.Hub;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import lib.pagination.CustomPageResult;
 
-public record HubListQueryV1(
+public record HubListQueryV1 (
+    List<HubListInfoQueryV1> contents,
+    int page,
+    int size,
+    long totalCount,
+    boolean hasNext,
+    int totalPages
+) {
 
-    UUID hubId,
-    String name,
-    String fullAddress
+    public static HubListQueryV1 from(CustomPageResult<Hub> hubs) {
 
-){
-    public static List<HubListQueryV1> fromHubs(List<Hub> hubs) {
-        List<HubListQueryV1> hubListQueryV1 = new ArrayList<>();
-        for (Hub hub : hubs) {
-            hubListQueryV1.add(new HubListQueryV1(hub.getId(), hub.getName(), hub.getFullAddress()));
-        }
-        return hubListQueryV1;
+        List<HubListInfoQueryV1> hubListQuery = hubs.getItemList()
+            .stream().map(HubListInfoQueryV1::from).toList();
+
+        return new HubListQueryV1(hubListQuery, hubs.getPage(), hubs.getSize(),
+            hubs.getTotalCount(), hubs.isHasNext(), hubs.totalPages());
     }
-
 }

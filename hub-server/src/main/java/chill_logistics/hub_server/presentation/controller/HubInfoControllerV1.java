@@ -5,7 +5,7 @@ import chill_logistics.hub_server.application.dto.query.HubRoadInfoListQuery;
 import chill_logistics.hub_server.application.dto.query.HubRoadInfoQueryV1;
 import chill_logistics.hub_server.presentation.dto.request.CreateHubInfoRequestV1;
 import chill_logistics.hub_server.presentation.dto.request.UpdateHubInfoRequestV1;
-import chill_logistics.hub_server.presentation.dto.response.HubRoadInfoListResponseV1;
+import chill_logistics.hub_server.presentation.dto.response.HubRoadInfosResponseV1;
 import chill_logistics.hub_server.presentation.dto.response.HubRoadInfoResponseV1;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,19 +57,17 @@ public class HubInfoControllerV1 {
         return BaseResponse.ok(HubRoadInfoResponseV1.from(hubRoadInfoQuery), BaseStatus.OK);
     }
 
-
-
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER', 'HUB_DELIVERY_MANAGER', 'FIRM_DELIVERY_MANAGER', 'FIRM_MANAGER')")
     @Operation(summary = "허브 경로들 조회", description = "허브 경로들 조회 API입니다.")
-    public BaseResponse<List<HubRoadInfoListResponseV1>> readAllHubInfo(
+    public BaseResponse<List<HubRoadInfosResponseV1>> readAllHubInfo(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
         List<HubRoadInfoListQuery> hubRoadInfoListQueries = hubInfoFacade.readAllHubInfo(page, size);
 
-        return BaseResponse.ok(HubRoadInfoListResponseV1.from(hubRoadInfoListQueries), BaseStatus.OK);
+        return BaseResponse.ok(HubRoadInfosResponseV1.from(hubRoadInfoListQueries), BaseStatus.OK);
     }
 
     @PatchMapping("/{hubInfoId}")

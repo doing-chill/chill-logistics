@@ -7,7 +7,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lib.pagination.CustomPageRequest;
+import lib.pagination.CustomPageResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -47,9 +50,17 @@ public class FirmRepositoryAdapter implements FirmRepository {
     }
 
     @Override
-    public List<Firm> findAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return jpaFirmRepository.findAllByDeletedAtIsNull(pageable);
+    public CustomPageResult<Firm> findAll(CustomPageRequest pageRequest) {
+        Pageable pageable = PageRequest.of(pageRequest.page(), pageRequest.size());
+
+        Page<Firm> firms = jpaFirmRepository.findAllByDeletedAtIsNull(pageable);
+
+        return CustomPageResult.of(
+            firms.getContent(),
+            firms.getNumber(),
+            firms.getSize(),
+            firms.getTotalElements()
+        );
     }
 
 }

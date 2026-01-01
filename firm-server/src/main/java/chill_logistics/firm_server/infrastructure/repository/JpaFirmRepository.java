@@ -5,6 +5,7 @@ import chill_logistics.firm_server.domain.entity.FirmType;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -20,5 +21,5 @@ public interface JpaFirmRepository extends JpaRepository<Firm, UUID> {
 
     Optional<Firm> findByIdAndFirmTypeAndDeletedAtIsNull(UUID firmId, FirmType firmType);
 
-    List<Firm> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<Firm> findAllByDeletedAtIsNull(Pageable pageable);
 }

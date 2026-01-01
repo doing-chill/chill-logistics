@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import lib.pagination.CustomPageRequest;
+import lib.pagination.CustomPageResult;
 
 public interface HubRepository {
 
@@ -12,18 +14,17 @@ public interface HubRepository {
 
     void save(Hub hub);
 
-    List<Hub> findAll(int page, int size);
+    CustomPageResult<Hub> findAll(CustomPageRequest pageRequest);
 
     boolean existsById(UUID hubId);
 
     Optional<Hub> findById(UUID hubId);
 
-    List<Hub> findByNameOrFullAddressContaining(String nameOrFullAddress, int page, int size);
+    CustomPageResult<Hub> findByNameOrFullAddressContaining(String nameOrFullAddress, CustomPageRequest pageRequest);
 
     List<Hub> findByIds(Set<UUID> hubIds);
 
     List<Hub> findByHubManagerId(UUID hubManagerId);
 
     List<Hub> findAllById(List<UUID> hubIds);
-
 }

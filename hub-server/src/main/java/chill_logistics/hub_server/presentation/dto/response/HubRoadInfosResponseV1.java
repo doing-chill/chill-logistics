@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public record HubRoadInfoListResponseV1 (
+public record HubRoadInfosResponseV1(
 
     UUID hubInfoId,
     UUID startHubId,
@@ -13,11 +13,11 @@ public record HubRoadInfoListResponseV1 (
     UUID endHubId,
     String endHubName )
 {
-    public static List<HubRoadInfoListResponseV1> from (List<HubRoadInfoListQuery> queries){
-        List<HubRoadInfoListResponseV1 > hubRoadInfoListResponse = new ArrayList<>();
+    public static List<HubRoadInfosResponseV1> from (List<HubRoadInfoListQuery> queries){
+        List<HubRoadInfosResponseV1> hubRoadInfoListResponse = new ArrayList<>();
 
         for (HubRoadInfoListQuery query : queries) {
-            hubRoadInfoListResponse.add(new HubRoadInfoListResponseV1 (query.hubInfoId(),
+            hubRoadInfoListResponse.add(new HubRoadInfosResponseV1(query.hubInfoId(),
                 query.startHubId(), query.startHubName(), query.endHubId(), query.endHubName()));
         }
 
