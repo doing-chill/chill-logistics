@@ -35,6 +35,12 @@ public class PassportAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // 화이트리스트
+
+        if (path.startsWith("/route")||path.startsWith("/actuator")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (permitAllPrefixes != null && permitAllPrefixes.stream().anyMatch(path::startsWith)) {
             filterChain.doFilter(request, response);
             return;
