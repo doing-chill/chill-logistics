@@ -1,4 +1,4 @@
-package chill_logistics.hub_server.infrastructure.cache;
+package chill_logistics.hub_server.infrastructure.actuator;
 
 import java.util.Map;
 import lombok.RequiredArgsConstructor;

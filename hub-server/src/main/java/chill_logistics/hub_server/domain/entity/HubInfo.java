@@ -70,6 +70,14 @@ public class HubInfo extends BaseEntity {
 
         // 5분 이상 차이가 난다면 true
         return diffMinutes >= 5;
+
+        // TODO 캐시 스탬피드 현상 측정을 위해 넣음
+        // 두 시간 차이를 분 단위로 계산
+//        long time = Duration.between(updatedAt, updateTime).toSeconds();
+//
+//        // 5초 차이가 난다면 true
+//        return time >= 5;
+
     }
 
     public void updateHubInfo(UUID startHubId, UUID endHubId) {

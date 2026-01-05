@@ -1,4 +1,4 @@
-package chill_logistics.hub_server.infrastructure.cache;
+package chill_logistics.hub_server.infrastructure.actuator;
 
 import java.util.concurrent.atomic.LongAdder;
 import org.springframework.stereotype.Component;
