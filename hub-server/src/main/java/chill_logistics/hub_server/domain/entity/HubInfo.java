@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -15,7 +16,16 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Entity
-@Table(name = "p_hub_info")
+@Table(
+    name = "p_hub_info",
+    indexes = {
+        @Index(
+            name = "uk_start_end_hub",
+            columnList = "start_hub_id, end_hub_id",
+            unique = true
+        )
+    }
+)
 public class HubInfo extends BaseEntity {
 
     @Id
