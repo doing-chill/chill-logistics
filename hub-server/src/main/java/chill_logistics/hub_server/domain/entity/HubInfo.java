@@ -78,8 +78,7 @@ public class HubInfo extends BaseEntity {
         // 두 시간 차이를 분 단위로 계산
         long diffMinutes = Duration.between(updatedAt, updateTime).toMinutes();
 
-        // 5분 이상 차이가 난다면 true
-        //return diffMinutes >= 5;
+        // 15분 이상 차이가 난다면 true
         return diffMinutes >= 15;
     }
 
