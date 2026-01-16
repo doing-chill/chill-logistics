@@ -25,6 +25,8 @@ dependencies {
     testImplementation 'org.springframework.kafka:spring-kafka-test'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    implementation 'org.apache.commons:commons-pool2:2.12.0'
 }
 
 tasks.named('test') {

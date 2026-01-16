@@ -1,6 +1,5 @@
 package chill_logistics.hub_server.application.service;
 
-
 import chill_logistics.hub_server.application.route.HubRouteEdge;
 import chill_logistics.hub_server.application.route.HubRouteNode;
 import chill_logistics.hub_server.application.port.HubEdgeWeightProvider;
@@ -42,7 +41,6 @@ public class HubRouteService {
     private final HubRouteLogStopRepository hubRouteLogStopRepository;
     private final HubRepository hubRepository;
 
-
     /**
      * 최단 시간 기준 경로 탐색 + 로그 저장
      */
@@ -67,7 +65,6 @@ public class HubRouteService {
             throw new BusinessException(ErrorCode.HUB_ROUTE_NOT_FOUND);
         }
 
-
         // 1. 인접 리스트 그래프 구성 (duration 기준 weight)
         Map<UUID, List<HubRouteEdge>> graph = new HashMap<>();
 
@@ -77,12 +74,12 @@ public class HubRouteService {
 
             // computeInfAbsent -> Map에서 key가 없을 때만 value를 생성해서 넣어주는 메서드
             graph.computeIfAbsent(from, k -> new ArrayList<>()).add(new HubRouteEdge(to, info));
-
         }
 
         // 2. 다익스트라 실행
         return dijkstraByDuration(graph, startHubId, endHubId);
     }
+
 
     private HubRouteResult dijkstraByDuration(Map<UUID, List<HubRouteEdge>> graph, UUID startHubId, UUID endHubId) {
 
@@ -105,12 +102,10 @@ public class HubRouteService {
         // 시작 허브를 시간 0으로 큐에 넣어서 다익스트라 탐색 시작
         pq.offer(new HubRouteNode(startHubId, 0));
 
-
         // 가장 누적 시간이 짧은 허브부터 꺼내서, 허브에서 갈 수 있는 모든 인접 허브의 거리를 갱신
         while (!pq.isEmpty()) {
             HubRouteNode cur = pq.poll();
             UUID curId = cur.getHubId();
-
 
             // 최단 거리 알고리즘의 특성상, 목적지 허브가 PQ에서 꺼내졌다는 것은 그 시간 값이 최종 최소 시간이라는 의미
             if (curId.equals(endHubId)) {
@@ -123,7 +118,6 @@ public class HubRouteService {
             if (cur.getTime() > dist.get(curId)) {
                 continue;
             }
-
 
             // 현재 허브(curId)가 연결된 허브들의 목록을 가져온다. 없으면 빈 리스트 반환 (NPE 방지)
             // key: 현재 허브 ID,  value: 그 허브에서 갈 수 있는 인접 허브들로의 간선 목록
@@ -151,13 +145,11 @@ public class HubRouteService {
             // dist에는 반복적으로 더해진 시간 nextTime가 들어감
         }
 
-
         // 도착 허브가 여전히 무한대라면, 실제 경로가 없다고 판단하고 예외처리
         if (!dist.containsKey(endHubId) || dist.get(endHubId) == Integer.MAX_VALUE) {
             log.warn("[HubRoute] no path found: {} -> {}", startHubId, endHubId);
             throw new BusinessException(ErrorCode.HUB_ROUTE_NOT_FOUND);
         }
-
 
         // 3. 경로 복원
         // prev 맵을 이용해 endHubId → ... → startHubId 방향으로 역추적을 진행
@@ -189,7 +181,6 @@ public class HubRouteService {
                 hub.getFullAddress()
             ));
         }
-
 
         // 4. 총 거리 합산
         // path 리스트를 인접한 두 개씩 (from, to) 쌍으로 묶어서 순회
@@ -225,6 +216,7 @@ public class HubRouteService {
             totalDistance
         );
     }
+
 
     /**
      * 경로 로그 테이블에 저장
@@ -264,6 +256,4 @@ public class HubRouteService {
             result.totalDurationSec(), result.totalDistanceKm(),
             result.pathHubIds().size());
     }
-
-
 }

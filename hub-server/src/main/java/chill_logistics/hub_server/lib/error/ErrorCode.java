@@ -21,12 +21,9 @@ public enum ErrorCode implements BaseErrorCode {
     // 409
     HUB_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 허브명입니다."),
 
-    // 500
-    KAKAO_SERVER_ERROR(HttpStatus.BAD_REQUEST, "카카오 요청 API가 동작하지 않습니다"),
-
-
-    ;
-
+    // 503
+    TEMPORARILY_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "외부 지도 API 응답 지연으로 경로 정보를 생성하지 못했습니다. 잠시 후 시도해주세요."),
+    KAKAO_SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE,"KAKAO 지도 API를 일시적으로 사용 불가합니다.");
 
     private final HttpStatus status;
     private final String message;
