@@ -1,0 +1,1 @@
+CREATE INDEX uk_start_end_hub ON p_hub_info (start_hub_id, end_hub_id)

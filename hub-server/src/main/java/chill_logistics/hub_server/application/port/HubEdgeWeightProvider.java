@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public interface HubEdgeWeightProvider {
 
+
     /**
      * 허브 간 엣지 가중치 (시간/거리) 제공
      * - 5분 이내 캐시값 있으면 재사용

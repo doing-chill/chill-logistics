@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -15,7 +16,16 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Entity
-@Table(name = "p_hub_info")
+@Table(
+    name = "p_hub_info",
+    indexes = {
+        @Index(
+            name = "uk_start_end_hub",
+            columnList = "start_hub_id, end_hub_id",
+            unique = true
+        )
+    }
+)
 public class HubInfo extends BaseEntity {
 
     @Id
@@ -68,12 +78,17 @@ public class HubInfo extends BaseEntity {
         // 두 시간 차이를 분 단위로 계산
         long diffMinutes = Duration.between(updatedAt, updateTime).toMinutes();
 
-        // 5분 이상 차이가 난다면 true
-        return diffMinutes >= 5;
+        // 15분 이상 차이가 난다면 true
+        return diffMinutes >= 15;
     }
 
     public void updateHubInfo(UUID startHubId, UUID endHubId) {
         if(startHubId != null) this.startHubId = startHubId;
         if(endHubId != null) this.endHubId = endHubId;
     }
+
+    public boolean hasDeliveryInfo() {
+        return this.deliveryDuration != null && this.distance != null;
+    }
+
 }
