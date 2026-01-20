@@ -75,19 +75,23 @@ Chill-Logistics는 이러한 복잡한 흐름을 이벤트 기반 아키텍처�
 
 
 ### Database & Storage
-![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql)
-![Redis](https://img.shields.io/badge/Redis-7.0-DC382D?style=for-the-badge&logo=redis)
-
+<img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
+<img src="https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=white">
+<img src="https://img.shields.io/badge/kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white">
+<img src="https://img.shields.io/badge/flway-CC0200?style=for-the-badge&logo=flyway&logoColor=white">
 
 ### DevOps & Infrastructure
-[![Docker](https://img.shields.io/badge/Docker-28.x-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=github-actions)
+<img src="https://img.shields.io/badge/githubactions-2088FF?style=for-the-badge&logo=githubactions&logoColor=black">
+<img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=black">
+<img src="https://img.shields.io/badge/raspberrypi-A22846?style=for-the-badge&logo=raspberrypi&logoColor=black">
+<img src="https://img.shields.io/badge/cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white">
 
 
 ### Test & Monitoring
 ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman)
 ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana)
-
+<img src="https://img.shields.io/badge/jmeter-D22128?style=for-the-badge&logo=jmeter&logoColor=white">
+<img src="https://img.shields.io/badge/jmeter-2496ED?style=for-the-badge&logo=jmeter&logoColor=black">
 
 
 ### External APIs
@@ -102,6 +106,9 @@ Chill-Logistics는 이러한 복잡한 흐름을 이벤트 기반 아키텍처�
 ![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack)
 ![ERDCloud](https://img.shields.io/badge/ERD%20Cloud-4285F4?style=for-the-badge)
 ![Figma](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma)
+<img src="https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white">
+<img src="https://img.shields.io/badge/discord-5865F2?style=for-the-badge&logo=discord&logoColor=white">
+<img src="https://img.shields.io/badge/draw io-F08705?style=for-the-badge&logo=diagramsdotnet&logoColor=white">
 
 <br>
 
@@ -185,12 +192,10 @@ graph LR
     A[GitHub] --> B[GitHub Actions]
     B --> C[Docker Buildx + Cache]
     C --> D[Docker Hub]
-
-// 각 라즈베리파이 서버 접근 후 Docker 이미지 실행
+    
     D --> E[Pi1<br/>Config / DB Health Check]
     E --> F[Pi2<br/>Eureka, Gateway, Firm, Product]
     F --> G[Pi3<br/>Order / Hub / User / Delivery]
-
 ```
 
 
@@ -460,15 +465,90 @@ REST 중심의 동기 호출이 아닌, Kafka 기반 Event-Driven 방식으로 �
 - 출발지에서 목적지까지 다이렉트가 아닌 정해진 허브 간 이동 경로들을 카카오 맵 API를 통해 실시간 예상 소요 시간을 산출 할 때 매번 외부 API 호출 시 오래 걸리는 지연 시간 발생
 - **서울 ->  부산 허브까지의 계산 시간 (약 16 초 소요)**
 
+### **2️⃣ 원인 분석**
+
+- 외부 지도 API 호출은 네트워크 지연이 필연적으로 발생
+- 동일 요청에 대한 **중복 API 호출이 성능 저하의 주요 원인**으로 판단
+- 실시간성이 요구되지만, 5분 이내 동일 경로에 대한 결과는 큰 변동이 없음
+
+
+### 3️⃣ **해결 방법**
+
+- 허브 간 소요 시간을 Kakao Map API를 사용하여 호출 -> Redis에 5분 TTL 설정 후 값 저장
+- **동일 경로 요청이 5분 이내에 발생할 경우** 외부 API를 재호출하지 않고 Redis에 저장된 기존 계산 결과를 재사용하는 Caching 전략 적용
+- Redis TTL 임박 시 Refresh-Ahead + single-flight 전략을 적용해, 첫 요청만 외부 API를 호출하고, 나머지 요청은 기존 캐시(stale)를 즉시 반환하도록 개선하여 캐시 스탬피드 방지
+
+### 4️⃣ 결과
+- 동시 사용자 200명(20,000건 요청) 부하에도 평균 336ms로 응답 시간 안정화
+- Redis 장애 시 DB Bulkhead 전략을 적용해 Redis 장애가 DB 및 외부 API 장애로 확산되는 것을 차단
+<img width="1176" height="112" alt="Image" src="https://github.com/user-attachments/assets/16c51657-d55b-4df7-bc4a-bbff5160424a" />
 
 </details>
 
 <details>
 <summary>⚠️ Passport 도입 배경</summary>
 
-- **문제**: Bucket4j Rate Limiting이 매 요청마다 초기화됨<br/>
-- **원인**: BucketConfiguration이 매번 새로 생성됨<br/>
-- **해결**: 필드 레벨에서 고정된 Configuration 사용
+### 1️⃣ **문제 상황**
+
+**상황 설명**
+
+- JWT 인증을 사용하여 외부와의 인증은 관리되지만, 내부 서비스 간의 인증을 어떻게 처리할지에 대한 문제 발생
+- 각 서비스는 JWT 인증을 사용하고 있지만, 내부 통신에서는 JWT를 그대로 사용하기 어려운 상황 (Kafka 이벤트 과정에서 Feign 호출을 할 때 401문제 발생)
+- 내부 서비스 간의 인증/인가를 어떻게 처리할지 모호하고, 서비스 간의 신뢰를 보장할 방법이 필요
+- 서비스 A에서 서비스 B로 요청을 보낼 때 JWT를 그대로 전달하는 방식은 보안상 위험이 있을 수 있고, 서로 다른 JWT 검증 로직이 중복될 위험이 있음
+
+### **2️⃣ 해결해야 하는 부분**
+
+- 각 서비스가 JWT를 직접 검증하면 중복된 인증이 발생하고, JWT 정보를 내부에 계속 전달하게 되어 정보 유출이나 탈취의 위험이 커짐
+- Passport는 서비스 간 신뢰를 보장하는 인증 방식으로, 각 서비스가 Passport를 발급하고 다른 서비스가 이를 검증하는 방식으로 구현할 필요가 있음
+
+**서비스 간 통신 시 인증 방식의 차이**
+
+- 내부 서비스 간의 인증을 JWT로 처리하면 JWT를 Request Header에 실어 전달해야 하지만, Kafka 기반 통신 과정에서는 이 방식이 어려움
+- JWT를 헤더에 포함시키지 않으면, 내부 서비스 간 신뢰를 어떻게 인증할지에 대한 고민이 필요
+
+**JWT와 Passport 인증의 경계 불분명**
+
+- 각 서비스가 JWT를 직접 검증하면 중복된 인증이 발생하고, JWT 정보를 내부에 계속 전달하게 되어 정보 유출이나 탈취의 위험이 커짐
+- Passport로 인증하는 방식을 사용하려면, 내부 서비스 간 신뢰를 어떻게 보장할지에 대한 명확한 기준이 필요
+
+**서비스 간 통신 시 인증 방식의 차이**
+
+- 내부 서비스 간의 인증을 JWT로 처리하면 JWT를 Request Header에 실어 전달해야 하지만, Kafka 통시에서는 이 방식이 어려움
+- JWT를 헤더에 포함시키지 않으면, 내부 서비스 간 신뢰를 어떻게 인증할지에 대한 고민이 필요
+
+
+### 3️⃣ **해결 방법**
+
+**JWT와 Passport 인증의 경계 명확히 구분**
+
+- Gateway에서 JWT를 검증하고, 내부 서비스는 Passport를 사용하여 인증하도록 변경
+- 각 서비스는 PassportIssuer를 사용하여 Passport를 발급하고, Service Principal을 통해 내부 요청에 대한 신뢰를 보장
+  
+- <img width="871" height="416" alt="Image" src="https://github.com/user-attachments/assets/20cb34b5-717f-419b-b684-6953b24a7e23" />
+
+
+**Kafka 및 Feign 통신에서의 인증 처리**
+- Kafka와 Feign에서의 인증 헤더 처리 방식도 Passport로 통일하여, JWT 대신 Passport 헤더를 포함하여 인증을 처리
+- <img width="852" height="75" alt="Image" src="https://github.com/user-attachments/assets/f6dd03a1-c144-4881-ae66-82f2327434f5" />
+- Kafka와 Feign 에서는 ServicePassport를 사용하여 내부 서비스 간의 신뢰를 보장하고, Authorization 헤더를 따로 전달하지 않게 구현하여 보안상 위험 관리
+
+### **4️⃣ 결과**
+
+**인증 경계 명확한 구분**
+
+- Gateway에서 JWT를 검증하고, 내부 서비스는 Passport로 인증을 처리하는 구조로 변경됨
+- 외부와 내부의 인증 흐름을 명확히 구분하고, 각 서비스가 독립적으로 동작하게 됨
+
+**내부 서비스 간 인증의 단순화**
+
+- Passport를 사용하여 내부 서비스 간 신뢰를 보장할 수 있게 됨
+- Kafka/Feign 에서는 Passport 헤더를 이용한 인증을 처리하므로, 내부 호출의 인증 방식이 일관되게 유지됨
+
+**보안성 향상**
+
+- JWT를 내부로 전달하지 않고 Passport만 사용하여 인증을 처리하므로 내부 서비스 간 보안이 강화됨
+- JWT 토큰이 내부 서비스로 전달되지 않으므로 정보 탈취나 노출 위험이 줄어듦
 
 </details>
 
@@ -476,29 +556,118 @@ REST 중심의 동기 호출이 아닌, Kafka 기반 Event-Driven 방식으로 �
 <details>
 <summary>⚠️ CD 파이프라인 빌드 병목 개선</summary>
 
-- **문제**: Bucket4j Rate Limiting이 매 요청마다 초기화됨<br/>
-- **원인**: BucketConfiguration이 매번 새로 생성됨<br/>
-- **해결**: 필드 레벨에서 고정된 Configuration 사용
+### 1️⃣ 문제 상황
 
+- MSA 구조로 서비스 수가 많아지면서, GitHub Actions에서 **Docker 이미지 빌드 시간이 과도하게 증가**
+- 결과적으로 작은 수정(일부 서비스 변경)에도 **전체 빌드가 길게 잡혀 CI/CD 전체 리드타임이 지나치게 커지는 문제 발생**
+
+- **Docker 이미지 빌드 + Docker Hub push에만 약 1시간 20분 소요되는 상황이며**
+- 이후 각 Raspberry Pi 서버에 접속하여 **이미지를 전체 pull 후 컨테이너를 재기동하는 데 추가로 약 30분 소요**
+- <img width="636" height="121" alt="Image" src="https://github.com/user-attachments/assets/5e75a7fa-e17a-4726-86fc-1a5375d504b5" />
+
+### 2️⃣ 원인 분석
+
+1. **파일의 변경 여부와 무관하게 모든 서비스의 Docker 이미지를 순차적으로 빌드**하는 구조
+2. Raspberry Pi 운영 환경 특성상 (ARM64)  **멀티 아키텍처 빌드(또는 ARM 빌드)**가 필요했고, 이 과정에서 빌드 시간이 더 늘어남 (기본 빌드는 ADM)
+3. Docker 이미지 빌드 시 **빌드 캐시가 충분히 활용되지 않아** 매번 거의 전체 빌드가 수행됨
+- 결과적으로 “일부 서비스 수정”이라는 작은 변경에도 **과도한 CI 비용과 대기 시간**이 발생
+
+
+### 3️⃣ 해결 방법
+- 변경 감지 기반 빌드 전략 도입
+  - 서비스별 디렉토리 기준으로 변경 여부를 판별하여, **실제로 변경된 서비스만 빌드 및 push**하도록 CI 파이프라인 재설계
+- 빌드 단계 구조 재편
+  - **Matrix 전략을 적용해 병렬 빌드** 수행 (병렬 빌드 수를 제한하여 CI 리소스 과부하 방지)
+- Docker 빌드 성능 최적화
+  - Registry 기반 빌드 캐시를 적용해 **기존 레이어 재사용**
+  - 변경 없는 서비스는 빌드·push 자체를 생략하도록 구성
+
+
+### 4️⃣ 결과
+- Docker 이미지 **빌드 + push 시간 대폭 감소**
+- 단순 자동화가 아닌 **확장성과 유지보수를 고려한 파이프라인 완성**
+- <img width="922" height="301" alt="Image" src="https://github.com/user-attachments/assets/e64ac074-46fa-481e-8cfc-52bf5527615a" />
 </details>
 
 
 <details>
 <summary>⚠️ Outbox 도입</summary>
 
-- **문제**: Bucket4j Rate Limiting이 매 요청마다 초기화됨<br/>
-- **원인**: BucketConfiguration이 매번 새로 생성됨<br/>
-- **해결**: 필드 레벨에서 고정된 Configuration 사용
+### 1️⃣ 문제 상황
 
+- 초기 주문 생성 흐름은 다음과 같은 문제 발생
+  - Order Server에서 주문 트랜잭션 커밋 → 커밋 직후 Kafka로 주문 생성 이벤트 발행 → 주문 트랜잭션은 정상적으로 커밋되었으나 Kafka 이벤트 발행이 실패하는 상황 발생
+  - Kafka 일시 장애 / 네트워크 오류 / 브로커 타임아웃 등
+  - 주문 데이터는 DB에 존재하지만 후속 서비스(Hub / Delivery)는 이벤트를 받지 못해 주문 흐름이 중단되는 현상 발생
+
+### 2️⃣ 원인 분석
+
+- DB 트랜잭션과 Kafka 이벤트 발행은 서로 다른 시스템에 걸쳐 존재
+- 두 작업을 같은 트랜잭션 커밋 단위로 묶을 수 없음 → DB는 커밋되었지만 이벤트는 유실 → 또는 이벤트는 발행되었지만 DB 트랜잭션은 롤백
+- 주문 데이터 저장과 이벤트 발행 간 정합성이 보장되지 않는 구조가 핵심 원인으로 파악
+
+### 3️⃣ 해결 방법
+
+- Outbox 패턴 도입
+  - Order Server에 **`OrderOutboxEvent`** 테이블을 도입하여 주문 생성 흐름을 다음과 같은 구조로 변경
+    ▸ 주문 생성 트랜잭션 내부에서 주문 엔티티 저장 후 Outbox 이벤트 상태 **`PENDING`**으로 저장 (payload 포함)
+    ▸ 트랜잭션 커밋 이후 별도 Outbox Processor가 이벤트를 Kafka로 발행
+  - 이를 통해 주문 데이터와 이벤트 발행의 정합성 보장
+    ▸ 주문만 생성되고, 이벤트가 유실되는 상황 대비 완료
+  - Outbox Processor로 발행 책임 분리
+    ▸ DB 커밋 이후, 별도 스케줄러 기반 일정 주기로 PENDING 이벤트를 읽어 Kafka로 발행
+    ▸ **`status=PENDING`** + createdAt 오래된 순으로 batch 조회
+    ▸ Kafka 발행 성공 → **`PUBLISHED`**로 상태 변경 + publishedAt 기록
+    ▸ Kafka 발행 실패 → retryCount 증가 + lastRetryAt 기록 (추후 재시도)
+    ▸ 비즈니스 트랜잭션은 DB에만 집중, 이벤트 발행은 Processor가 담당함으로써 책임이 분리되고 운영 제어가 쉬워짐
+  - 운영 관점 보완 (DLQ/Dead Event 처리)
+    ▸ 재시도가 일정 횟수를 초과하는 이벤트는 상태를 **`FAILED`**로 전환
+    ▸ 운영자가 확인 가능한 로그/모니터링 대상으로 분리
+    (무한 재시도로 DB를 오염시키지 않기 위함)
+
+### **4️⃣ 결과**
+
+- **Outbox 패턴 도입을 통해 주문 생성과 후속 이벤트 발행 간 정합성 문제를 구조적으로 해결 &
+  Kafka 장애/네트워크 오류 같은 현실적인 운영 이슈에도 유실 없이 복구 가능한 이벤트 파이프라인을 확보**
 </details>
 
 
 <details>
 <summary>⚠️ 서버 구축 배경</summary>
 
-- **문제**: Bucket4j Rate Limiting이 매 요청마다 초기화됨<br/>
-- **원인**: BucketConfiguration이 매번 새로 생성됨<br/>
-- **해결**: 필드 레벨에서 고정된 Configuration 사용
+### 1️⃣ 문제 상황
+
+- 실제 실무의 MSA 환경과 유사하게 **서비스가 분리된 상태에서의 배포·운영 경험**을 쌓고자 함
+- 초기에는 Amazon EC2 기반 배포를 고려했으나,
+  - 여러 서비스(User / Order / Hub / Delivery)를 동시에 운영하기에는 **비용 부담이 큼**
+
+### 2️⃣ 원인 분석
+
+- MSA 구조 특성상 서비스 수 증가 → 인스턴스 수 증가 → 비용 선형 증가
+- 단순 기능 구현이 아니라, 모니터링 등 추가 구현을 위해선 막대한 서버 비용 발생
+  - 운영
+  - 장애 대응
+  - 로그/모니터링
+
+### 3️⃣ 해결 방법
+
+- Raspberry Pi 3대를 활용하여 **홈 클러스터 형태의 배포 환경 구성**
+- 클라우드 인프라 대신 **초기 하드웨어 비용만으로 상시 운영 가능한 환경 선택**
+  - RAM 4GB × 2대, 8GB × 1대 구성
+- 각 서버를 컨테이너 기반으로 배포하여 환경 차이를 최소화
+- 서비스 분리 구조를 유지한 채 실제 운영 환경과 유사한 배포 경험 확보
+
+### 4️⃣ 비용 측면 비교 및 결과
+
+- 클라우드 비용 부담 없이 **다중 서비스 배포·운영 경험 확보**
+- 초기 하드웨어 비용 이후 **추가 서버 비용 거의 없음**
+  - 24시간 상시 가동 시 평균 소비 전력 :  4~5W이지만 **최대 7.5W로 잡고 계산**
+  - 7.5W × 24시간 × 30일 = 5.4 kWh / 월
+  - 5.4 kWh × 3 대 = 16.2 kWh / 월
+  - 16.2 kWh × 120원 = 1,944원 / 월
+  - 👉 **월 약 2,000원 수준**
+- 제한된 리소스 환경에서의 성능 튜닝, 장애 대응 경험 축적
+- “동작하는 코드”가 아닌 **“운영 가능한 시스템” 관점에서의 설계 경험** 확보
 
 </details>
 
@@ -545,31 +714,14 @@ REST 중심의 동기 호출이 아닌, Kafka 기반 Event-Driven 방식으로 �
 
 <br>
 
-## 🏆 향후 개선 계획
 
-### 🔦 기능 확장
-- [ ] 
-- [ ] 
-
-### 🔐 보안 강화
-- [ ] 
-- [ ] 
-
-### 📈 확장성 개선
-- [ ] 
-- [ ] 
-
-### 🚀 성능 최적화
-- [ ] 
 
 ---
 
 <div align="center">
 
+**🐾 Made with by chill-logistics Team ! 🐾**
 
-**🐾 Chill Man이 개집 to 개집으로 배달을 해드려요! 🐾**
-
-Made with by chill-logistics Team
 </div>
 
 
